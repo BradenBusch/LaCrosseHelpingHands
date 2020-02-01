@@ -1,14 +1,17 @@
 '''
-Description
- 
+Top level program, starts the application.
+
+PyQt5 Documentation: https://www.riverbankcomputing.com/static/Docs/PyQt5/
+PyQt5 Tutorial: https://build-system.fman.io/pyqt5-tutorial
+
 Authors: Alex, Braden, Kaelan
-Date: 1/29/2020
+Version: 02/01/2020
 
 '''
 
-from PyQt5.QtWidgets import QApplication
-from non_profit.gui.login import Login
-from non_profit.models.database import connect
+from PyQt5.QtWidgets import *
+from gui.login import Login
+from models.database import connect
 
 
 def main():
@@ -18,6 +21,10 @@ def main():
     login = Login()  # start the application with the initial screen, the login screen.
     app.setActiveWindow(login)
     # sys.exit(app.exec_()) (not sure when we call this)
+    
+    label = QLabel('Hello World!')
+    label.show()
+    app.exec_()
 
 
 if __name__ == "__main__":
