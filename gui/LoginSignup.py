@@ -2,12 +2,13 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVB
 from functools import partial
 from non_profit.gui.NewAccount import NewAccount
 
+
 # Builds the "Username / Password" portion of the GUI (the login screen)
-class HomeScreen(QWidget):
+class LogInSignUp(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setObjectName("homescreen")
+        self.setObjectName("login_signup")
         self.draw()
         self.show()
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
