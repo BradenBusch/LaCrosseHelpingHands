@@ -1,3 +1,11 @@
+'''
+Handles the database.
+
+Authors: Alex, Braden, Kaelan
+Version: 02/01/2020
+
+'''
+
 from peewee import *
 
 db = SqliteDatabase('nonprofit.db')
