@@ -1,6 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QGridLayout, QDialog, QLabel
 from functools import partial
-from non_profit.gui.NewAccount import NewAccount
+
+try:
+    from non_profit.gui.NewAccount import NewAccount
+except:
+    from gui.NewAccount import NewAccount
 
 
 # Builds the "Username / Password" portion of the GUI (the login screen)
