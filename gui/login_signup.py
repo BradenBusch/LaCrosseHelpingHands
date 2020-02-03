@@ -13,6 +13,10 @@ class LogInSignUp(QWidget):
         self.show()
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
+    # These methods will update the database and perform checks
+    def login_click(self):
+        pass
+
     def draw(self):
         # style this, she dumb ugly doe
         login = QPushButton("Login")

@@ -15,6 +15,13 @@ from PyQt5.QtWidgets import QApplication
 from non_profit.gui.login_signup import LogInSignUp
 from non_profit.models.database import connect
 
+try:
+    from non_profit.gui.LoginSignup import LogInSignUp
+    from non_profit.models.database import connect
+except:
+    from gui.LoginSignup import LogInSignUp
+    from models.database import connect
+
 
 def main():
     app = QApplication([])
