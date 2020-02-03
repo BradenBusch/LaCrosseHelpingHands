@@ -10,16 +10,12 @@ Version: 02/01/2020
 '''
 
 from PyQt5.QtWidgets import *
-from non_profit.models.database import connect
-from PyQt5.QtWidgets import QApplication
-from non_profit.gui.login_signup import LogInSignUp
-from non_profit.models.database import connect
 
 try:
-    from non_profit.gui.LoginSignup import LogInSignUp
+    from non_profit.gui.login_signup import LogInSignUp
     from non_profit.models.database import connect
 except:
-    from gui.LoginSignup import LogInSignUp
+    from gui.login_signup import LogInSignUp
     from models.database import connect
 
 

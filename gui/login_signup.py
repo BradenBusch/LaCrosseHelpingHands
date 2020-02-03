@@ -1,7 +1,11 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from non_profit.gui.new_account import NewAccount
-from non_profit.gui.login import Login
 
+try:
+    from non_profit.gui.new_account import NewAccount
+    from non_profit.gui.login import Login
+except:
+    from gui.new_account import NewAccount
+    from gui.login import Login
 
 # Builds the "Username / Password" portion of the GUI (the login screen)
 class LogInSignUp(QWidget):
