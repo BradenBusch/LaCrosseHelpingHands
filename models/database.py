@@ -13,10 +13,10 @@ db = SqliteDatabase('nonprofit.db')
 
 # User information
 class User(Model):
-    user_name = TextField()
-    pass_word = TextField()
+    user_name = CharField()
+    pass_word = CharField()
     account_age = DateTimeField()
-    account_type = CharField()  # this could change to integer easily
+    account_type = CharField()
     account_id = IntegerField()
 
     class Meta:
@@ -26,7 +26,7 @@ class User(Model):
 # Event information
 class Event(Model):
     event_date = DateTimeField()
-    event_name = TextField()
+    event_name = CharField()
     event_duration = IntegerField()
     event_description = TextField()
     attending_users = TextField()  # Currently, i want to store information in this field regarding who is attending the
