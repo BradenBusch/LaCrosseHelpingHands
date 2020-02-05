@@ -1,24 +1,78 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from non_profit.gui.new_account import NewAccount
-from non_profit.gui.login import Login
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow
+
+try:
+    from non_profit.gui.new_account import NewAccount
+    from non_profit.gui.login import Login
+except:
+    from gui.new_account import NewAccount
+    from gui.login import Login
 
 
-# Builds the "Username / Password" portion of the GUI (the login screen)
-class LogInSignUp(QWidget):
-
-    def __init__(self):
+# The Stack GUI. This allows multiple windows to be opened from buttons.
+class LoginNewAccountStacker(QWidget):
+    def __init__(self, widgets, main=None):
         super().__init__()
+        self.widgets = widgets
+        self.stacker = QStackedWidget()
+        self.win = main
+        for widget in self.widgets:
+            self.stacker.addWidget(widget)
+        # I have no idea why this works, but don't touch it.
+        # --------------------------------------------------
+        self.v = QVBoxLayout()
+        self.v.addWidget(QWidget())
+        self.v.addWidget(self.stacker)
+        self.setLayout(self.v)
+        self.set_page(0)
+        # --------------------------------------------------
+
+    # Not sure if this is necessary yet
+    def windowTitle(self):
+        return self.widgets[self.stacker.currentIndex()].windowTitle()
+
+    # TODO fix window naming so that it updates
+    def set_page(self, page_index):
+        if not page_index < len(self.widgets):
+            return
+        self.stacker.setCurrentIndex(page_index)
+        self.setWindowTitle(self.widgets[page_index].windowTitle())
+
+
+class WindowManager(QMainWindow):
+    # switch_window = QtCore.pyqtSignal(str)
+
+    def __init__(self, widgets):
+        super().__init__()
+        self.stacker = QStackedWidget(self)
+        self.widgets = [LoginNewAccountStacker(widgets, self)]
+        for w in self.widgets:
+            self.stacker.addWidget(w)
+        # NO IDEA WHY THIS IS NEEDED BUT DON'T REMOVE
+        # -------------------------------------------
+        self.c_layout = QHBoxLayout()
+        self.c_layout.addWidget(self.stacker)
+        self.setLayout(self.c_layout)
+        # -------------------------------------------
+        self.set_page(0)
+
+    # TODO update window naming so it actually works
+    def set_page(self, i):
+        self.setWindowTitle(self.widgets[i].windowTitle())
+        self.stacker.setGeometry(self.widgets[i].geometry())
+        self.setGeometry(self.widgets[i].geometry())
+        self.stacker.setCurrentIndex(i)
+
+
+class LogInSignUp(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setObjectName("login_signup")
         self.draw()
-        self.show()
+        self.setWindowTitle("Helping Hands La Crosse")
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
-    # These methods will update the database and perform checks
-    def login_click(self):
-        pass
-
     def draw(self):
-        # style this, she dumb ugly doe
+        # TODO style this, she dumb ugly doe
         login = QPushButton("Login")
         login.clicked.connect(self.login_click)
         signup = QPushButton("Sign-Up")
@@ -30,11 +84,12 @@ class LogInSignUp(QWidget):
         self.setGeometry(0, 0, 300, 300)
         self.setLayout(vbox)
 
-    # These methods will update the database and perform checks
-    def signup_click(self):
-        NewAccount()
-        self.close()
-
+    # Set the GUI to the Login page
     def login_click(self):
-        Login()
+
+        self.parent().parent().set_page(1)
+
+    # Set the GUI to the New Account page
+    def signup_click(self):
         self.close()
+        self.parent().parent().set_page(2)
