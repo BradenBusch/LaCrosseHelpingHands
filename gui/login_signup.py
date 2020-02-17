@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel
 
 try:
     from non_profit.gui.new_account import NewAccount
@@ -25,6 +25,8 @@ class LoginNewAccountStacker(QWidget):
         self.setLayout(self.v)
         # --------------------------------------------------
         self.set_page(0)
+        width, height = screen_resolution()
+        self.setGeometry(width/2 - 250, height/2 - 250, 500, 500)
 
     # Not sure if this is necessary yet
     def windowTitle(self):
@@ -82,7 +84,7 @@ class LogInSignUp(QWidget):
         vbox.addStretch(1)
         vbox.addWidget(login)
         vbox.addWidget(signup)
-        self.setGeometry(0, 0, 300, 300)
+        # self.setGeometry(0, 0, 300, 300)
         self.setLayout(vbox)
 
     # Set the GUI to the Login page
@@ -95,3 +97,10 @@ class LogInSignUp(QWidget):
     def signup_click(self):
         self.close()
         self.parent().parent().set_page(2)
+
+
+# returns the resolution of the current system (width and height)
+def screen_resolution():
+    sizeObject = QDesktopWidget().screenGeometry(0)
+    
+    return sizeObject.width(), sizeObject.height()

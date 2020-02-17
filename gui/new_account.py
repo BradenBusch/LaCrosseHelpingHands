@@ -1,7 +1,12 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
-from non_profit.gui.login_signup import *
-from non_profit.models.database import *
+
+try:
+    from non_profit.gui.login_signup import *
+    from non_profit.models.database import *
+except:
+    from gui.login_signup import *
+    from models.database import *
 
 import random, hashlib, binascii, os
 
@@ -148,3 +153,10 @@ def hash_password(password):
                                   salt, 100000)
     pwdhash = binascii.hexlify(pwdhash)
     return (salt + pwdhash).decode('ascii')
+
+
+# returns the resolution of the current system (width and height)
+def screen_resolution():
+    sizeObject = QDesktopWidget().screenGeometry(0)
+    
+    return sizeObject.width(), sizeObject.height()
