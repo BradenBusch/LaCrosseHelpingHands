@@ -13,7 +13,7 @@ class LoginNewAccountStacker(QWidget):
     def __init__(self, widgets, main=None):
         super().__init__()
         self.widgets = widgets
-        self.stacker = QStackedWidget()
+        self.stacker = QStackedWidget(self)
         self.win = main
         for widget in self.widgets:
             self.stacker.addWidget(widget)
@@ -23,26 +23,27 @@ class LoginNewAccountStacker(QWidget):
         self.v.addWidget(QWidget())
         self.v.addWidget(self.stacker)
         self.setLayout(self.v)
-        self.set_page(0)
         # --------------------------------------------------
+        self.set_page(0)
 
     # Not sure if this is necessary yet
     def windowTitle(self):
         return self.widgets[self.stacker.currentIndex()].windowTitle()
 
     # TODO fix window naming so that it updates
-    def set_page(self, page_index):
-        if not page_index < len(self.widgets):
+    def set_page(self, i):
+        if not i < len(self.widgets):
             return
-        self.stacker.setCurrentIndex(page_index)
-        self.setWindowTitle(self.widgets[page_index].windowTitle())
+        self.win.setWindowTitle(self.widgets[i].windowTitle())
+        self.stacker.setCurrentIndex(i)
+        # self.widgets[i].update()
 
 
 class WindowManager(QMainWindow):
     # switch_window = QtCore.pyqtSignal(str)
 
     def __init__(self, widgets):
-        super().__init__()
+        super().__init__(None)
         self.stacker = QStackedWidget(self)
         self.widgets = [LoginNewAccountStacker(widgets, self)]
         for w in self.widgets:
@@ -54,6 +55,7 @@ class WindowManager(QMainWindow):
         self.setLayout(self.c_layout)
         # -------------------------------------------
         self.set_page(0)
+        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
     # TODO update window naming so it actually works
     def set_page(self, i):
@@ -69,7 +71,6 @@ class LogInSignUp(QWidget):
         self.setObjectName("login_signup")
         self.draw()
         self.setWindowTitle("Helping Hands La Crosse")
-        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
     def draw(self):
         # TODO style this, she dumb ugly doe
@@ -85,8 +86,9 @@ class LogInSignUp(QWidget):
         self.setLayout(vbox)
 
     # Set the GUI to the Login page
+    # TODO possibly delete these close statements
     def login_click(self):
-
+        self.close()
         self.parent().parent().set_page(1)
 
     # Set the GUI to the New Account page

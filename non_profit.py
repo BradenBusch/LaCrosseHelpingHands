@@ -25,7 +25,6 @@ except:
     from models.database import connect
 
 
-
 def main():
     app = QApplication([])
     # app.setStyleSheet() (we will do this later using QCSS, very similar to CSS and easy to use.

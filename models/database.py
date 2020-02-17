@@ -13,11 +13,12 @@ db = SqliteDatabase('nonprofit.db')
 
 # User information
 class User(Model):
+    account_id = IntegerField()
     user_name = CharField()
-    pass_word = CharField()
+    password = CharField()
+    account_email = CharField()
     account_age = DateTimeField()
     account_type = CharField()
-    account_id = IntegerField()
 
     class Meta:
         database = db
@@ -40,4 +41,3 @@ class Event(Model):
 def connect():
     db.connect(reuse_if_open=True)
     db.create_tables([User, Event])
-
