@@ -13,25 +13,26 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QApplication
 
 try:
-    from non_profit.models.database import connect
+    from non_profit.models.database import *
     from non_profit.gui.login_signup import LogInSignUp
 except:
-    from models.database import connect
+    from models.database import *
     from gui.login_signup import LogInSignUp
 
 try:
     from non_profit.gui.login_signup import *
-    from non_profit.models.database import connect
 except:
     from gui.login_signup import *
-    from models.database import connect
+
 
 
 def main():
     app = QApplication([])
     # app.setStyleSheet() (we will do this later using QCSS, very similar to CSS and easy to use.
-    connect()  # connect to the database
-    current_window = WindowManager([LogInSignUp(), Login(), NewAccount()]) # TODO add windows here
+    db.connect(reuse_if_open=True)
+    db.create_tables([User, Event])
+    # print(db.get_tables())
+    current_window = WindowManager([LogInSignUp(), Login(), NewAccount()])  # TODO add windows here
 
     width, height = screen_resolution()
     

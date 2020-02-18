@@ -86,35 +86,49 @@ class NewAccount(QWidget):
         confirm_pass = self.confirm_password_edit.text()
         username = self.username_edit.text()
         email = self.email_edit.text()
-        username_check = User.select().where(User.user_name == username)
-        email_check = User.select().where(User.account_email == email)
+        try:
+            username_check = User.get(User.username == username)
+        except User.DoesNotExist:
+            username_check = None
+        try:
+            email_check = User.get(User.account_email == email)
+        except User.DoesNotExist:
+            email_check = None
         if len(email) == 0:
-            msg = QMessageBox.warning(None, " ", "You must enter an email address.")
+            msg = QMessageBox.warning(None, " ", " You must enter an email address. ")
             self.clear_fields()
             return
         elif len(username) < 8:
-            msg = QMessageBox.warning(None, " ", "Your Username must be 8 characters or longer.")
+            msg = QMessageBox.warning(None, " ", " Your Username must be 8 characters or longer. ")
             self.clear_fields()
             return
         elif len(password) < 8:
-            msg = QMessageBox.warning(None, " ", "Your Password must be 8 characters or longer.")
+            msg = QMessageBox.warning(None, " ", " Your Password must be 8 characters or longer. ")
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
         elif password != confirm_pass:
-            msg = QMessageBox.warning(None, " ", "Your passwords don't match.")
+            msg = QMessageBox.warning(None, " ", " Your passwords don't match. ")
             self.clear_fields()
             return
         # TODO check database for username and email
-        elif username_check.exists():
-            pass  # Username taken, handle
-        elif email_check.exists():
-            pass  # Email taken
+        elif username_check is not None:
+            msg = QMessageBox.warning(None, " ", " That username is already taken. Try another. ")
+            self.username_edit.clear()
+            return
+        elif email_check is not None:
+            msg = QMessageBox.warning(None, " ", " That email is already taken. Sign In or use a different email. ")
+            self.email_edit.clear()
+            return
         # Move to the next GUI, all checks passed
         else:
+            msg = QMessageBox.warning(None, " ", "Beep")
+            user_id = self.generate_id()
             stored_password = hash_password(password)
             account_type = self.get_account_type()
-            self.store_user(username, email, stored_password, account_type)
+            self.store_user(user_id, username, email, stored_password, account_type)
+            self.go_back()
+            return
 
     def clear_fields(self):
         for f in self.fields:
@@ -123,7 +137,6 @@ class NewAccount(QWidget):
     def go_back(self):
         self.close()
         self.parent().parent().set_page(0)
-        pass
 
     def get_account_type(self):
         for btn in self.radio_btns:
@@ -131,11 +144,13 @@ class NewAccount(QWidget):
                 return btn.text()  # TODO When admin, show admin code
 
     # Store the new users information in the database
-    def store_user(self, username, email, password, account_type=None):
-        user_id = self.generate_id()
-        hashed_pass = hash_password(password)
-        new_user = User(user_id=user_id, username=username, password=hashed_pass, email=email, account_type=account_type)
+    def store_user(self, user_id, username, email, password, account_type=None):
+        print(str(user_id + " " + username + " " + password + " " + email + " " + account_type))
+
+        new_user = User(account_id=user_id, username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
+        query = User.select()
+        print([user.username for user in query])
 
     # TODO check id's, if this is even needed anyway
     # Generate a unique ID for each user in the database
@@ -158,5 +173,4 @@ def hash_password(password):
 # returns the resolution of the current system (width and height)
 def screen_resolution():
     sizeObject = QDesktopWidget().screenGeometry(0)
-    
     return sizeObject.width(), sizeObject.height()
