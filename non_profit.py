@@ -3,6 +3,8 @@ Top level program, starts the application.
 
 PyQt5 Documentation: https://www.riverbankcomputing.com/static/Docs/PyQt5/
 PyQt5 Tutorial: https://build-system.fman.io/pyqt5-tutorial
+PyQt5 Styling: https://doc.qt.io/qt-5/stylesheet-examples.html
+PyQt5 Painting: http://zetcode.com/gui/pyqt5/painting/
 
 Authors: Alex, Braden, Kaelan
 Version: 02/05/2020

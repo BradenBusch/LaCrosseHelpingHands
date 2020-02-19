@@ -1,4 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
+from PyQt5.QtCore import Qt
 
 try:
     from non_profit.gui.new_account import NewAccount
@@ -26,7 +28,10 @@ class LoginNewAccountStacker(QWidget):
         # --------------------------------------------------
         self.set_page(0)
         width, height = screen_resolution()
-        self.setGeometry(width/2 - 250, height/2 - 250, 500, 500)
+        self.setGeometry(width/2 - 250, height/8, 500, 500)
+        
+        # draw rectangle
+        self.update()
 
     # Not sure if this is necessary yet
     def windowTitle(self):
@@ -39,6 +44,14 @@ class LoginNewAccountStacker(QWidget):
         self.win.setWindowTitle(self.widgets[i].windowTitle())
         self.stacker.setCurrentIndex(i)
         # self.widgets[i].update()
+    
+    # draws rectangle around buttons
+    def paintEvent(self, e):
+        painter = QPainter(self)
+        painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+        
+        painter.drawRect(5, 200, 490, 295)
 
 
 class WindowManager(QMainWindow):
