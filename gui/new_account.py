@@ -150,10 +150,8 @@ class NewAccount(QWidget):
 
     # Store the new users information in the database
     def store_user(self, user_id, username, email, password, account_type=None):
-        # print(str(user_id + " " + username + " " + password + " " + email + " " + account_type))
         new_user = User(account_id=user_id, username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
-        # Print the users currently in the database
         query = User.select()
         print([user.username for user in query])
 

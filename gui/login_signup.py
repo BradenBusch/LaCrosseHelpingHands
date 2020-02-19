@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QCursor
 from PyQt5.QtCore import Qt
 
 try:
@@ -80,9 +80,12 @@ class LogInSignUp(QWidget):
         login = QPushButton("Login")
         login.clicked.connect(self.login_click)
         login.setProperty('class', 'login-btn')
+        login.setCursor(QCursor(Qt.PointingHandCursor))
         signup = QPushButton("Sign-Up")
         signup.clicked.connect(self.signup_click)
         signup.setProperty('class', 'signup-btn')
+        signup.setCursor(QCursor(Qt.PointingHandCursor))
+
         vbox = QVBoxLayout()
         vbox.addStretch(1)
         vbox.addWidget(login)
@@ -104,7 +107,6 @@ class LogInSignUp(QWidget):
         painter = QPainter(self)
         painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
         painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-        
         painter.drawRect(5, 200, 473, 275)
 
 

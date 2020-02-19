@@ -1,18 +1,63 @@
 
 QPushButton[class="login-btn"] {{
-    background-color: {main_theme};
+    background-color: red;
     padding: 10px;
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 16px;
+    border: 1px solid red;
+    border-radius: 15px;
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    margin: 0px 40px;
+}}
+
+QPushButton[class="login-btn"]:hover {{
+    border: 1px solid white;
 }}
 
 QPushButton[class="signup-btn"] {{
-    background-color: {secondary};
+    background-color: white;
     padding: 10px;
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 16px;
+    border: 1px solid red;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: red;
     margin-top: 10px;
+    margin: 0px 40px;
 }}
 
+QPushButton.signup-btn:hover {{
+    border: 2px solid red;
+}}
+
+QLineEdit {{
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 5px;
+}}
+
+QLabel {{
+    font-weight: bold;
+}}
+
+.confirm-btn {{
+    border: 1px solid red;
+    color: red;
+    padding: 5px;
+    border-radius: 5px;
+}}
+
+.confirm-btn:hover {{
+    border: 2px solid red;
+}}
+
+.cancel-btn {{
+    border: 1px solid black;
+    color: black;
+    padding: 5px;
+    border-radius: 5px;
+}}
+
+.cancel-btn:hover {{
+    border: 2px solid black;
+}}

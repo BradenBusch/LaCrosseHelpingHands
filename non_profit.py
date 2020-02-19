@@ -31,11 +31,9 @@ except:
 
 def main():
     app = QApplication([])
-    # app.setStyleSheet() (we will do this later using QCSS, very similar to CSS and easy to use.
     app.setStyleSheet(style_sheet())
     db.connect(reuse_if_open=True)
     db.create_tables([User, Event])
-    # print(db.get_tables())
     current_window = WindowManager([LogInSignUp(), Login(), NewAccount()])  # TODO add windows here
 
     width, height = screen_resolution()

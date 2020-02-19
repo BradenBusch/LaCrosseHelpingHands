@@ -12,8 +12,9 @@ db = SqliteDatabase('nonprofit.sqlite')
 
 
 # User information
+# TODO might just be able to change account id to an iterating number starting at 1 instead of random nums
 class User(Model):
-    account_id = IntegerField()
+    account_id = IntegerField(unique=True)
     username = TextField()
     password = TextField()
     account_email = TextField()
@@ -25,6 +26,7 @@ class User(Model):
 
 # Event information
 class Event(Model):
+    event_id = IntegerField(unique=True)
     event_date = DateTimeField()
     event_name = CharField()
     event_duration = IntegerField()
@@ -39,7 +41,11 @@ class Event(Model):
         database = db
 
 
-# def connect():
-#     db.connect(reuse_if_open=True)
-#     with db:
-#         db.create_tables([User, Event])
+class EventAttendance(Model):
+    event_id = ForeignKeyField(User)
+    account_id = ForeignKeyField(Event)
+    event_id = IntegerField()
+    account_id = IntegerField()
+
+    class Meta:
+        database = db
