@@ -29,9 +29,6 @@ class LoginNewAccountStacker(QWidget):
         self.set_page(0)
         width, height = screen_resolution()
         self.setGeometry(width/2 - 250, height/8, 500, 500)
-        
-        # draw rectangle
-        self.update()
 
     # Not sure if this is necessary yet
     def windowTitle(self):
@@ -44,14 +41,6 @@ class LoginNewAccountStacker(QWidget):
         self.win.setWindowTitle(self.widgets[i].windowTitle())
         self.stacker.setCurrentIndex(i)
         # self.widgets[i].update()
-    
-    # draws rectangle around buttons
-    def paintEvent(self, e):
-        painter = QPainter(self)
-        painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
-        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-        
-        painter.drawRect(5, 200, 490, 295)
 
 
 class WindowManager(QMainWindow):
@@ -84,6 +73,7 @@ class LogInSignUp(QWidget):
         self.setProperty('class', 'login-signup')
         self.draw()
         self.setWindowTitle("Helping Hands La Crosse")
+        self.update()
 
     def draw(self):
         # TODO style this, she dumb ugly doe
@@ -108,6 +98,14 @@ class LogInSignUp(QWidget):
     # Set the GUI to the New Account page
     def signup_click(self):
         self.parent().parent().set_page(2)
+    
+    # draws rectangle around buttons
+    def paintEvent(self, e):
+        painter = QPainter(self)
+        painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+        
+        painter.drawRect(5, 200, 473, 275)
 
 
 # returns the resolution of the current system (width and height)
