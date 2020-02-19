@@ -17,7 +17,6 @@ class User(Model):
     username = TextField()
     password = TextField()
     account_email = TextField()
-    # account_age = DateTimeField()
     account_type = TextField()
 
     class Meta:
@@ -31,7 +30,7 @@ class Event(Model):
     event_duration = IntegerField()
     event_description = TextField()
     attending_users = TextField()
-    # TODO nvm we do this with joins, i got it
+    # TODO nvm we do this with joins, i got it. many event for many users (users can go to more than one event)
     # Currently, i want to store information in this field regarding who is attending the
     # event, based on the id, then use split to get a list of each attending member. There is probably a better way to
     # do it but we'll stick with this for now. (932 392 132 392 345 321 111 029 -> Braden, Kaelan, Alex, Tori, ...)

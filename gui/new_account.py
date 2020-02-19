@@ -11,6 +11,7 @@ except:
 import random, hashlib, binascii, os
 
 
+# Class that handles the 'Sign-Up' screen.
 class NewAccount(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -74,9 +75,11 @@ class NewAccount(QWidget):
         self.vbox.addLayout(hbox2)
         self.setLayout(self.vbox)
 
+    # Show the admin code widget
     def admin_click(self):
         self.admin_code_box.show()
 
+    # Hide the admin code widget.
     def hide_admin(self):
         self.admin_code_box.hide()
 
@@ -111,13 +114,12 @@ class NewAccount(QWidget):
             msg = QMessageBox.warning(None, " ", " Your passwords don't match. ")
             self.clear_fields()
             return
-        # TODO check database for username and email
         elif username_check is not None:
             msg = QMessageBox.warning(None, " ", " That username is already taken. Try another. ")
             self.username_edit.clear()
             return
         elif email_check is not None:
-            msg = QMessageBox.warning(None, " ", " That email is already taken. Sign In or use a different email. ")
+            msg = QMessageBox.warning(None, " ", " That email is already taken. Sign-in or use a different email. ")
             self.email_edit.clear()
             return
         # Move to the next GUI, all checks passed
@@ -130,25 +132,28 @@ class NewAccount(QWidget):
             self.go_back()
             return
 
+    # Clear all fields in the forum.
     def clear_fields(self):
         for f in self.fields:
             f.clear()
 
+    # Go back to the Login / Signup page
     def go_back(self):
         self.close()
         self.parent().parent().set_page(0)
 
+    # Get which radio button is selected
     def get_account_type(self):
         for btn in self.radio_btns:
             if btn.isChecked():
-                return btn.text()  # TODO When admin, show admin code
+                return btn.text()
 
     # Store the new users information in the database
     def store_user(self, user_id, username, email, password, account_type=None):
-        print(str(user_id + " " + username + " " + password + " " + email + " " + account_type))
-
+        # print(str(user_id + " " + username + " " + password + " " + email + " " + account_type))
         new_user = User(account_id=user_id, username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
+        # Print the users currently in the database
         query = User.select()
         print([user.username for user in query])
 

@@ -42,8 +42,6 @@ class LoginNewAccountStacker(QWidget):
 
 
 class WindowManager(QMainWindow):
-    # switch_window = QtCore.pyqtSignal(str)
-
     def __init__(self, widgets):
         super().__init__(None)
         self.stacker = QStackedWidget(self)
@@ -70,7 +68,7 @@ class WindowManager(QMainWindow):
 class LogInSignUp(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setObjectName("login_signup")
+        self.setProperty('class', 'login-signup')
         self.draw()
         self.setWindowTitle("Helping Hands La Crosse")
 
@@ -88,14 +86,12 @@ class LogInSignUp(QWidget):
         self.setLayout(vbox)
 
     # Set the GUI to the Login page
-    # TODO possibly delete these close statements
+    # TODO potentially add close if something is breaking
     def login_click(self):
-        self.close()
         self.parent().parent().set_page(1)
 
     # Set the GUI to the New Account page
     def signup_click(self):
-        self.close()
         self.parent().parent().set_page(2)
 
 
