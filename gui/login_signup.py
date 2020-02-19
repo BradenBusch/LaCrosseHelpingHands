@@ -76,8 +76,10 @@ class LogInSignUp(QWidget):
         # TODO style this, she dumb ugly doe
         login = QPushButton("Login")
         login.clicked.connect(self.login_click)
+        login.setProperty('class', 'login-btn')
         signup = QPushButton("Sign-Up")
         signup.clicked.connect(self.signup_click)
+        signup.setProperty('class', 'signup-btn')
         vbox = QVBoxLayout()
         vbox.addStretch(1)
         vbox.addWidget(login)

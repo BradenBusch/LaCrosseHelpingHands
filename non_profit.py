@@ -15,10 +15,11 @@ from PyQt5.QtWidgets import QApplication
 try:
     from non_profit.models.database import *
     from non_profit.gui.login_signup import LogInSignUp
+    from non_profit.gui.non_profit_style_driver import *
 except:
     from models.database import *
     from gui.login_signup import LogInSignUp
-
+    from gui.non_profit_style_driver import *
 try:
     from non_profit.gui.login_signup import *
 except:
@@ -29,6 +30,7 @@ except:
 def main():
     app = QApplication([])
     # app.setStyleSheet() (we will do this later using QCSS, very similar to CSS and easy to use.
+    app.setStyleSheet(style_sheet())
     db.connect(reuse_if_open=True)
     db.create_tables([User, Event])
     # print(db.get_tables())
