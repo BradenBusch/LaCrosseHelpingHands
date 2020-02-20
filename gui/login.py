@@ -37,7 +37,7 @@ class Login(QWidget):
         cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
         cancel_btn.setText("Cancel")
         cancel_btn.clicked.connect(self.go_back)
-        
+
         self.vbox.addStretch(1)
         self.user_hbox.addWidget(self.username_label)
         self.user_hbox.addWidget(self.username_check)
