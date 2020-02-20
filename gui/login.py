@@ -38,6 +38,10 @@ class Login(QWidget):
         cancel_btn.setText("Cancel")
         cancel_btn.clicked.connect(self.go_back)
 
+        self.password_check.setEchoMode(QLineEdit.Password)
+        self.username_label.setProperty('class', 'login-label')
+        self.password_label.setProperty('class', 'login-label')
+
         self.vbox.addStretch(1)
         self.user_hbox.addWidget(self.username_label)
         self.user_hbox.addWidget(self.username_check)
@@ -52,18 +56,27 @@ class Login(QWidget):
         # label.setAlignment(Qt.AlignCenter)
 
     # Check database, verify the username and password.
-    def verify_fields(self, entered_username, entered_password):
+    def verify_fields(self):
+        entered_username = self.username_check.text()
+        entered_password = self.password_check.text()
         try:
-            username_check = User.get(User.username == entered_username)
+            username_check = User.get(User.username == entered_username).username
         except User.DoesNotExist:
             username_check = None
-        if username_check is None:
-            # TODO how we want to handle login/failed login
+        hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
+        password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
+
+        if len(entered_username) < 8 or len(entered_password) < 8:
+            msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
             return
-        hashed_password = User.get(User.username == username_check)
-        if self.verify_fields(hashed_password, entered_password) is not True:
+        elif username_check is None:
+            msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
+            return
+        elif password_check is not True:
+            msg = QMessageBox.warning(None, " ", " Incorrect Password. Try re-entering. ")
             return
         else:
+            msg = QMessageBox.warning(None, " ", "BEEP!")
             return
 
     def go_back(self):

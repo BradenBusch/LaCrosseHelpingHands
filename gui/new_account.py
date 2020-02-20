@@ -27,7 +27,6 @@ class NewAccount(QWidget):
         self.draw()
 
     # Build Create Account window
-    # TODO add checkboxes for choosing an account type (admin needs extra code or something idk)
     def draw(self):
         # self.setFixedSize(300, 300)
         self.setWindowTitle("Make a new account")
@@ -66,6 +65,7 @@ class NewAccount(QWidget):
         self.vbox.addWidget(self.password_edit)
         self.vbox.addWidget(self.confirm_password_edit)
         self.vbox.addWidget(self.admin_code_box)
+
         for btn in self.radio_btns:
             hbox1.addWidget(btn)
 

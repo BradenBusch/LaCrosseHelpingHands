@@ -11,7 +11,7 @@ QPushButton[class="login-btn"] {{
 }}
 
 QPushButton[class="login-btn"]:hover {{
-    border: 1px solid white;
+    border: 2px solid white;
 }}
 
 QPushButton[class="signup-btn"] {{
@@ -36,8 +36,12 @@ QLineEdit {{
     padding: 5px;
 }}
 
-QLabel {{
+QLabel.login-label {{
     font-weight: bold;
+}}
+
+QPushButton {{
+    outline: 0;
 }}
 
 .confirm-btn {{
@@ -58,3 +62,6 @@ QLabel {{
     border-radius: 5px;
 }}
 
+.cancel-btn:hover {{
+    border: 2px solid black;
+}}
