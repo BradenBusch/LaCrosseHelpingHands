@@ -81,15 +81,22 @@ class LogInSignUp(QWidget):
         login.clicked.connect(self.login_click)
         login.setProperty('class', 'login-btn')
         login.setCursor(QCursor(Qt.PointingHandCursor))
+        
         signup = QPushButton("Sign-Up")
         signup.clicked.connect(self.signup_click)
         signup.setProperty('class', 'signup-btn')
         signup.setCursor(QCursor(Qt.PointingHandCursor))
-
+        
+        guest = QPushButton("Continue as Guest")
+        guest.clicked.connect(self.guest_click)
+        guest.setProperty('class', 'guest-btn')
+        guest.setCursor(QCursor(Qt.PointingHandCursor))
+        
         vbox = QVBoxLayout()
         vbox.addStretch(1)
         vbox.addWidget(login)
         vbox.addWidget(signup)
+        vbox.addWidget(guest)
         # self.setGeometry(0, 0, 300, 300)
         self.setLayout(vbox)
 
@@ -101,6 +108,10 @@ class LogInSignUp(QWidget):
     # Set the GUI to the New Account page
     def signup_click(self):
         self.parent().parent().set_page(2)
+    
+    # Set the GUI to the Homepage
+    def guest_click(self):
+        self.parent().parent().set_page(3)
     
     # draws rectangle around buttons
     def paintEvent(self, e):

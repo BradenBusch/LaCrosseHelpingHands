@@ -30,6 +30,22 @@ QPushButton.signup-btn:hover {{
     border: 1px solid red;
 }}
 
+QPushButton[class="guest-btn"] {{
+    background-color: white;
+    padding: 10px;
+    border: 1px solid red;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: red;
+    margin-top: 10px;
+    margin: 0px 40px;
+}}
+
+QPushButton.guest-btn:hover {{
+    border: 2px solid red;
+}}
+
 QLineEdit {{
     border-radius: 5px;
     border: 1px solid black;
