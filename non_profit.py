@@ -18,10 +18,12 @@ try:
     from non_profit.models.database import *
     from non_profit.gui.login_signup import LogInSignUp
     from non_profit.gui.non_profit_style_driver import *
+    from non_profit.gui.calendar import Calendar
 except:
     from models.database import *
     from gui.login_signup import LogInSignUp
     from gui.non_profit_style_driver import *
+    from gui.calendar import Calendar
 try:
     from non_profit.gui.login_signup import *
 except:
@@ -34,8 +36,8 @@ def main():
     app.setStyleSheet(style_sheet())
     db.connect(reuse_if_open=True)
     db.create_tables([User, Event])
-    current_window = WindowManager([LogInSignUp(), Login(), NewAccount()])  # TODO add windows here
-
+    current_window = WindowManager([LogInSignUp(), Login(), NewAccount(), Calendar()])  # TODO add windows here
+    
     width, height = screen_resolution()
     
     current_window.setMaximumWidth(width)
