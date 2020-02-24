@@ -2,8 +2,8 @@
 QPushButton[class="login-btn"] {{
     background-color: red;
     padding: 10px;
-    border: 1px solid red;
     border-radius: 15px;
+    border: 1px solid red;
     font-size: 14px;
     color: white;
     font-weight: bold;
@@ -11,13 +11,13 @@ QPushButton[class="login-btn"] {{
 }}
 
 QPushButton[class="login-btn"]:hover {{
-    border: 2px solid white;
+    border: 1px solid white;
 }}
 
 QPushButton[class="signup-btn"] {{
     background-color: white;
     padding: 10px;
-    border: 1px solid red;
+    border: 1px solid white;
     border-radius: 15px;
     font-size: 14px;
     font-weight: bold;
@@ -27,7 +27,7 @@ QPushButton[class="signup-btn"] {{
 }}
 
 QPushButton.signup-btn:hover {{
-    border: 2px solid red;
+    border: 1px solid red;
 }}
 
 QLineEdit {{

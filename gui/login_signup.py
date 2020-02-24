@@ -47,7 +47,7 @@ class WindowManager(QMainWindow):
     def __init__(self, widgets):
         super().__init__(None)
         self.stacker = QStackedWidget(self)
-        self.widgets = [LoginNewAccountStacker(widgets, self)]
+        self.widgets = [LoginNewAccountStacker(widgets, self)]  # TODO maybe add the main_screen window here, outside of stacker
         for w in self.widgets:
             self.stacker.addWidget(w)
         # NO IDEA WHY THIS IS NEEDED BUT DON'T REMOVE

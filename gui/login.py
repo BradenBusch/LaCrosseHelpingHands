@@ -11,8 +11,8 @@ except:
 import hashlib
 import binascii
 
-class Login(QWidget):
 
+class Login(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.username_label = QLabel('Username')

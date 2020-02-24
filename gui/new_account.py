@@ -51,6 +51,9 @@ class NewAccount(QWidget):
         self.radio_btns.append(admin_radio)
         confirm_btn.setText("Confirm")
         cancel_btn.setText("Cancel")
+        confirm_btn.setProperty('class', 'confirm-btn')
+        cancel_btn.setProperty('class', 'cancel-btn')
+
         self.username_edit.setPlaceholderText("Username (At least 8 Characters)")
         self.email_edit.setPlaceholderText("E-Mail")  # If we aren't going to do password recovery we can delete this
         self.password_edit.setPlaceholderText("Password (At least 8 Characters)")
@@ -150,10 +153,10 @@ class NewAccount(QWidget):
 
     # Store the new users information in the database
     def store_user(self, user_id, username, email, password, account_type=None):
-        new_user = User(account_id=user_id, username=username, password=password, account_email=email, account_type=account_type)
+        new_user = User(username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
         query = User.select()
-        print([user.username for user in query])
+        print([user.user_id for user in query])
 
     # TODO check id's, if this is even needed anyway
     # Generate a unique ID for each user in the database
