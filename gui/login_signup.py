@@ -47,7 +47,10 @@ class WindowManager(QMainWindow):
     def __init__(self, widgets):
         super().__init__(None)
         self.stacker = QStackedWidget(self)
-        self.widgets = [LoginNewAccountStacker(widgets, self)]  # TODO maybe add the main_screen window here, outside of stacker
+        pages = [widgets[0], widgets[1], widgets[2]]
+        #self.widgets = [LoginNewAccountStacker(widgets, self)]  # TODO maybe add the main_screen window here, outside of stacker
+        self.widgets = [LoginNewAccountStacker(pages, self), widgets[3]]
+        #self.widgets = widgets
         for w in self.widgets:
             self.stacker.addWidget(w)
         # NO IDEA WHY THIS IS NEEDED BUT DON'T REMOVE
@@ -61,6 +64,8 @@ class WindowManager(QMainWindow):
 
     # TODO update window naming so it actually works
     def set_page(self, i):
+        if not i < len(self.widgets):
+            return
         self.setWindowTitle(self.widgets[i].windowTitle())
         self.stacker.setGeometry(self.widgets[i].geometry())
         self.setGeometry(self.widgets[i].geometry())
@@ -111,7 +116,7 @@ class LogInSignUp(QWidget):
     
     # Set the GUI to the Homepage
     def guest_click(self):
-        self.parent().parent().set_page(3)
+        self.parent().parent().win.set_page(1)
     
     # draws rectangle around buttons
     def paintEvent(self, e):
