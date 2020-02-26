@@ -11,26 +11,18 @@ Version: 02/05/2020
 
 '''
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtWidgets import QApplication
-
 try:
     from non_profit.models.database import *
-    from non_profit.gui.login_signup import LogInSignUp
+    from non_profit.gui.login_signup import *
     from non_profit.gui.non_profit_style_driver import *
     from non_profit.gui.calendar import Calendar
 except:
     from models.database import *
-    from gui.login_signup import LogInSignUp
+    from gui.login_signup import *
     from gui.non_profit_style_driver import *
     from gui.calendar import Calendar
 
-try:
-    from non_profit.gui.login_signup import *
-except:
-    from gui.login_signup import *
-
-
+# TODO make a global variable that actually works that tracks what type of user is logged in
 def main():
     app = QApplication([])
     app.setStyleSheet(style_sheet())

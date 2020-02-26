@@ -8,7 +8,7 @@ except:
     from gui.login_signup import *
     from models.database import *
 
-import random, hashlib, binascii, os
+import hashlib, binascii, os
 
 
 # Class that handles the 'Sign-Up' screen.

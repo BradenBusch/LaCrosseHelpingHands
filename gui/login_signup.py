@@ -48,9 +48,9 @@ class WindowManager(QMainWindow):
         super().__init__(None)
         self.stacker = QStackedWidget(self)
         pages = [widgets[0], widgets[1], widgets[2]]
-        #self.widgets = [LoginNewAccountStacker(widgets, self)]  # TODO maybe add the main_screen window here, outside of stacker
+        # self.widgets = [LoginNewAccountStacker(widgets, self)]
         self.widgets = [LoginNewAccountStacker(pages, self), widgets[3]]
-        #self.widgets = widgets
+        # self.widgets = widgets
         for w in self.widgets:
             self.stacker.addWidget(w)
         # NO IDEA WHY THIS IS NEEDED BUT DON'T REMOVE
@@ -94,7 +94,7 @@ class LogInSignUp(QWidget):
         
         guest = QPushButton("Continue as Guest")
         guest.clicked.connect(self.guest_click)
-        guest.setProperty('class', 'guest-btn')
+        guest.setProperty('class', 'signup-btn')
         guest.setCursor(QCursor(Qt.PointingHandCursor))
         
         vbox = QVBoxLayout()

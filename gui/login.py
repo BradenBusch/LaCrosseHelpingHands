@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
 
 try:
     from non_profit.gui.login_signup import *
@@ -8,12 +7,15 @@ except:
     from gui.login_signup import *
     from models.database import *
 
+
 import hashlib
 import binascii
 
 
 class Login(QWidget):
+
     def __init__(self, parent=None):
+
         super().__init__(parent)
         self.username_label = QLabel('Username')
         self.username_check = QLineEdit()
@@ -78,11 +80,17 @@ class Login(QWidget):
             return
         else:
             msg = QMessageBox.warning(None, " ", "BEEP!")
+            # TODO MAKE THIS ACTUALLY HAPPEN
+            # config.current_user_type = User.get(User.username == entered_username).account_type
+            self.go_forward()
             return
 
     def go_back(self):
         self.close()
         self.parent().parent().set_page(0)
+
+    def go_forward(self):
+        self.parent().parent().win.set_page(1)
 
     def verify_password(self, stored_password, provided_password):
         salt = stored_password[:64]

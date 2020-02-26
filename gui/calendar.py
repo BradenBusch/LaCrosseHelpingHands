@@ -3,11 +3,18 @@ Holds the main calendar viewable by all users.
 
 '''
 
-import sys
 from datetime import datetime
 import calendar
-from PyQt5.QtWidgets import QApplication, QWidget, QCalendarWidget, QDesktopWidget
+from PyQt5.QtWidgets import QWidget, QCalendarWidget, QDesktopWidget
 from PyQt5.QtCore import QDate
+
+try:
+	import non_profit.gui.login
+except:
+	import gui.login
+	# from gui.login import *
+
+# TODO track what type of user is currently logged in, Guest will have 'None' so we can default to that
 
 
 class Calendar(QWidget):
@@ -15,19 +22,20 @@ class Calendar(QWidget):
 	
 	currentMonth = datetime.now().month
 	currentYear = datetime.now().year
-	
+
 	def __init__(self):
 		super().__init__()
 		self.setProperty('class', 'calendar')
 		self.setWindowTitle('Calendar')
 		width, height = screen_resolution()
-		# self.setGeometry(0, 0, width, height)
+		self.setGeometry(0, 0, 1000, 1000)
 		self.draw()
-		self.update()
+		# self.update()
 	
 	def draw(self):
+
 		self.calendar = QCalendarWidget(self)
-		#self.calendar.move(20, 20)
+		# self.calendar.move(20, 20)
 		self.calendar.setGridVisible(True)
 		width, height = screen_resolution()
 		self.calendar.setGeometry(0, 0, 1000, 1000)
@@ -42,6 +50,7 @@ class Calendar(QWidget):
 		print('{0}/{1}/{2}'.format(qDate.month(), qDate.day(), qDate.year()))
 		print(f'Day Number of the year: {qDate.dayOfYear()}')
 		print(f'Day Number of the week: {qDate.dayOfWeek()}')
+		# print(config.current_user_type)
 
 # returns the resolution of the current system (width and height)
 def screen_resolution():
