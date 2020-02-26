@@ -13,6 +13,9 @@ import random, hashlib, binascii, os
 
 # Class that handles the 'Sign-Up' screen.
 class NewAccount(QWidget):
+    global admin_password
+    admin_password = 'ADMIN'
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.username_edit = QLineEdit()
@@ -33,6 +36,7 @@ class NewAccount(QWidget):
 
         self.password_edit.setEchoMode(QLineEdit.Password)
         self.confirm_password_edit.setEchoMode(QLineEdit.Password)
+        self.admin_code_box.setEchoMode(QLineEdit.Password)
 
         confirm_btn = QPushButton()
         cancel_btn = QPushButton()
@@ -125,13 +129,16 @@ class NewAccount(QWidget):
             msg = QMessageBox.warning(None, " ", " That email is already taken. Sign-in or use a different email. ")
             self.email_edit.clear()
             return
+        elif self.get_account_type() == 'Admin' and self.admin_code_box.text() != admin_password:
+            msg = QMessageBox.warning(None, " ", " You entered the wrong admin password. ")
+            self.admin_code_box.clear()
+            return
         # Move to the next GUI, all checks passed
         else:
-            msg = QMessageBox.warning(None, " ", "Beep")
-            user_id = self.generate_id()
+            msg = QMessageBox.warning(None, " ", " Account created successfully. ")
             stored_password = hash_password(password)
             account_type = self.get_account_type()
-            self.store_user(user_id, username, email, stored_password, account_type)
+            self.store_user(username, email, stored_password, account_type)
             self.go_back()
             return
 
@@ -152,20 +159,11 @@ class NewAccount(QWidget):
                 return btn.text()
 
     # Store the new users information in the database
-    def store_user(self, user_id, username, email, password, account_type=None):
+    def store_user(self, username, email, password, account_type=None):
         new_user = User(username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
         query = User.select()
         print([user.user_id for user in query])
-
-    # TODO check id's, if this is even needed anyway
-    # Generate a unique ID for each user in the database
-    def generate_id(self):
-        # return uuid.uuid4().hex[:4]
-        digits = set(range(10))
-        first = random.randint(1, 9)
-        last_3 = random.sample(digits - {first}, 3)
-        return str(first) + ''.join(map(str, last_3))
 
 
 def hash_password(password):
