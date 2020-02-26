@@ -27,6 +27,7 @@ class Login(QWidget):
         self.draw()
 
     def draw(self):
+        self.setWindowTitle("Login")
         confirm_btn = QPushButton()
         confirm_btn.setProperty('class', 'confirm-btn')
         confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
