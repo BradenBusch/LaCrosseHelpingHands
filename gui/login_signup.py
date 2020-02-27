@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QCursor
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel, QAction
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QCursor, QIcon
+from PyQt5.QtCore import Qt, QSize, pyqtSlot
 
 try:
     from non_profit.gui.new_account import NewAccount
@@ -12,7 +12,7 @@ except:
 
 # The Stack GUI. This allows multiple windows to be opened from buttons.
 class LoginNewAccountStacker(QWidget):
-    def __init__(self, widgets, main=None):
+    def __init__(self, widgets, page, main=None):
         super().__init__()
         self.widgets = widgets
         self.stacker = QStackedWidget(self)
@@ -27,13 +27,12 @@ class LoginNewAccountStacker(QWidget):
         self.setLayout(self.v)
         # --------------------------------------------------
         self.set_page(0)
-        width, height = screen_resolution()
-        self.setGeometry(width/2 - 250, height/8, 500, 500)
-
+        self.set_size(page)
+    
     # Not sure if this is necessary yet
     def windowTitle(self):
         return self.widgets[self.stacker.currentIndex()].windowTitle()
-
+    
     # TODO fix window naming so that it updates
     def set_page(self, i):
         if not i < len(self.widgets):
@@ -41,15 +40,29 @@ class LoginNewAccountStacker(QWidget):
         self.win.setWindowTitle(self.widgets[i].windowTitle())
         self.stacker.setCurrentIndex(i)
         # self.widgets[i].update()
+    
+    # sets the size of the account stacker depending on what page is being displayed
+    def set_size(self, page):
+        width, height = screen_resolution()
+        # dimensions for the login, signup, and new account widgets
+        if page == 0:
+            self.setGeometry(width / 2 - 250, height / 8, 500, 500)
+        
+        # dimensions for the calendar page
+        if page == 3:
+            self.setGeometry(0, 0, width, height)
+            # TODO the window bar disappears?
 
 
 class WindowManager(QMainWindow):
     def __init__(self, widgets):
         super().__init__(None)
         self.stacker = QStackedWidget(self)
-        pages = [widgets[0], widgets[1], widgets[2]]
+        initial_pages = [widgets[0], widgets[1], widgets[2]] # holds the login, signup, and new account widgets
+        calendar_page = [widgets[3]] # holds the calendar page
         # self.widgets = [LoginNewAccountStacker(widgets, self)]
-        self.widgets = [LoginNewAccountStacker(pages, self), widgets[3]]
+        self.widgets = [LoginNewAccountStacker(initial_pages, 0, self),
+                        LoginNewAccountStacker(calendar_page, 3, self)]
         # self.widgets = widgets
         for w in self.widgets:
             self.stacker.addWidget(w)
@@ -61,6 +74,20 @@ class WindowManager(QMainWindow):
         # -------------------------------------------
         self.set_page(0)
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
+        
+        mainMenu = self.menuBar()
+        fileMenu = mainMenu.addMenu('File')
+        editMenu = mainMenu.addMenu('Edit')
+        viewMenu = mainMenu.addMenu('View')
+        searchMenu = mainMenu.addMenu('Search')
+        toolsMenu = mainMenu.addMenu('Tools')
+        helpMenu = mainMenu.addMenu('Help')
+        
+        exitButton = QAction(QIcon('exit24.png'), 'Exit', self)
+        exitButton.setShortcut('Ctrl+Q')
+        exitButton.setStatusTip('Exit application')
+        exitButton.triggered.connect(self.close)
+        fileMenu.addAction(exitButton)
 
     # TODO update window naming so it actually works
     def set_page(self, i):

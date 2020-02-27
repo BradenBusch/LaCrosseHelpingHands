@@ -5,7 +5,8 @@ Holds the main calendar viewable by all users.
 
 from datetime import datetime
 import calendar
-from PyQt5.QtWidgets import QWidget, QCalendarWidget, QDesktopWidget
+from PyQt5.QtWidgets import QWidget, QCalendarWidget, QDesktopWidget, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel, QAction
 from PyQt5.QtCore import QDate
 
 try:
@@ -15,6 +16,31 @@ except:
 	# from gui.login import *
 
 # TODO track what type of user is currently logged in, Guest will have 'None' so we can default to that
+
+# TODO I don't really know what's going on in this script, it's a mess of stuff copy-pasted from other scripts
+
+# TODO why does the windowbar disappear
+
+class CalendarWindow(QWidget):
+	def __init__(self, parent=None):
+		super().__init__(parent)
+		self.setProperty('class', 'calendar')
+		self.setWindowTitle("Calendar")
+		self.widgets = [Calendar()]
+		self.draw()
+		self.update()
+	
+	def draw(self):
+		self.stacker = QStackedWidget(self)
+		for widget in self.widgets:
+			self.stacker.addWidget(widget)
+		# I have no idea why this works, but don't touch it.
+		# --------------------------------------------------
+		self.v = QVBoxLayout()
+		self.v.addWidget(QWidget())
+		self.v.addWidget(self.stacker)
+		self.setLayout(self.v)
+		# --------------------------------------------------
 
 
 class Calendar(QWidget):
@@ -28,7 +54,7 @@ class Calendar(QWidget):
 		self.setProperty('class', 'calendar')
 		self.setWindowTitle('Calendar')
 		width, height = screen_resolution()
-		self.setGeometry(0, 0, 1000, 1000)
+		self.setGeometry(0, 0, width/2 + 50, height)
 		self.draw()
 		# self.update()
 	

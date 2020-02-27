@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
 
 try:
     from non_profit.gui.login_signup import *
@@ -15,7 +16,7 @@ import hashlib, binascii, os
 class NewAccount(QWidget):
     global admin_password
     admin_password = 'ADMIN'
-
+    
     def __init__(self, parent=None):
         super().__init__(parent)
         self.username_edit = QLineEdit()
@@ -28,21 +29,26 @@ class NewAccount(QWidget):
         self.radio_btns = []
         self.vbox = QVBoxLayout()
         self.draw()
-
+    
     # Build Create Account window
     def draw(self):
         # self.setFixedSize(300, 300)
         self.setWindowTitle("Make a new account")
-
+        
         self.password_edit.setEchoMode(QLineEdit.Password)
         self.confirm_password_edit.setEchoMode(QLineEdit.Password)
         self.admin_code_box.setEchoMode(QLineEdit.Password)
-
-        confirm_btn = QPushButton()
-        cancel_btn = QPushButton()
+        
+        confirm_btn = QPushButton("Confirm")
         confirm_btn.clicked.connect(self.verify_fields)
+        confirm_btn.setProperty('class', 'confirm-btn')
+        confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        
+        cancel_btn = QPushButton("Cancel")
         cancel_btn.clicked.connect(self.go_back)
-
+        cancel_btn.setProperty('class', 'cancel-btn')
+        cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        
         volunteer_radio = QRadioButton('Volunteer')
         volunteer_radio.setChecked(True)
         volunteer_radio.toggled.connect(self.hide_admin)
@@ -53,18 +59,14 @@ class NewAccount(QWidget):
         self.radio_btns.append(volunteer_radio)
         self.radio_btns.append(staff_radio)
         self.radio_btns.append(admin_radio)
-        confirm_btn.setText("Confirm")
-        cancel_btn.setText("Cancel")
-        confirm_btn.setProperty('class', 'confirm-btn')
-        cancel_btn.setProperty('class', 'cancel-btn')
-
+        
         self.username_edit.setPlaceholderText("Username (At least 8 Characters)")
         self.email_edit.setPlaceholderText("E-Mail")  # If we aren't going to do password recovery we can delete this
         self.password_edit.setPlaceholderText("Password (At least 8 Characters)")
         self.confirm_password_edit.setPlaceholderText("Confirm Password")
         self.confirm_password_edit.returnPressed.connect(self.verify_fields)
         self.admin_code_box.setPlaceholderText("Enter the Admin Password")
-
+        
         hbox1 = QHBoxLayout()
         hbox2 = QHBoxLayout()
         self.vbox.addWidget(self.username_edit)
@@ -96,14 +98,17 @@ class NewAccount(QWidget):
         confirm_pass = self.confirm_password_edit.text()
         username = self.username_edit.text()
         email = self.email_edit.text()
-        try:
-            username_check = User.get(User.username == username)
-        except User.DoesNotExist:
-            username_check = None
-        try:
-            email_check = User.get(User.account_email == email)
-        except User.DoesNotExist:
-            email_check = None
+        
+        # TODO these lines of code cause the program to crash
+        # try:
+        #     username_check = User.get(User.username == username)
+        # except User.DoesNotExist:
+        #     username_check = None
+        # try:
+        #     email_check = User.get(User.account_email == email)
+        # except User.DoesNotExist:
+        #     email_check = None
+        
         if len(email) == 0:
             msg = QMessageBox.warning(None, " ", " You must enter an email address. ")
             self.clear_fields()

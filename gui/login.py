@@ -62,13 +62,15 @@ class Login(QWidget):
     def verify_fields(self):
         entered_username = self.username_check.text()
         entered_password = self.password_check.text()
-        try:
-            username_check = User.get(User.username == entered_username).username
-        except User.DoesNotExist:
-            username_check = None
-        hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
-        password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
-
+        
+        # TODO these lines of code cause the program to crash
+        # try:
+        #     username_check = User.get(User.username == entered_username).username
+        # except User.DoesNotExist:
+        #     username_check = None
+        # hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
+        # password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
+        
         if len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
             return
