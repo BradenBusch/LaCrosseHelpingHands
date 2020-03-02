@@ -1,52 +1,80 @@
 '''
-Top level program, starts the application.
+Top level script, starts the application.
+
+Authors: Braden Busch, Kaelan Engholdt, Alex Terry
+Version: 03/01/2020
 
 PyQt5 Documentation: https://www.riverbankcomputing.com/static/Docs/PyQt5/
 PyQt5 Tutorial: https://build-system.fman.io/pyqt5-tutorial
 PyQt5 Styling: https://doc.qt.io/qt-5/stylesheet-examples.html
+PyQt5 Layouts: http://zetcode.com/gui/pyqt5/layout/
 PyQt5 Painting: http://zetcode.com/gui/pyqt5/painting/
-
-Authors: Alex, Braden, Kaelan
-Version: 02/05/2020
 
 '''
 
 try:
     from non_profit.models.database import *
+    from non_profit.gui.window_manager import *
     from non_profit.gui.login_signup import *
+    from non_profit.gui.homepage import *
+    from non_profit.gui.calendar import *
     from non_profit.gui.non_profit_style_driver import *
-    from non_profit.gui.calendar import CalendarWindow
+
 except:
     from models.database import *
+    from gui.window_manager import *
     from gui.login_signup import *
+    from gui.homepage import *
+    from gui.calendar import *
     from gui.non_profit_style_driver import *
-    from gui.calendar import CalendarWindow
 
-# TODO make a global variable that actually works that tracks what type of user is logged in
+
+# main method, starts the application
 def main():
+    # define the application
     app = QApplication([])
+    
+    # style the application by applying the style sheet
     app.setStyleSheet(style_sheet())
+    
+    # connect to the database
     db.connect(reuse_if_open=True)
-    # db.drop_tables([User, Event])  # TODO uncomment me if you want all data deleted from the database
+    
+    # check if the database will be erased upon application start-up
+    if cs.DELETE:
+        # delete all data from the database
+        db.drop_tables([User, Event])
+    
+    # create the tables within the database
     db.create_tables([User, Event])
-
-    current_window = WindowManager([LogInSignUp(), Login(), NewAccount(), CalendarWindow()])  # TODO add windows here
     
-    width, height = screen_resolution()
+    # create the pages for the application within the WindowManager
+    current_window = WindowManager([LogInSignUp(),
+                                    Login(),
+                                    NewAccount(),
+                                    Homepage(),
+                                    Calendar()])
     
-    current_window.setMaximumWidth(width)
-    current_window.setMaximumHeight(height)
+    # retrieve the current system resolution
+    sys_width, sys_height = screen_resolution()
     
+    # set dimensions of the application
+    current_window.setMaximumWidth(sys_width)
+    current_window.setMaximumHeight(sys_height)
+    
+    # show the application in maximized mode
     current_window.showMaximized()
     
+    # start the application
     app.exec_()
 
 
 # returns the resolution of the current system (width and height)
 def screen_resolution():
-    sizeObject = QDesktopWidget().screenGeometry(0)
+    # retrieve the resolution of the current system
+    geometry = QDesktopWidget().screenGeometry(0)
     
-    return sizeObject.width(), sizeObject.height()
+    return geometry.width(), geometry.height()
 
 
 if __name__ == "__main__":

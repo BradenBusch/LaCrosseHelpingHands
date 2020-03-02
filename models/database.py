@@ -1,15 +1,15 @@
 '''
-Handles the database.
+Holds everything related to the database.
 
-Authors: Alex, Braden, Kaelan
-Version: 02/01/2020
+Authors: Braden Busch, Kaelan Engholdt, Alex Terry
+Version: 03/01/2020
 
 '''
 
 from peewee import *
 
-db = SqliteDatabase('nonprofit.sqlite')
 
+db = SqliteDatabase('nonprofit.sqlite')
 
 # User information
 class User(Model):
