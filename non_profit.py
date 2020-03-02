@@ -29,6 +29,7 @@ def main():
     db.connect(reuse_if_open=True)
     # db.drop_tables([User, Event])  # TODO uncomment me if you want all data deleted from the database
     db.create_tables([User, Event])
+
     current_window = WindowManager([LogInSignUp(), Login(), NewAccount(), CalendarWindow()])  # TODO add windows here
     
     width, height = screen_resolution()

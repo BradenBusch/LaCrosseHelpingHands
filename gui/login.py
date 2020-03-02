@@ -64,26 +64,27 @@ class Login(QWidget):
         entered_password = self.password_check.text()
         
         # TODO these lines of code cause the program to crash
-        # try:
-        #     username_check = User.get(User.username == entered_username).username
-        # except User.DoesNotExist:
-        #     username_check = None
-        # hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
-        # password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
+        try:
+            username_check = User.get(User.username == entered_username).username
+        except User.DoesNotExist:
+            msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
+            self.clear_fields()
+            return
+
+        hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
+        password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
         
         if len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
-            return
-        elif username_check is None:
-            msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
+            self.clear_fields()
             return
         elif password_check is not True:
             msg = QMessageBox.warning(None, " ", " Incorrect Password. Try re-entering. ")
+            self.clear_fields()
             return
         else:
             msg = QMessageBox.warning(None, " ", "BEEP!")
-            # TODO MAKE THIS ACTUALLY HAPPEN
-            # config.current_user_type = User.get(User.username == entered_username).account_type
+            self.clear_fields()
             self.go_forward()
             return
 
@@ -93,6 +94,10 @@ class Login(QWidget):
 
     def go_forward(self):
         self.parent().parent().win.set_page(1)
+
+    def clear_fields(self):
+        self.username_check.clear()
+        self.password_check.clear()
 
     def verify_password(self, stored_password, provided_password):
         salt = stored_password[:64]

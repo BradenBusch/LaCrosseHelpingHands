@@ -99,15 +99,16 @@ class NewAccount(QWidget):
         username = self.username_edit.text()
         email = self.email_edit.text()
         
-        # TODO these lines of code cause the program to crash
-        # try:
-        #     username_check = User.get(User.username == username)
-        # except User.DoesNotExist:
-        #     username_check = None
-        # try:
-        #     email_check = User.get(User.account_email == email)
-        # except User.DoesNotExist:
-        #     email_check = None
+        # TODO check if database is empty first, else errors occur
+        # TODO handle getting null values from the database
+        try:
+            username_check = User.get(User.username == username)
+        except User.DoesNotExist:
+            username_check = None
+        try:
+            email_check = User.get(User.account_email == email)
+        except User.DoesNotExist:
+            email_check = None
         
         if len(email) == 0:
             msg = QMessageBox.warning(None, " ", " You must enter an email address. ")
