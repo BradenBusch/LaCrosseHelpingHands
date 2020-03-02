@@ -35,9 +35,9 @@ class Homepage(QWidget):
         # TODO add more buttons here
         
         # TODO choose from the three layouts to form the layout of the window
-        self.grid = QGridLayout()
+        # self.grid = QGridLayout()
         self.vbox = QVBoxLayout()
-        self.hbox = QHBoxLayout()
+        # self.hbox = QHBoxLayout()
         
         # EXAMPLE:
         # define the VBox
@@ -46,18 +46,21 @@ class Homepage(QWidget):
         # vbox.addWidget(btn_name)
         # TODO add more button widgets to the vbox here
         
+        # create the top bar of tabs for the application
+        # self.top_bar()
+        
         # set up the layout
         self.setLayout(self.vbox)    # TODO set layout according to the layout chosen
         
         # set the geometry of the window    # TODO set geometry of the window correctly
         sys_width, sys_height = self.screen_resolution()
-        self.x_coord = sys_width / 2
-        self.y_coord = sys_height / 4
-        self.width = 500
-        self.height = 500
+        self.x_coord = 0
+        self.y_coord = 0
+        self.width = sys_width
+        self.height = sys_height
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
     
-    # TODO add additional methods here
+    # TODO add top bar here
     
     # defines what happens when the button is clicked
     def btn_click(self):

@@ -6,10 +6,12 @@ Version: 03/01/2020
 
 '''
 
+import ctypes
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import ctypes
+
 
 class WindowManager(QMainWindow):
     def __init__(self, widgets):
