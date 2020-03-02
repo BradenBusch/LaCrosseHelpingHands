@@ -1,88 +1,98 @@
 '''
-Holds the main calendar viewable by all users.
+Holds the everything related to the calendar page.
+Accessibile by: Guest, Volunteer, Staff, Administrator
+
+Authors: Braden Busch, Kaelan Engholdt, Alex Terry
+Version: 03/01/2020
 
 '''
 
-from datetime import datetime
 import calendar
-from PyQt5.QtWidgets import QWidget, QCalendarWidget, QDesktopWidget, QStackedWidget
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel, QAction
-from PyQt5.QtCore import QDate
+from datetime import datetime
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 try:
-	import non_profit.gui.login
+	from non_profit.gui.login import *
 	from non_profit import constants as cs
+
 except:
-	import gui.login
-	# from gui.login import *
+	from gui.login import *
 	import constants as cs
-
-# TODO track what type of user is currently logged in, Guest will have 'None' so we can default to that
-
-# TODO I don't really know what's going on in this script, it's a mess of stuff copy-pasted from other scripts
-
-# TODO why does the windowbar disappear
-
-class CalendarWindow(QWidget):
-	def __init__(self, parent=None):
-		super().__init__(parent)
-		self.setProperty('class', 'calendar')
-		self.setWindowTitle("Calendar")
-		self.widgets = [Calendar()]
-		self.draw()
-		self.update()
-	
-	def draw(self):
-		self.stacker = QStackedWidget(self)
-		for widget in self.widgets:
-			self.stacker.addWidget(widget)
-		# I have no idea why this works, but don't touch it.
-		# --------------------------------------------------
-		self.v = QVBoxLayout()
-		self.v.addWidget(QWidget())
-		self.v.addWidget(self.stacker)
-		self.setLayout(self.v)
-		# --------------------------------------------------
 
 
 class Calendar(QWidget):
-	global currentYear, currentMonth
-	
-	currentMonth = datetime.now().month
-	currentYear = datetime.now().year
-
-	def __init__(self):
-		super().__init__()
+	def __init__(self, parent=None):
+		super().__init__(parent)
+		
+		# set window title and properties, initialize the window reference
 		self.setProperty('class', 'calendar')
-		self.setWindowTitle('Calendar')
-		width, height = screen_resolution()
-		self.setGeometry(0, 0, width/2 + 50, height)
+		self.setWindowTitle("Calendar")
+		self.win = None
+		
+		# determine the current date
+		self.currentMonth = datetime.now().month
+		self.currentYear = datetime.now().year
+		
+		# draw the page
 		self.draw()
-		# self.update()
 	
+	# adds all buttons and sets up the layout
 	def draw(self):
-
+		# set up the calendar widget
 		self.calendar = QCalendarWidget(self)
-		# self.calendar.move(20, 20)
 		self.calendar.setGridVisible(True)
-		width, height = screen_resolution()
-		self.calendar.setGeometry(0, 0, 1000, 1000)
-		self.calendar.setMinimumDate(QDate(currentYear, currentMonth - 1, 1))
-		self.calendar.setMaximumDate(QDate(currentYear, currentMonth + 1, calendar.monthrange(currentYear, currentMonth)[1]))
 		
-		self.calendar.setSelectedDate(QDate(currentYear, currentMonth, 1))
+		# set the minimum and maximum dates
+		self.calendar.setMinimumDate(QDate(self.currentYear, self.currentMonth - 1, 1))
+		self.calendar.setMaximumDate(QDate(self.currentYear, self.currentMonth + 1,
+										   calendar.monthrange(self.currentYear, self.currentMonth)[1]))
 		
+		# set up each calendar date as a simplified type of button
+		self.calendar.setSelectedDate(QDate(self.currentYear, self.currentMonth, 1))
 		self.calendar.clicked.connect(self.printDateInfo)
+		
+		# set up the VBox
+		self.vbox = QVBoxLayout()
+		# TODO finish setting up layout
+		
+		# set up the layout
+		self.setLayout(self.vbox)
+		
+		# TODO set geometry of the window correctly after adding the horizontal bar of tabs at the top
+		# set the geometry of the window
+		sys_width, sys_height = self.screen_resolution()
+		self.x_coord = 0
+		self.y_coord = 40
+		self.width = sys_width
+		self.height = sys_height
+		self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
+		
+		# TODO set calendar geometry correctly after adding the horizontal bar of tabs at the top
+		# set the geometry of the calendar widget
+		sys_width, sys_height = self.screen_resolution()
+		self.x_coord_cal = 0
+		self.y_coord_cal = 0
+		self.cal_width = sys_width / 2
+		self.cal_height = sys_height - 200
+		self.calendar.setGeometry(self.x_coord_cal, self.y_coord_cal, self.cal_width, self.cal_height)
 	
+	# TODO to be used for debugging
 	def printDateInfo(self, qDate):
 		print('{0}/{1}/{2}'.format(qDate.month(), qDate.day(), qDate.year()))
 		print(f'Day Number of the year: {qDate.dayOfYear()}')
 		print(f'Day Number of the week: {qDate.dayOfWeek()}')
-		# print(config.current_user_type)
-
-# returns the resolution of the current system (width and height)
-def screen_resolution():
-	# retrieve the resolution of the current system
-	geometry = QDesktopWidget().screenGeometry(0)
 	
-	return geometry.width(), geometry.height()
+	# resets the coordinates of the window after switching to this page
+	def set_position(self):
+		self.parent().move(self.x_coord, self.y_coord)
+		self.parent().resize(self.width, self.height)
+	
+	# returns the resolution of the current system (width and height)
+	def screen_resolution(self):
+		# retrieve the resolution of the current system
+		geometry = QDesktopWidget().screenGeometry(0)
+		
+		return geometry.width(), geometry.height()

@@ -1,5 +1,6 @@
 '''
-Holds everything related to the login page.
+Holds everything related to the new account page.
+Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 03/01/2020
@@ -18,6 +19,7 @@ try:
     from non_profit.gui.login_signup import *
     from non_profit.models.database import *
     from non_profit import constants as cs
+
 except:
     from gui.login_signup import *
     from models.database import *
@@ -38,19 +40,18 @@ class NewAccount(QWidget):
         self.confirm_password_edit = QLineEdit()
         self.admin_code_box = QLineEdit()
         self.admin_code_box.hide()
-        self.fields = [self.username_edit, self.email_edit, self.password_edit, self.confirm_password_edit]
         self.radio_btns = []
+        self.fields = [self.username_edit,
+                       self.email_edit,
+                       self.password_edit,
+                       self.confirm_password_edit,
+                       self.admin_code_box]
         
         # draw the page
         self.draw()
     
     # adds all buttons and sets up the layout
     def draw(self):
-        #
-        self.password_edit.setEchoMode(QLineEdit.Password)
-        self.confirm_password_edit.setEchoMode(QLineEdit.Password)
-        self.admin_code_box.setEchoMode(QLineEdit.Password)
-        
         # set up the confirm button
         confirm_btn = QPushButton("Confirm")
         confirm_btn.clicked.connect(self.verify_fields)
@@ -83,11 +84,14 @@ class NewAccount(QWidget):
         
         # set up the text fields to be filled in by the user
         self.username_edit.setPlaceholderText("Username (At least 8 Characters)")
-        self.email_edit.setPlaceholderText("E-Mail")  # If we aren't going to do password recovery we can delete this
+        self.email_edit.setPlaceholderText("E-Mail")
         self.password_edit.setPlaceholderText("Password (At least 8 Characters)")
+        self.password_edit.setEchoMode(QLineEdit.Password)
         self.confirm_password_edit.setPlaceholderText("Confirm Password")
         self.confirm_password_edit.returnPressed.connect(self.verify_fields)
-        self.admin_code_box.setPlaceholderText("Enter the Admin Password")
+        self.confirm_password_edit.setEchoMode(QLineEdit.Password)
+        self.admin_code_box.setPlaceholderText("Enter the Administrator Password")
+        self.admin_code_box.setEchoMode(QLineEdit.Password)
         
         # set up the VBox
         self.vbox = QVBoxLayout()
@@ -124,11 +128,13 @@ class NewAccount(QWidget):
     
     # verify that the Username/Email aren't in use, that the passwords match, and the passwords are 8 characters long
     def verify_fields(self):
+        # retrieve the information the user entered
         password = self.password_edit.text()
         confirm_pass = self.confirm_password_edit.text()
         username = self.username_edit.text()
         email = self.email_edit.text()
         
+        # attempt to retrieve the user from the database
         try:
             username_check = User.get(User.username == username)
         except User.DoesNotExist:
@@ -139,14 +145,18 @@ class NewAccount(QWidget):
             email_check = None
 
         # ensure the user entered viable information
-        if len(email) == 0:
-            msg = QMessageBox.warning(None, " ", " You must enter an email address. ")
-            self.clear_fields()
+        if len(username) < 8:
+            msg = QMessageBox.warning(None, " ", " Your Username must be 8 characters or longer. ")
+            self.username_edit.clear()
+            self.password_edit.clear()
+            self.confirm_password_edit.clear()
             return
         
-        elif len(username) < 8:
-            msg = QMessageBox.warning(None, " ", " Your Username must be 8 characters or longer. ")
-            self.clear_fields()
+        elif len(email) == 0:
+            msg = QMessageBox.warning(None, " ", " You must enter an email address. ")
+            self.email_edit.clear()
+            self.password_edit.clear()
+            self.confirm_password_edit.clear()
             return
         
         elif len(password) < 8:
@@ -156,8 +166,9 @@ class NewAccount(QWidget):
             return
         
         elif password != confirm_pass:
-            msg = QMessageBox.warning(None, " ", " Your passwords don't match. ")
-            self.clear_fields()
+            msg = QMessageBox.warning(None, " ", " Your passwords do not match. ")
+            self.password_edit.clear()
+            self.confirm_password_edit.clear()
             return
         
         elif username_check is not None:
@@ -166,11 +177,11 @@ class NewAccount(QWidget):
             return
         
         elif email_check is not None:
-            msg = QMessageBox.warning(None, " ", " That email is already taken. Sign-in or use a different email. ")
+            msg = QMessageBox.warning(None, " ", " That email is already taken. Log in or use a different email. ")
             self.email_edit.clear()
             return
         
-        elif self.get_account_type() == 'Admin' and self.admin_code_box.text() != cs.ADMIN_PASSWORD:
+        elif self.get_account_type() == "Administrator" and self.admin_code_box.text() != cs.ADMIN_PASSWORD:
             msg = QMessageBox.warning(None, " ", " You entered the wrong admin password. ")
             self.admin_code_box.clear()
             return
@@ -178,10 +189,11 @@ class NewAccount(QWidget):
         # return to the login page, all checks passed
         else:
             msg = QMessageBox.warning(None, " ", " Account created successfully. ")
-            stored_password = hash_password(password)
+            stored_password = self.hash_password(password)
             account_type = self.get_account_type()
             self.store_user(username, email, stored_password, account_type)
             self.go_back()
+            self.clear_fields()
             return
     
     # clears all fields in the forum
@@ -194,7 +206,7 @@ class NewAccount(QWidget):
         new_user = User(username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
         query = User.select()
-        print([user.user_id for user in query])
+        # print([user.user_id for user in query]) # TODO for debugging
     
     # hash the user's password
     def hash_password(self, password):
@@ -204,20 +216,15 @@ class NewAccount(QWidget):
         pwdhash = binascii.hexlify(pwdhash)
         return (salt + pwdhash).decode('ascii')
     
-    # resets the coordinates of the window after switching to this page
-    def set_position(self):
-        self.parent().move(self.x_coord, self.y_coord)
-        self.parent().resize(self.width, self.height)
-    
     # go back to the login page
     def go_back(self):
         self.win.set_page(0)
     
-    # show the admin code widget
+    # show the admin_code text box widget
     def admin_click(self):
         self.admin_code_box.show()
     
-    # hide the admin code widget.
+    # hide the admin_code text box widget
     def hide_admin(self):
         self.admin_code_box.hide()
     
@@ -226,6 +233,24 @@ class NewAccount(QWidget):
         for btn in self.radio_btns:
             if btn.isChecked():
                 return btn.text()
+    
+    # draws rectangle around buttons
+    def paintEvent(self, e):
+        painter = QPainter(self)
+        
+        # set the color and pattern of the border of the shape: (color, thickness, pattern)
+        painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+        
+        # set the color and pattern of the shape: (r, g, b, alpha)
+        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+        
+        # set the properties of the rectangle: (x-coord, y-coord, width, height)
+        painter.drawRect(1, 1, 498, 490)
+    
+    # resets the coordinates of the window after switching to this page
+    def set_position(self):
+        self.parent().move(self.x_coord, self.y_coord)
+        self.parent().resize(self.width, self.height)
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

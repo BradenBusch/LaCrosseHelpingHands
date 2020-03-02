@@ -1,15 +1,14 @@
 '''
-Top level program, starts the application.
+Top level script, starts the application.
+
+Authors: Braden Busch, Kaelan Engholdt, Alex Terry
+Version: 03/01/2020
 
 PyQt5 Documentation: https://www.riverbankcomputing.com/static/Docs/PyQt5/
 PyQt5 Tutorial: https://build-system.fman.io/pyqt5-tutorial
 PyQt5 Styling: https://doc.qt.io/qt-5/stylesheet-examples.html
 PyQt5 Layouts: http://zetcode.com/gui/pyqt5/layout/
 PyQt5 Painting: http://zetcode.com/gui/pyqt5/painting/
-Icons: https://findicons.com/
-
-Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/01/2020
 
 '''
 
@@ -17,19 +16,17 @@ try:
     from non_profit.models.database import *
     from non_profit.gui.window_manager import *
     from non_profit.gui.login_signup import *
+    from non_profit.gui.homepage import *
+    from non_profit.gui.calendar import *
     from non_profit.gui.non_profit_style_driver import *
-    
-    from non_profit.gui.calendar import CalendarWindow
-    from non_profit.gui.window_template import *
 
 except:
     from models.database import *
     from gui.window_manager import *
     from gui.login_signup import *
+    from gui.homepage import *
+    from gui.calendar import *
     from gui.non_profit_style_driver import *
-    
-    from gui.calendar import CalendarWindow
-    from gui.window_template import *
 
 
 # main method, starts the application
@@ -55,7 +52,8 @@ def main():
     current_window = WindowManager([LogInSignUp(),
                                     Login(),
                                     NewAccount(),
-                                    CalendarWindow(), WindowTemplate()])
+                                    Homepage(),
+                                    Calendar()])
     
     # retrieve the current system resolution
     sys_width, sys_height = screen_resolution()

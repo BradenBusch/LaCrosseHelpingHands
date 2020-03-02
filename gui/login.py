@@ -1,5 +1,6 @@
 '''
 Holds everything related to the login page.
+Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 03/01/2020
@@ -17,6 +18,7 @@ try:
     from non_profit.gui.login_signup import *
     from non_profit.models.database import *
     from non_profit import constants as cs
+
 except:
     from gui.login_signup import *
     from models.database import *
@@ -145,11 +147,6 @@ class Login(QWidget):
         
         return pwdhash == stored_password
     
-    # resets the coordinates of the window after switching to this page
-    def set_position(self):
-        self.parent().move(self.x_coord, self.y_coord)
-        self.parent().resize(self.width, self.height)
-    
     # go back to the login page
     def go_back(self):
         self.win.set_page(0)
@@ -170,6 +167,11 @@ class Login(QWidget):
         
         # set the properties of the rectangle: (x-coord, y-coord, width, height)
         painter.drawRect(1, 160, 498, 175)
+    
+    # resets the coordinates of the window after switching to this page
+    def set_position(self):
+        self.parent().move(self.x_coord, self.y_coord)
+        self.parent().resize(self.width, self.height)
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

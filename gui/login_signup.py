@@ -1,5 +1,6 @@
 '''
-Manages the relationship between all of the different pages.
+Holds everything related to the welcome page, where users decide how to access the application.
+Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 03/01/2020
@@ -72,11 +73,6 @@ class LogInSignUp(QWidget):
         self.height = 500
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
     
-    # resets the coordinates of the window after switching to this page
-    def set_position(self):
-        self.parent().move(self.x_coord, self.y_coord)
-        self.parent().resize(self.width, self.height)
-    
     # go to the login page
     def login_click(self):
         self.win.set_page(1)
@@ -101,6 +97,11 @@ class LogInSignUp(QWidget):
         
         # set the properties of the rectangle: (x-coord, y-coord, width, height)
         painter.drawRect(1, 135, 498, 225)
+    
+    # resets the coordinates of the window after switching to this page
+    def set_position(self):
+        self.parent().move(self.x_coord, self.y_coord)
+        self.parent().resize(self.width, self.height)
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

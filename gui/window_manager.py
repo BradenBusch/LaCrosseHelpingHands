@@ -9,11 +9,22 @@ Version: 03/01/2020
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-
+import ctypes
 
 class WindowManager(QMainWindow):
     def __init__(self, widgets):
         super().__init__(None)
+        
+        # set the window icon
+        self.setWindowIcon(QIcon('gui\\photos\\hands_icon.png'))
+        
+        # if the user is running windows, change the taskbar icon
+        try:
+            # tell windows what process the application is under
+            myappid = 'helping_hands'
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        except:
+            pass
         
         # set up the stacker and add all pages as widgets
         self.stacker = QStackedWidget(self)

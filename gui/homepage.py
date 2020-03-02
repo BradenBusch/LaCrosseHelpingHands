@@ -1,8 +1,9 @@
 '''
 Window template, copy this file and rename it to create a new page.
+Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: XX/XX/2020 TODO enter correct date
+Version: 03/01/2020
 
 '''
 
@@ -11,13 +12,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 
-class WindowTemplate(QWidget):    # TODO rename class
+class Homepage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         
         # set window title and properties, initialize the window reference
-        self.setProperty('class', 'window_template')    # TODO set property name correctly
-        self.setWindowTitle("Window Title")    # TODO set window title correctly
+        self.setProperty('class', 'homepage')    # TODO set property name correctly
+        self.setWindowTitle("Welcome!")    # TODO set window title correctly
         self.win = None
         
         # draw the page
