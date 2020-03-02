@@ -1,99 +1,139 @@
-from PyQt5.QtWidgets import *
+'''
+Holds everything related to the login page.
 
-try:
-    from non_profit.gui.login_signup import *
-    from non_profit.models.database import *
-except:
-    from gui.login_signup import *
-    from models.database import *
+Authors: Braden Busch, Kaelan Engholdt, Alex Terry
+Version: 03/01/2020
 
+'''
 
 import hashlib
 import binascii
 
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+
+try:
+    from non_profit.gui.login_signup import *
+    from non_profit.models.database import *
+    from non_profit import constants as cs
+except:
+    from gui.login_signup import *
+    from models.database import *
+    import constants as cs
+
 
 class Login(QWidget):
-
     def __init__(self, parent=None):
-
         super().__init__(parent)
-        self.username_label = QLabel('Username')
+        
+        # set window title and initialize the window reference
+        self.setWindowTitle("Login")
+        self.win = None
+        
+        # set up the username label
+        self.username_label = QLabel("Username")
+        self.username_label.setProperty('class', 'login-label')
+        
+        # set up the username check
         self.username_check = QLineEdit()
-        self.password_label = QLabel('Password ')
+        
+        # set up the password label
+        self.password_label = QLabel("Password ")
+        self.password_label.setProperty('class', 'login-label')
+        
+        # set up the password check
         self.password_check = QLineEdit()
+        self.password_check.setEchoMode(QLineEdit.Password)
+        
+        # set up fields
         self.fields = [self.username_check, self.password_check]
+        
+        # set up the HBox and VBox to be used by the layout
         self.vbox = QVBoxLayout()
         self.user_hbox = QHBoxLayout()
         self.pass_hbox = QHBoxLayout()
         self.confirm_hbox = QHBoxLayout()
+        
+        # draw the page
         self.draw()
-
+    
+    # adds all buttons and sets up the layout
     def draw(self):
-        self.setWindowTitle("Login")
-        confirm_btn = QPushButton()
+        # set up the confirm button
+        confirm_btn = QPushButton("Confirm")
+        confirm_btn.clicked.connect(self.verify_fields)
         confirm_btn.setProperty('class', 'confirm-btn')
         confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        confirm_btn.setText("Confirm")
-        confirm_btn.clicked.connect(self.verify_fields)
-        cancel_btn = QPushButton()
+        
+        # set up the cancel button
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.clicked.connect(self.go_back)
         cancel_btn.setProperty('class', 'cancel-btn')
         cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        cancel_btn.setText("Cancel")
-        cancel_btn.clicked.connect(self.go_back)
-
-        self.password_check.setEchoMode(QLineEdit.Password)
-        self.username_label.setProperty('class', 'login-label')
-        self.password_label.setProperty('class', 'login-label')
-
-        self.vbox.addStretch(1)
+        
+        # set up the HBox
         self.user_hbox.addWidget(self.username_label)
         self.user_hbox.addWidget(self.username_check)
         self.pass_hbox.addWidget(self.password_label)
         self.pass_hbox.addWidget(self.password_check)
         self.confirm_hbox.addWidget(cancel_btn)
         self.confirm_hbox.addWidget(confirm_btn)
+        
+        # set up the VBox
+        self.vbox.addStretch(1)
         self.vbox.addLayout(self.user_hbox)
         self.vbox.addLayout(self.pass_hbox)
         self.vbox.addLayout(self.confirm_hbox)
+        self.vbox.addStretch(1)
+        
+        # set up the layout
         self.setLayout(self.vbox)
-        # label.setAlignment(Qt.AlignCenter)
-
-    # Check database, verify the username and password.
+        
+        # set the geometry of the window
+        sys_width, sys_height = self.screen_resolution()
+        self.x_coord = sys_width / 2 - 250
+        self.y_coord = sys_height / 4
+        self.width = 500
+        self.height = 500
+        self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
+    
+    # check the database, verify the username and password of the user
     def verify_fields(self):
         entered_username = self.username_check.text()
         entered_password = self.password_check.text()
         
-        # TODO these lines of code cause the program to crash
-        # try:
-        #     username_check = User.get(User.username == entered_username).username
-        # except User.DoesNotExist:
-        #     username_check = None
-        # hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
-        # password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
+        # attempt to retrieve the user's information from the database
+        try:
+            username_check = User.get(User.username == entered_username).username
+        except User.DoesNotExist:
+            username_check = None
         
+        # retrieve and check the password
+        hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
+        password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
+        
+        # ensure the user entered viable information
         if len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
             return
+        
         elif username_check is None:
             msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
             return
+        
         elif password_check is not True:
             msg = QMessageBox.warning(None, " ", " Incorrect Password. Try re-entering. ")
             return
+        
         else:
             msg = QMessageBox.warning(None, " ", "BEEP!")
             # TODO MAKE THIS ACTUALLY HAPPEN
             # config.current_user_type = User.get(User.username == entered_username).account_type
             self.go_forward()
             return
-
-    def go_back(self):
-        self.close()
-        self.parent().parent().set_page(0)
-
-    def go_forward(self):
-        self.parent().parent().win.set_page(1)
-
+    
+    # verify that the password entered for the user is the correct password
     def verify_password(self, stored_password, provided_password):
         salt = stored_password[:64]
         stored_password = stored_password[64:]
@@ -102,4 +142,38 @@ class Login(QWidget):
                                       salt.encode('ascii'),
                                       100000)
         pwdhash = binascii.hexlify(pwdhash).decode('ascii')
+        
         return pwdhash == stored_password
+    
+    # resets the coordinates of the window after switching to this page
+    def set_position(self):
+        self.parent().move(self.x_coord, self.y_coord)
+        self.parent().resize(self.width, self.height)
+    
+    # go back to the login page
+    def go_back(self):
+        self.win.set_page(0)
+    
+    # go to the homepage
+    def go_forward(self):
+        self.win.set_page(4)
+    
+    # draws rectangle around buttons
+    def paintEvent(self, e):
+        painter = QPainter(self)
+        
+        # set the color and pattern of the border of the shape: (color, thickness, pattern)
+        painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+        
+        # set the color and pattern of the shape: (r, g, b, alpha)
+        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+        
+        # set the properties of the rectangle: (x-coord, y-coord, width, height)
+        painter.drawRect(1, 160, 498, 175)
+    
+    # returns the resolution of the current system (width and height)
+    def screen_resolution(self):
+        # retrieve the resolution of the current system
+        geometry = QDesktopWidget().screenGeometry(0)
+    
+        return geometry.width(), geometry.height()

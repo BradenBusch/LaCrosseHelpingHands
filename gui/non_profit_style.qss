@@ -45,23 +45,25 @@ QPushButton {{
 }}
 
 .confirm-btn {{
+    background-color: rgb(230, 242, 230);
+    border: 1px solid green;
+    color: green;
+    padding: 5px;
+    border-radius: 5px;
+}}
+
+.confirm-btn:hover {{
+    border: 2px solid green;
+}}
+
+.cancel-btn {{
+    background-color: rgb(242, 230, 230);
     border: 1px solid red;
     color: red;
     padding: 5px;
     border-radius: 5px;
 }}
 
-.confirm-btn:hover {{
-    border: 2px solid red;
-}}
-
-.cancel-btn {{
-    border: 1px solid black;
-    color: black;
-    padding: 5px;
-    border-radius: 5px;
-}}
-
 .cancel-btn:hover {{
-    border: 2px solid black;
+    border: 2px solid red;
 }}

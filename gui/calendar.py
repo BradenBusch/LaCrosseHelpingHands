@@ -11,9 +11,11 @@ from PyQt5.QtCore import QDate
 
 try:
 	import non_profit.gui.login
+	from non_profit import constants as cs
 except:
 	import gui.login
 	# from gui.login import *
+	import constants as cs
 
 # TODO track what type of user is currently logged in, Guest will have 'None' so we can default to that
 
@@ -80,6 +82,7 @@ class Calendar(QWidget):
 
 # returns the resolution of the current system (width and height)
 def screen_resolution():
-	sizeObject = QDesktopWidget().screenGeometry(0)
+	# retrieve the resolution of the current system
+	geometry = QDesktopWidget().screenGeometry(0)
 	
-	return sizeObject.width(), sizeObject.height()
+	return geometry.width(), geometry.height()

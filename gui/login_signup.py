@@ -1,160 +1,110 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QStackedWidget, QHBoxLayout, QVBoxLayout, QMainWindow, QDesktopWidget, QLabel, QAction
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QCursor, QIcon
-from PyQt5.QtCore import Qt, QSize, pyqtSlot
+'''
+Manages the relationship between all of the different pages.
+
+Authors: Braden Busch, Kaelan Engholdt, Alex Terry
+Version: 03/01/2020
+
+'''
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 try:
     from non_profit.gui.new_account import NewAccount
     from non_profit.gui.login import Login
+    from non_profit import constants as cs
+
 except:
     from gui.new_account import NewAccount
     from gui.login import Login
-
-
-# The Stack GUI. This allows multiple windows to be opened from buttons.
-class LoginNewAccountStacker(QWidget):
-    def __init__(self, widgets, page, main=None):
-        super().__init__()
-        self.widgets = widgets
-        self.stacker = QStackedWidget(self)
-        self.win = main
-        for widget in self.widgets:
-            self.stacker.addWidget(widget)
-        # I have no idea why this works, but don't touch it.
-        # --------------------------------------------------
-        self.v = QVBoxLayout()
-        self.v.addWidget(QWidget())
-        self.v.addWidget(self.stacker)
-        self.setLayout(self.v)
-        # --------------------------------------------------
-        self.set_page(0)
-        self.set_size(page)
-    
-    # Not sure if this is necessary yet
-    def windowTitle(self):
-        return self.widgets[self.stacker.currentIndex()].windowTitle()
-    
-    # TODO fix window naming so that it updates
-    def set_page(self, i):
-        if not i < len(self.widgets):
-            return
-        self.win.setWindowTitle(self.widgets[i].windowTitle())
-        self.stacker.setCurrentIndex(i)
-        # self.widgets[i].update()
-    
-    # sets the size of the account stacker depending on what page is being displayed
-    def set_size(self, page):
-        width, height = screen_resolution()
-        # dimensions for the login, signup, and new account widgets
-        if page == 0:
-            self.setGeometry(width / 2 - 250, height / 8, 500, 500)
-        
-        # dimensions for the calendar page
-        if page == 3:
-            self.setGeometry(0, 0, width, height)
-            # TODO the window bar disappears?
-
-
-class WindowManager(QMainWindow):
-    def __init__(self, widgets):
-        super().__init__(None)
-        self.stacker = QStackedWidget(self)
-        initial_pages = [widgets[0], widgets[1], widgets[2]] # holds the login, signup, and new account widgets
-        calendar_page = [widgets[3]] # holds the calendar page
-        # self.widgets = [LoginNewAccountStacker(widgets, self)]
-        self.widgets = [LoginNewAccountStacker(initial_pages, 0, self),
-                        LoginNewAccountStacker(calendar_page, 3, self)]
-        # self.widgets = widgets
-        for w in self.widgets:
-            self.stacker.addWidget(w)
-        # NO IDEA WHY THIS IS NEEDED BUT DON'T REMOVE
-        # -------------------------------------------
-        self.c_layout = QHBoxLayout()
-        self.c_layout.addWidget(self.stacker)
-        self.setLayout(self.c_layout)
-        # -------------------------------------------
-        self.set_page(0)
-        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
-        
-        mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu('File')
-        editMenu = mainMenu.addMenu('Edit')
-        viewMenu = mainMenu.addMenu('View')
-        searchMenu = mainMenu.addMenu('Search')
-        toolsMenu = mainMenu.addMenu('Tools')
-        helpMenu = mainMenu.addMenu('Help')
-        
-        exitButton = QAction(QIcon('exit24.png'), 'Exit', self)
-        exitButton.setShortcut('Ctrl+Q')
-        exitButton.setStatusTip('Exit application')
-        exitButton.triggered.connect(self.close)
-        fileMenu.addAction(exitButton)
-
-    # TODO update window naming so it actually works
-    def set_page(self, i):
-        if not i < len(self.widgets):
-            return
-        self.setWindowTitle(self.widgets[i].windowTitle())
-        self.stacker.setGeometry(self.widgets[i].geometry())
-        self.setGeometry(self.widgets[i].geometry())
-        self.stacker.setCurrentIndex(i)
+    import constants as cs
 
 
 class LogInSignUp(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        
+        # set window title and properties, initialize the window reference
         self.setProperty('class', 'login-signup')
-        self.draw()
         self.setWindowTitle("Helping Hands La Crosse")
-        self.update()
-
+        self.win = None
+        
+        # draw the page
+        self.draw()
+    
+    # adds all buttons and sets up the layout
     def draw(self):
-        # TODO style this, she dumb ugly doe
+        # set up the login button
         login = QPushButton("Login")
         login.clicked.connect(self.login_click)
         login.setProperty('class', 'login-btn')
         login.setCursor(QCursor(Qt.PointingHandCursor))
         
+        # set up the sign up button
         signup = QPushButton("Sign-Up")
         signup.clicked.connect(self.signup_click)
         signup.setProperty('class', 'signup-btn')
         signup.setCursor(QCursor(Qt.PointingHandCursor))
         
+        # set up the guest button
         guest = QPushButton("Continue as Guest")
         guest.clicked.connect(self.guest_click)
         guest.setProperty('class', 'signup-btn')
         guest.setCursor(QCursor(Qt.PointingHandCursor))
         
+        # set up the VBox
         vbox = QVBoxLayout()
         vbox.addStretch(1)
         vbox.addWidget(login)
         vbox.addWidget(signup)
         vbox.addWidget(guest)
-        # self.setGeometry(0, 0, 300, 300)
+        vbox.addStretch(1)
+        
+        # set up the layout
         self.setLayout(vbox)
-
-    # Set the GUI to the Login page
-    # TODO potentially add close if something is breaking
-    def login_click(self):
-        self.parent().parent().set_page(1)
-
-    # Set the GUI to the New Account page
-    def signup_click(self):
-        self.parent().parent().set_page(2)
+        
+        # set the geometry of the window
+        sys_width, sys_height = self.screen_resolution()
+        self.x_coord = sys_width / 2 - 250
+        self.y_coord = sys_height / 4
+        self.width = 500
+        self.height = 500
+        self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
     
-    # Set the GUI to the Homepage
+    # resets the coordinates of the window after switching to this page
+    def set_position(self):
+        self.parent().move(self.x_coord, self.y_coord)
+        self.parent().resize(self.width, self.height)
+    
+    # go to the login page
+    def login_click(self):
+        self.win.set_page(1)
+    
+    # go to the new account page
+    def signup_click(self):
+        self.win.set_page(2)
+    
+    # go to the homepage
     def guest_click(self):
-        self.parent().parent().win.set_page(1)
+        self.win.set_page(4)
     
     # draws rectangle around buttons
     def paintEvent(self, e):
         painter = QPainter(self)
+        
+        # set the color and pattern of the border of the shape: (color, thickness, pattern)
         painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+        
+        # set the color and pattern of the shape: (r, g, b, alpha)
         painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-        painter.drawRect(5, 200, 473, 275)
-
-
-# returns the resolution of the current system (width and height)
-def screen_resolution():
-    sizeObject = QDesktopWidget().screenGeometry(0)
+        
+        # set the properties of the rectangle: (x-coord, y-coord, width, height)
+        painter.drawRect(1, 135, 498, 225)
     
-    return sizeObject.width(), sizeObject.height()
+    # returns the resolution of the current system (width and height)
+    def screen_resolution(self):
+        # retrieve the resolution of the current system
+        geometry = QDesktopWidget().screenGeometry(0)
+        
+        return geometry.width(), geometry.height()
