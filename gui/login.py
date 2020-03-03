@@ -160,7 +160,14 @@ class Login(QWidget):
     
     # go to the homepage
     def go_forward(self):
-        self.win.set_page(self.this_page, cs.PAGE_CAL)    # TODO change cs.PAGE_CAL to cs.PAGE_HOME when homepage is done
+        # go back to the original page after logging in
+        if cs.PREV_PAGE is not cs.PAGE_LOGIN_SIGNUP:
+            self.win.set_page(self.this_page, cs.PREV_PAGE)
+        
+        # go to the homepage if the user is coming from the login signup page
+        else:
+            self.win.set_page(self.this_page, cs.PAGE_CAL)  # TODO change cs.PAGE_CAL to cs.PAGE_HOME when homepage is done
+        
         self.username_check.clear()
         self.password_check.clear()
     

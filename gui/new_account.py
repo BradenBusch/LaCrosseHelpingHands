@@ -195,7 +195,7 @@ class NewAccount(QWidget):
             stored_password = self.hash_password(password)
             account_type = self.get_account_type()
             self.store_user(username, email, stored_password, account_type)
-            self.go_back()
+            self.go_back_success()
             return
     
     # clears all fields in the forum
@@ -218,8 +218,13 @@ class NewAccount(QWidget):
         pwdhash = binascii.hexlify(pwdhash)
         return (salt + pwdhash).decode('ascii')
     
-    # go back to the login signup page
+    # go back to the previous page
     def go_back(self):
+        self.win.set_page(self.this_page, cs.PREV_PAGE)
+        self.clear_fields()
+    
+    # go back to the login screen if account creation was successful
+    def go_back_success(self):
         self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
         self.clear_fields()
     
