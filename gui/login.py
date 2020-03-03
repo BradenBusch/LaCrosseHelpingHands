@@ -3,7 +3,7 @@ Holds everything related to the login page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/01/2020
+Version: 03/02/2020
 
 '''
 
@@ -18,7 +18,6 @@ try:
     from non_profit.gui.login_signup import *
     from non_profit.models.database import *
     from non_profit import constants as cs
-
 except:
     from gui.login_signup import *
     from models.database import *
@@ -30,7 +29,7 @@ class Login(QWidget):
         super().__init__(parent)
         
         # set window title and initialize the window reference
-        self.setWindowTitle("Login")
+        self.setWindowTitle("Log In")
         self.win = None
         
         # set up the username label
@@ -63,24 +62,24 @@ class Login(QWidget):
     # adds all buttons and sets up the layout
     def draw(self):
         # set up the confirm button
-        confirm_btn = QPushButton("Confirm")
-        confirm_btn.clicked.connect(self.verify_fields)
-        confirm_btn.setProperty('class', 'confirm-btn')
-        confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.confirm_btn = QPushButton("Confirm")
+        self.confirm_btn.clicked.connect(self.verify_fields)
+        self.confirm_btn.setProperty('class', 'confirm-btn')
+        self.confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the cancel button
-        cancel_btn = QPushButton("Cancel")
-        cancel_btn.clicked.connect(self.go_back)
-        cancel_btn.setProperty('class', 'cancel-btn')
-        cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.cancel_btn = QPushButton("Cancel")
+        self.cancel_btn.clicked.connect(self.go_back)
+        self.cancel_btn.setProperty('class', 'cancel-btn')
+        self.cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the HBox
         self.user_hbox.addWidget(self.username_label)
         self.user_hbox.addWidget(self.username_check)
         self.pass_hbox.addWidget(self.password_label)
         self.pass_hbox.addWidget(self.password_check)
-        self.confirm_hbox.addWidget(cancel_btn)
-        self.confirm_hbox.addWidget(confirm_btn)
+        self.confirm_hbox.addWidget(self.cancel_btn)
+        self.confirm_hbox.addWidget(self.confirm_btn)
         
         # set up the VBox
         self.vbox.addStretch(1)
@@ -118,18 +117,23 @@ class Login(QWidget):
         # ensure the user entered viable information
         if len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
+            self.username_check.clear()
+            self.password_check.clear()
             return
         
         elif username_check is None:
             msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
+            self.username_check.clear()
+            self.password_check.clear()
             return
         
         elif password_check is not True:
             msg = QMessageBox.warning(None, " ", " Incorrect Password. Try re-entering. ")
+            self.password_check.clear()
             return
         
         else:
-            msg = QMessageBox.warning(None, " ", "BEEP!")
+            msg = QMessageBox.warning(None, " ", "BEEP!")    # TODO eventually delete this QBox message once debugged
             # TODO MAKE THIS ACTUALLY HAPPEN
             # config.current_user_type = User.get(User.username == entered_username).account_type
             self.go_forward()
@@ -150,10 +154,14 @@ class Login(QWidget):
     # go back to the login page
     def go_back(self):
         self.win.set_page(0)
+        self.username_check.clear()
+        self.password_check.clear()
     
     # go to the homepage
     def go_forward(self):
         self.win.set_page(4)
+        self.username_check.clear()
+        self.password_check.clear()
     
     # draws rectangle around buttons
     def paintEvent(self, e):
@@ -172,6 +180,24 @@ class Login(QWidget):
     def set_position(self):
         self.parent().move(self.x_coord, self.y_coord)
         self.parent().resize(self.width, self.height)
+    
+    # checks which user is logged in and formats the page to accomodate the user type
+    def check_user(self):
+        # check if the current user is a guest
+        if cs.CURRENT_USER == "Guest":
+            pass
+        
+        # check if the current user is a volunteer
+        if cs.CURRENT_USER == "Volunteer":
+            pass
+        
+        # check if the current user is a staff member
+        if cs.CURRENT_USER == "Staff":
+            pass
+        
+        # check if the current user is an administrator
+        if cs.CURRENT_USER == "Administrator":
+            pass
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):
