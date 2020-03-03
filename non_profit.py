@@ -2,7 +2,7 @@
 Top level script, starts the application.
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/01/2020
+Version: 03/02/2020
 
 PyQt5 Documentation: https://www.riverbankcomputing.com/static/Docs/PyQt5/
 PyQt5 Tutorial: https://build-system.fman.io/pyqt5-tutorial
@@ -19,7 +19,6 @@ try:
     from non_profit.gui.homepage import *
     from non_profit.gui.calendar import *
     from non_profit.gui.non_profit_style_driver import *
-
 except:
     from models.database import *
     from gui.window_manager import *

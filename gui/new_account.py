@@ -3,7 +3,7 @@ Holds everything related to the new account page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/01/2020
+Version: 03/02/2020
 
 '''
 
@@ -19,7 +19,6 @@ try:
     from non_profit.gui.login_signup import *
     from non_profit.models.database import *
     from non_profit import constants as cs
-
 except:
     from gui.login_signup import *
     from models.database import *
@@ -53,34 +52,34 @@ class NewAccount(QWidget):
     # adds all buttons and sets up the layout
     def draw(self):
         # set up the confirm button
-        confirm_btn = QPushButton("Confirm")
-        confirm_btn.clicked.connect(self.verify_fields)
-        confirm_btn.setProperty('class', 'confirm-btn')
-        confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.confirm_btn = QPushButton("Confirm")
+        self.confirm_btn.clicked.connect(self.verify_fields)
+        self.confirm_btn.setProperty('class', 'confirm-btn')
+        self.confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the cancel button
-        cancel_btn = QPushButton("Cancel")
-        cancel_btn.clicked.connect(self.go_back)
-        cancel_btn.setProperty('class', 'cancel-btn')
-        cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.cancel_btn = QPushButton("Cancel")
+        self.cancel_btn.clicked.connect(self.go_back)
+        self.cancel_btn.setProperty('class', 'cancel-btn')
+        self.cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the volunteer radio button
-        volunteer_radio = QRadioButton("Volunteer")
-        volunteer_radio.toggled.connect(self.hide_admin)
-        volunteer_radio.setChecked(True)
+        self.volunteer_radio = QRadioButton("Volunteer")
+        self.volunteer_radio.toggled.connect(self.hide_admin)
+        self.volunteer_radio.setChecked(True)
         
         # set up the staff radio button
-        staff_radio = QRadioButton("Staff")
-        staff_radio.toggled.connect(self.hide_admin)
+        self.staff_radio = QRadioButton("Staff")
+        self.staff_radio.toggled.connect(self.hide_admin)
         
         # set up the administrator radio button
-        admin_radio = QRadioButton("Administrator")
-        admin_radio.toggled.connect(self.admin_click)
+        self.admin_radio = QRadioButton("Administrator")
+        self.admin_radio.toggled.connect(self.admin_click)
         
         # set up the radio buttons
-        self.radio_btns.append(volunteer_radio)
-        self.radio_btns.append(staff_radio)
-        self.radio_btns.append(admin_radio)
+        self.radio_btns.append(self.volunteer_radio)
+        self.radio_btns.append(self.staff_radio)
+        self.radio_btns.append(self.admin_radio)
         
         # set up the text fields to be filled in by the user
         self.username_edit.setPlaceholderText("Username (At least 8 Characters)")
@@ -108,8 +107,8 @@ class NewAccount(QWidget):
         for btn in self.radio_btns:
             self.hbox_1.addWidget(btn)
         
-        self.hbox_2.addWidget(cancel_btn)
-        self.hbox_2.addWidget(confirm_btn)
+        self.hbox_2.addWidget(self.cancel_btn)
+        self.hbox_2.addWidget(self.confirm_btn)
         
         # add the HBoxes to the VBox
         self.vbox.addLayout(self.hbox_1)
@@ -193,7 +192,6 @@ class NewAccount(QWidget):
             account_type = self.get_account_type()
             self.store_user(username, email, stored_password, account_type)
             self.go_back()
-            self.clear_fields()
             return
     
     # clears all fields in the forum
@@ -205,7 +203,7 @@ class NewAccount(QWidget):
     def store_user(self, username, email, password, account_type=None):
         new_user = User(username=username, password=password, account_email=email, account_type=account_type)
         new_user.save()
-        query = User.select()
+        # query = User.select()
         # print([user.user_id for user in query]) # TODO for debugging
     
     # hash the user's password
@@ -219,6 +217,7 @@ class NewAccount(QWidget):
     # go back to the login page
     def go_back(self):
         self.win.set_page(0)
+        self.clear_fields()
     
     # show the admin_code text box widget
     def admin_click(self):
@@ -227,6 +226,7 @@ class NewAccount(QWidget):
     # hide the admin_code text box widget
     def hide_admin(self):
         self.admin_code_box.hide()
+        self.admin_code_box.clear()
     
     # get which radio button is selected
     def get_account_type(self):
@@ -251,6 +251,24 @@ class NewAccount(QWidget):
     def set_position(self):
         self.parent().move(self.x_coord, self.y_coord)
         self.parent().resize(self.width, self.height)
+    
+    # checks which user is logged in and formats the page to accomodate the user type
+    def check_user(self):
+        # check if the current user is a guest
+        if cs.CURRENT_USER == "Guest":
+            pass
+        
+        # check if the current user is a volunteer
+        if cs.CURRENT_USER == "Volunteer":
+            pass
+        
+        # check if the current user is a staff member
+        if cs.CURRENT_USER == "Staff":
+            pass
+        
+        # check if the current user is an administrator
+        if cs.CURRENT_USER == "Administrator":
+            pass
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

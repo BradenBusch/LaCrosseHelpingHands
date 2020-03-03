@@ -3,7 +3,7 @@ Holds everything related to the welcome page, where users decide how to access t
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/01/2020
+Version: 03/02/2020
 
 '''
 
@@ -15,7 +15,6 @@ try:
     from non_profit.gui.new_account import NewAccount
     from non_profit.gui.login import Login
     from non_profit import constants as cs
-
 except:
     from gui.new_account import NewAccount
     from gui.login import Login
@@ -37,33 +36,33 @@ class LogInSignUp(QWidget):
     # adds all buttons and sets up the layout
     def draw(self):
         # set up the login button
-        login = QPushButton("Login")
-        login.clicked.connect(self.login_click)
-        login.setProperty('class', 'login-btn')
-        login.setCursor(QCursor(Qt.PointingHandCursor))
+        self.login_btn = QPushButton("Log In")
+        self.login_btn.clicked.connect(self.login_click)
+        self.login_btn.setProperty('class', 'login-btn')
+        self.login_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the sign up button
-        signup = QPushButton("Sign-Up")
-        signup.clicked.connect(self.signup_click)
-        signup.setProperty('class', 'signup-btn')
-        signup.setCursor(QCursor(Qt.PointingHandCursor))
+        self.signup_btn = QPushButton("Sign Up")
+        self.signup_btn.clicked.connect(self.signup_click)
+        self.signup_btn.setProperty('class', 'signup-btn')
+        self.signup_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the guest button
-        guest = QPushButton("Continue as Guest")
-        guest.clicked.connect(self.guest_click)
-        guest.setProperty('class', 'signup-btn')
-        guest.setCursor(QCursor(Qt.PointingHandCursor))
+        self.guest_btn = QPushButton("Continue as Guest")
+        self.guest_btn.clicked.connect(self.guest_click)
+        self.guest_btn.setProperty('class', 'signup-btn')
+        self.guest_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
         # set up the VBox
-        vbox = QVBoxLayout()
-        vbox.addStretch(1)
-        vbox.addWidget(login)
-        vbox.addWidget(signup)
-        vbox.addWidget(guest)
-        vbox.addStretch(1)
-        
+        self.vbox = QVBoxLayout()
+        self.vbox.addStretch(1)
+        self.vbox.addWidget(self.login_btn)
+        self.vbox.addWidget(self.signup_btn)
+        self.vbox.addWidget(self.guest_btn)
+        self.vbox.addStretch(1)
+        self.vbox.setAlignment(Qt.AlignCenter)
         # set up the layout
-        self.setLayout(vbox)
+        self.setLayout(self.vbox)
         
         # set the geometry of the window
         sys_width, sys_height = self.screen_resolution()
@@ -102,6 +101,24 @@ class LogInSignUp(QWidget):
     def set_position(self):
         self.parent().move(self.x_coord, self.y_coord)
         self.parent().resize(self.width, self.height)
+    
+    # checks which user is logged in and formats the page to accomodate the user type
+    def check_user(self):
+        # check if the current user is a guest
+        if cs.CURRENT_USER == "Guest":
+            pass
+        
+        # check if the current user is a volunteer
+        if cs.CURRENT_USER == "Volunteer":
+            pass
+        
+        # check if the current user is a staff member
+        if cs.CURRENT_USER == "Staff":
+            pass
+        
+        # check if the current user is an administrator
+        if cs.CURRENT_USER == "Administrator":
+            pass
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

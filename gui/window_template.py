@@ -10,6 +10,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+try:
+    from non_profit import constants as cs
+except:
+    import constants as cs
+
 
 class WindowTemplate(QWidget):    # TODO rename class
     def __init__(self, parent=None):
@@ -26,10 +31,10 @@ class WindowTemplate(QWidget):    # TODO rename class
     # adds all buttons and sets up the layout
     def draw(self):
         # TODO style the button in 'non_profit_style.qss'
-        btn_name = QPushButton("Button")    # TODO name button
-        btn_name.clicked.connect(self.btn_click)    # TODO call button click method
-        btn_name.setProperty('class', 'button-btn')    # TODO set button name correctly
-        btn_name.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_name = QPushButton("Button")    # TODO name button
+        self.btn_name.clicked.connect(self.btn_click)    # TODO call button click method
+        self.btn_name.setProperty('class', 'button-btn')    # TODO set button name correctly
+        self.btn_name.setCursor(QCursor(Qt.PointingHandCursor))
         
         # TODO add more buttons here
         
@@ -42,7 +47,7 @@ class WindowTemplate(QWidget):    # TODO rename class
         # define the VBox
         # vbox = QVBoxLayout()
         # vbox.addStretch(1)    # TODO add "stretches" to create padding between buttons
-        # vbox.addWidget(btn_name)
+        # vbox.addWidget(self.btn_name)
         # TODO add more button widgets to the vbox here
         
         # set up the layout
@@ -81,6 +86,25 @@ class WindowTemplate(QWidget):    # TODO rename class
     def set_position(self):
         self.parent().move(self.x_coord, self.y_coord)
         self.parent().resize(self.width, self.height)
+    
+    # checks which user is logged in and formats the page to accomodate the user type
+    def check_user(self):
+        # TODO if necessary, change which widgets (such as buttons) show up for different users
+        # check if the current user is a guest
+        if cs.CURRENT_USER == "Guest":
+            pass
+        
+        # check if the current user is a volunteer
+        if cs.CURRENT_USER == "Volunteer":
+            pass
+        
+        # check if the current user is a staff member
+        if cs.CURRENT_USER == "Staff":
+            pass
+        
+        # check if the current user is an administrator
+        if cs.CURRENT_USER == "Administrator":
+            pass
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

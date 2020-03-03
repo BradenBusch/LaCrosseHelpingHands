@@ -1,33 +1,32 @@
 
 QPushButton[class="login-btn"] {{
-    background-color: red;
+    background-color: rgb(214, 47, 47);
     padding: 10px;
+    width: 300px;
+    border: 3px solid rgb(138, 0, 0);
     border-radius: 15px;
-    border: 1px solid red;
-    font-size: 14px;
-    color: white;
+    font-size: 16px;
     font-weight: bold;
-    margin: 0px 40px;
+    color: white;
 }}
 
 QPushButton[class="login-btn"]:hover {{
-    border: 1px solid white;
+    border: 3px solid white;
 }}
 
 QPushButton[class="signup-btn"] {{
-    background-color: white;
+    background-color: rgb(60, 125, 158);
     padding: 10px;
-    border: 1px solid white;
+    width: 300px;
+    border: 3px solid rgb(38, 84, 124);
     border-radius: 15px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
-    color: red;
-    margin-top: 10px;
-    margin: 0px 40px;
+    color: white;
 }}
 
 QPushButton.signup-btn:hover {{
-    border: 1px solid red;
+    border: 3px solid rgb(244, 47, 47);
 }}
 
 QLineEdit {{
@@ -48,7 +47,8 @@ QPushButton {{
     background-color: rgb(230, 242, 230);
     border: 1px solid green;
     color: green;
-    padding: 5px;
+    font-size: 13px;
+    padding: 7px;
     border-radius: 5px;
 }}
 
@@ -60,10 +60,113 @@ QPushButton {{
     background-color: rgb(242, 230, 230);
     border: 1px solid red;
     color: red;
-    padding: 5px;
+    font-size: 13px;
+    padding: 7px;
     border-radius: 5px;
 }}
 
 .cancel-btn:hover {{
     border: 2px solid red;
+}}
+
+QCalendarWidget[class="calendar"] {{
+
+}}
+
+QPushButton[class="normal-bar-btn"] {{
+    background-color: rgb(60, 125, 158);
+    padding: 10px;
+    max-width: 150px;
+    border: 3px solid rgb(38, 84, 124);
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.normal-bar-btn:hover {{
+    border: 3px solid rgb(244, 47, 47);
+}}
+
+QPushButton[class="special-bar-btn"] {{
+    background-color: rgb(214, 47, 47);
+    padding: 10px;
+    max-width: 150px;
+    border: 3px solid rgb(138, 0, 0);
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.special-bar-btn:hover {{
+    border: 3px solid white;
+}}
+
+QLabel.cal-label {{
+    font-size: 40px;
+    font-weight: bold;
+    color: black;
+}}
+
+QLabel.cal-bar-spacer-label {{
+    font-size: 100px;
+}}
+
+QLabel.cal-bottom-spacer-label {{
+    font-size: 125px;
+}}
+
+
+QCalendarWidget QToolButton {{
+    height: 60px;
+    width: 150px;
+    color: white;
+    font-size: 24px;
+    icon-size: 56px, 56px;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #d62f2f, stop: 1 #8a0000);
+}}
+
+QCalendarWidget QMenu {{
+    width: 150px;
+    left: 20px;
+    color: white;
+    font-size: 18px;
+    background-color: rgb(138, 0, 0);
+}}
+
+QCalendarWidget QSpinBox {{
+    width: 150px;
+    font-size:24px;
+    color: white;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #d62f2f, stop: 1 #8a0000);
+    selection-background-color: rgb(136, 136, 136);
+    selection-color: rgb(255, 255, 255);
+}}
+
+QCalendarWidget QSpinBox::up-button {{subcontrol-origin: border;  subcontrol-position: top right;  width:65px;}}
+QCalendarWidget QSpinBox::down-button {{subcontrol-origin: border; subcontrol-position: bottom right;  width:65px;}}
+QCalendarWidget QSpinBox::up-arrow {{width:56px;  height:56px;}}
+QCalendarWidget QSpinBox::down-arrow {{width:56px;  height:56px;}}
+
+/* header row */
+QCalendarWidget QWidget {{alternate-background-color: rgb(38, 84, 124);}}
+
+/* normal days */
+QCalendarWidget QAbstractItemView:enabled {{
+    font-size:24px;
+    color: white;
+    background-color: rgb(176, 176, 176);
+    selection-background-color: rgb(60, 125, 158);
+    selection-color: rgb(0, 255, 0);
+}}
+
+/* navigation bar */
+QCalendarWidget QWidget#qt_calendar_navigationbar {{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #d62f2f, stop: 1 #8a0000);
+}}
+
+/* days in other months */
+QCalendarWidget QAbstractItemView:disabled {{
+    color: black;
 }}

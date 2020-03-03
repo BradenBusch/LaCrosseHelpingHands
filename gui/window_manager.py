@@ -2,7 +2,7 @@
 Manages the relationship between all of the different pages.
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/01/2020
+Version: 03/02/2020
 
 '''
 
@@ -11,6 +11,11 @@ import ctypes
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import os.path
+try:
+    from non_profit import constants as cs
+except:
+    import constants as cs
 
 
 class WindowManager(QMainWindow):
@@ -19,8 +24,10 @@ class WindowManager(QMainWindow):
         
         # set the window icon
         # TODO if file exits else use the other one (handle path to the image)
-        self.setWindowIcon(QIcon('gui\\photos\\hands_icon.png'))
-        
+        if os.path.isfile('gui\\photos\\hands_icon.png'):
+            self.setWindowIcon(QIcon('gui\\photos\\hands_icon.png'))
+        else:
+            self.setWindowIcon(QIcon('non_profit\\gui\\photos\\hands_icon.png'))
         # if the user is running windows, change the taskbar icon
         try:
             # tell windows what process the application is under
@@ -28,6 +35,21 @@ class WindowManager(QMainWindow):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         except:
             pass
+        
+        # retrieve the resolution of the system
+        sys_width, sys_height = self.screen_resolution()
+        
+        # set the helping hands banner
+        banner = QLabel(self)
+        if os.path.isfile('gui\\photos\\helping_hands_banner.png'):
+            pixmap = QPixmap('gui\\photos\\helping_hands_banner.png')
+        else:
+            pixmap = QPixmap('non_profit\\gui\\photos\\helping_hands_banner.png')
+        # pixmap = QPixmap('gui\\photos\\helping_hands_banner.png')
+        scaled_height = pixmap.height() * (sys_width / pixmap.width())
+        pixmap = pixmap.scaled(sys_width, scaled_height, transformMode=Qt.SmoothTransformation)
+        banner.setPixmap(pixmap)
+        banner.resize(pixmap.width(), pixmap.height())
         
         # set up the stacker and add all pages as widgets
         self.stacker = QStackedWidget(self)
@@ -46,21 +68,21 @@ class WindowManager(QMainWindow):
         # set the starting page to the login screen (the first page in the stack)
         self.set_page(0)
         
-        # set up the menu bar
-        mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu('File')
-        editMenu = mainMenu.addMenu('Edit')
-        viewMenu = mainMenu.addMenu('View')
-        searchMenu = mainMenu.addMenu('Search')
-        toolsMenu = mainMenu.addMenu('Tools')
-        helpMenu = mainMenu.addMenu('Help')
-        
-        # set up the exit button on the fileMenu
-        exitButton = QAction(QIcon('gui\\photos\\application_exit.png'), 'Exit', self)
-        exitButton.setShortcut('Ctrl+Q')
-        exitButton.setStatusTip('Exit application')
-        exitButton.triggered.connect(self.close)
-        fileMenu.addAction(exitButton)
+        # # set up the menu bar | NOTE: disabled the menu bar for now, it isn't really necessary
+        # self.mainMenu = self.menuBar()
+        # self.fileMenu = self.mainMenu.addMenu('File')
+        # self.editMenu = self.mainMenu.addMenu('Edit')
+        # self.viewMenu = self.mainMenu.addMenu('View')
+        # self.searchMenu = self.mainMenu.addMenu('Search')
+        # self.toolsMenu = self.mainMenu.addMenu('Tools')
+        # self.helpMenu = self.mainMenu.addMenu('Help')
+        #
+        # # set up the exit button on the fileMenu
+        # self.exitButton = QAction(QIcon('gui\\photos\\application_exit.png'), 'Exit', self)
+        # self.exitButton.setShortcut('Ctrl+Q')
+        # self.exitButton.setStatusTip('Exit application')
+        # self.exitButton.triggered.connect(self.close)
+        # self.fileMenu.addAction(self.exitButton)
     
     # sets the application to the indicated page
     def set_page(self, page_num):
@@ -68,8 +90,21 @@ class WindowManager(QMainWindow):
         if not page_num < len(self.widgets):
             return
         
-        # go to the indicated page and set page properties and geometry
-        self.setWindowTitle(self.widgets[page_num].windowTitle())
-        self.stacker.setGeometry(self.widgets[page_num].geometry())
-        self.stacker.setCurrentIndex(page_num)
-        self.widgets[page_num].set_position()
+        # ensure we are not on the current page
+        if page_num != cs.CURRENT_PAGE:
+            # set the new current page
+            cs.CURRENT_PAGE = page_num
+            
+            # go to the indicated page and set page properties and geometry
+            self.setWindowTitle(self.widgets[page_num].windowTitle())
+            self.stacker.setGeometry(self.widgets[page_num].geometry())
+            self.stacker.setCurrentIndex(page_num)
+            self.widgets[page_num].set_position()
+            self.widgets[page_num].check_user()
+    
+    # returns the resolution of the current system (width and height)
+    def screen_resolution(self):
+        # retrieve the resolution of the current system
+        geometry = QDesktopWidget().screenGeometry(0)
+
+        return geometry.width(), geometry.height()
