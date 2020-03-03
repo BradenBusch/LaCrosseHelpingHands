@@ -22,12 +22,12 @@ class WindowManager(QMainWindow):
     def __init__(self, widgets):
         super().__init__(None)
         
-        # set the window icon
-        # TODO if file exits else use the other one (handle path to the image)
+        # set the window icon, if file exits else use the other one (handles path to the image)
         if os.path.isfile('gui\\photos\\hands_icon.png'):
             self.setWindowIcon(QIcon('gui\\photos\\hands_icon.png'))
         else:
             self.setWindowIcon(QIcon('non_profit\\gui\\photos\\hands_icon.png'))
+        
         # if the user is running windows, change the taskbar icon
         try:
             # tell windows what process the application is under
@@ -41,11 +41,13 @@ class WindowManager(QMainWindow):
         
         # set the helping hands banner
         banner = QLabel(self)
+        
+        # if file exits else use the other one (handles path to the image)
         if os.path.isfile('gui\\photos\\helping_hands_banner.png'):
             pixmap = QPixmap('gui\\photos\\helping_hands_banner.png')
         else:
             pixmap = QPixmap('non_profit\\gui\\photos\\helping_hands_banner.png')
-        # pixmap = QPixmap('gui\\photos\\helping_hands_banner.png')
+        
         scaled_height = pixmap.height() * (sys_width / pixmap.width())
         pixmap = pixmap.scaled(sys_width, scaled_height, transformMode=Qt.SmoothTransformation)
         banner.setPixmap(pixmap)
@@ -65,8 +67,8 @@ class WindowManager(QMainWindow):
         self.c_layout.addWidget(self.stacker)
         self.setLayout(self.c_layout)
         
-        # set the starting page to the login screen (the first page in the stack)
-        self.set_page(0)
+        # set the starting page to the login signup screen
+        self.set_page(cs.PAGE_LOGIN_SIGNUP, cs.PAGE_LOGIN_SIGNUP)
         
         # # set up the menu bar | NOTE: disabled the menu bar for now, it isn't really necessary
         # self.mainMenu = self.menuBar()
@@ -85,13 +87,16 @@ class WindowManager(QMainWindow):
         # self.fileMenu.addAction(self.exitButton)
     
     # sets the application to the indicated page
-    def set_page(self, page_num):
+    def set_page(self, previous, page_num):
         # ensure the page exists
         if not page_num < len(self.widgets):
             return
         
         # ensure we are not on the current page
         if page_num != cs.CURRENT_PAGE:
+            # set the previous page
+            cs.PREV_PAGE = previous
+            
             # set the new current page
             cs.CURRENT_PAGE = page_num
             

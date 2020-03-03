@@ -31,6 +31,10 @@ class NewAccount(QWidget):
 
         # set window title and initialize the window reference
         self.setWindowTitle("Create an Account")
+        self.win = None
+        
+        # set the page id
+        self.this_page = cs.PAGE_NEW_ACCOUNT
         
         # set up all fields to be filled in by the user
         self.username_edit = QLineEdit()
@@ -214,9 +218,9 @@ class NewAccount(QWidget):
         pwdhash = binascii.hexlify(pwdhash)
         return (salt + pwdhash).decode('ascii')
     
-    # go back to the login page
+    # go back to the login signup page
     def go_back(self):
-        self.win.set_page(0)
+        self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
         self.clear_fields()
     
     # show the admin_code text box widget

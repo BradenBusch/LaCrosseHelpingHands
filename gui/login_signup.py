@@ -30,6 +30,9 @@ class LogInSignUp(QWidget):
         self.setWindowTitle("Helping Hands La Crosse")
         self.win = None
         
+        # set the page id
+        self.this_page = cs.PAGE_LOGIN_SIGNUP
+        
         # draw the page
         self.draw()
     
@@ -61,6 +64,7 @@ class LogInSignUp(QWidget):
         self.vbox.addWidget(self.guest_btn)
         self.vbox.addStretch(1)
         self.vbox.setAlignment(Qt.AlignCenter)
+        
         # set up the layout
         self.setLayout(self.vbox)
         
@@ -74,15 +78,15 @@ class LogInSignUp(QWidget):
     
     # go to the login page
     def login_click(self):
-        self.win.set_page(1)
+        self.win.set_page(self.this_page, cs.PAGE_LOGIN)
     
     # go to the new account page
     def signup_click(self):
-        self.win.set_page(2)
+        self.win.set_page(self.this_page, cs.PAGE_NEW_ACCOUNT)
     
     # go to the homepage
     def guest_click(self):
-        self.win.set_page(4)
+        self.win.set_page(self.this_page, cs.PAGE_CAL)    # TODO change cs.PAGE_CAL to cs.PAGE_HOME when homepage is done
     
     # draws rectangle around buttons
     def paintEvent(self, e):
