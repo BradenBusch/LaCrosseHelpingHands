@@ -103,6 +103,13 @@ QPushButton.special-bar-btn:hover {{
     border: 3px solid white;
 }}
 
+/* actually style the QTabLayout() */
+.tab-layout {{
+    color: red;
+    border: 1px solid red;
+    background-color: red;
+}}
+
 QLabel.cal-label {{
     font-size: 40px;
     font-weight: bold;

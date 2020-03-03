@@ -84,15 +84,14 @@ class Calendar(QWidget):
 		self.vbox_2 = QVBoxLayout()
 
 		# Create the tabs Widget and populate the tabs
-		# TODO make global variable for current date shown on tabs, delete and remake tabs if not current showing
+		cs.CURRENT_DATE = self.calendar.selectedDate()
 		self.tabs = QTabWidget()
-		self.populate_tabs(self.tabs)
+		self.tabs.setProperty('class', 'tab-layout')
+		self.calendar.clicked.connect(self.draw_tab(self.tabs))
+
 		# add the calendar and the tab widget that will display events
 		self.vbox_1.addWidget(self.calendar)
 		self.vbox_2.addWidget(self.tabs)
-
-		# TODO make GUI redraw tabs each time a new date is clicked
-		self.calendar.clicked.connect(self.draw_tab(self.tabs))
 
 		# add the two VBoxes to the top level HBox
 		self.hbox_screen.addLayout(self.vbox_1)
@@ -130,13 +129,27 @@ class Calendar(QWidget):
 		# set the maximum width of the calendar widget
 		self.calendar.setMaximumWidth(sys_width / 2)
 
+	def check_existing_tabs(self, tab_layout, day, month, year):
+		print(cs.CURRENT_DATE.day())
+		if day != cs.CURRENT_DATE.day() or month != cs.CURRENT_DATE.month() or year != cs.CURRENT_DATE.year():
+			for i in range(0, tab_layout.count()):
+				tab_layout.removeTab(i)
+		else:
+			print('Same day')
+
+	# TODO create an actual layout for the tabs, based on what type of user they are
 	# Build the tabs showing current events of the day
-	def draw_tab(self, tabLayout):
+	def draw_tab(self, tab_layout):
 		def build_tab():
 			date = self.calendar.selectedDate()
 			day = date.day()
 			month = date.month()
 			year = date.year()
+			self.check_existing_tabs(tab_layout, day, month, year)
+
+			# Update the current date after the check has been performed
+			cs.CURRENT_DATE = date
+
 			# Get all events on this date
 			try:
 				events_id = Event.get(Event.event_id).where(
@@ -144,15 +157,17 @@ class Calendar(QWidget):
 					(Event.event_date.month == month) &
 					(Event.event_date.year == year))
 				print(events_id)
+			# No Event(s) on this date
 			except Event.DoesNotExist:
-				# TODO delete all previous tabs
-				events_id = None
-				tab = QWidget()
+				for i in range(0, tab_layout.count()):
+					tab_layout.removeTab(i)
 				tab = QWidget()
 				vbox = QVBoxLayout()
 				vbox.addWidget(QLabel('No set events on this day'))
+				vbox.setAlignment(Qt.AlignCenter)
 				tab.setLayout(vbox)
-				tabLayout.addTab(tab, "None")
+				tab_layout.addTab(tab, "")
+
 			# TODO uncomment when events are actually added
 			# for event_id in events_id:
 			# 	tab = QWidget()
