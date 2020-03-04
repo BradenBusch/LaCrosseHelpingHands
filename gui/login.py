@@ -32,6 +32,9 @@ class Login(QWidget):
         self.setWindowTitle("Log In")
         self.win = None
         
+        # set the page id
+        self.this_page = cs.PAGE_LOGIN
+        
         # set up the username label
         self.username_label = QLabel("Username")
         self.username_label.setProperty('class', 'login-label')
@@ -143,15 +146,22 @@ class Login(QWidget):
         
         return pwdhash == stored_password
     
-    # go back to the login page
+    # go back to the previous page
     def go_back(self):
-        self.win.set_page(0)
+        self.win.set_page(self.this_page, cs.PREV_PAGE)
         self.username_check.clear()
         self.password_check.clear()
     
     # go to the homepage
     def go_forward(self):
-        self.win.set_page(4)
+        # go back to the original page after logging in
+        if cs.PREV_PAGE is not cs.PAGE_LOGIN_SIGNUP:
+            self.win.set_page(self.this_page, cs.PREV_PAGE)
+        
+        # go to the homepage if the user is coming from the login signup page
+        else:
+            self.win.set_page(self.this_page, cs.PAGE_CAL)  # TODO change cs.PAGE_CAL to cs.PAGE_HOME when homepage is done
+        
         self.username_check.clear()
         self.password_check.clear()
     

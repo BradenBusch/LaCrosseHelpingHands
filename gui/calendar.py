@@ -33,6 +33,9 @@ class Calendar(QWidget):
 		self.setWindowTitle("Calendar")
 		self.win = None
 		
+		# set the page id
+		self.this_page = cs.PAGE_CAL
+		
 		# determine the current date
 		self.currentMonth = datetime.now().month
 		self.currentYear = datetime.now().year
@@ -275,55 +278,55 @@ class Calendar(QWidget):
 	def top_bar(self):
 		# set up the home button
 		self.home_btn = QPushButton("Home")
-		self.home_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.home_btn.clicked.connect(self.home_click)
 		self.home_btn.setProperty('class', 'normal-bar-btn')
 		self.home_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the calendar button
 		self.cal_btn = QPushButton("Calendar")
-		self.cal_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.cal_btn.clicked.connect(self.cal_click)
 		self.cal_btn.setProperty('class', 'normal-bar-btn')
 		self.cal_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the about us button
 		self.about_btn = QPushButton("About Us")
-		self.about_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.about_btn.clicked.connect(self.about_click)
 		self.about_btn.setProperty('class', 'normal-bar-btn')
 		self.about_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the contact us button
 		self.contact_btn = QPushButton("Contact Us")
-		self.contact_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.contact_btn.clicked.connect(self.contact_click)
 		self.contact_btn.setProperty('class', 'normal-bar-btn')
 		self.contact_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the search button
 		self.search_btn = QPushButton("Search")
-		self.search_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.search_btn.clicked.connect(self.search_click)
 		self.search_btn.setProperty('class', 'normal-bar-btn')
 		self.search_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the account button (if the user is logged in)
 		self.account_btn = QPushButton("Account")
-		self.account_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.account_btn.clicked.connect(self.account_click)
 		self.account_btn.setProperty('class', 'special-bar-btn')
 		self.account_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the log out button (if the user is logged in)
 		self.logout_btn = QPushButton("Log Out")
-		self.logout_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.logout_btn.clicked.connect(self.logout_click)
 		self.logout_btn.setProperty('class', 'special-bar-btn')
 		self.logout_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the sign up button (if the user is logged out)
 		self.signup_btn = QPushButton("Sign Up")
-		self.signup_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.signup_btn.clicked.connect(self.signup_click)
 		self.signup_btn.setProperty('class', 'special-bar-btn')
 		self.signup_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the log in button (if the user is logged out)
 		self.login_btn = QPushButton("Log In")
-		self.login_btn.clicked.connect(self.btn_click)  # TODO call button click method
+		self.login_btn.clicked.connect(self.login_click)
 		self.login_btn.setProperty('class', 'special-bar-btn')
 		self.login_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
@@ -349,9 +352,44 @@ class Calendar(QWidget):
 		# add the HBox to the VBox
 		self.vbox_screen.addLayout(self.hbox_bar)
 	
-	# defines what happens when the button is clicked
-	def btn_click(self):
-		self.win.set_page(0)  # TODO perform correct action when button is clicked
+	# go to the homepage
+	def home_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_HOME)
+	
+	# go to the calendar page
+	def cal_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_CAL)
+	
+	# go to the about us page
+	def about_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_ABOUT)
+	
+	# go to the contact us page
+	def contact_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_CONTACT)
+	
+	# go to the search page
+	def search_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_SEARCH)
+	
+	# go to the account page
+	def account_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_ACCOUNT)
+	
+	# return to the login signup screen
+	def logout_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
+		
+		# TODO actually log the user out of their account
+		cs.CURRENT_USER = "Guest"
+	
+	# go to the login page
+	def login_click(self):
+		self.win.set_page(cs.PAGE_CAL, cs.PAGE_LOGIN)
+	
+	# go to the new account page
+	def signup_click(self):
+		self.win.set_page(cs.PAGE_CAL, cs.PAGE_NEW_ACCOUNT)
 	
 	# TODO to be used for debugging
 	def printDateInfo(self, qDate):
@@ -367,16 +405,16 @@ class Calendar(QWidget):
 		painter = QPainter(self)
 		
 		# set the color and pattern of the border of the shape: (color, thickness, pattern)
-		painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))  # TODO set border properties
+		painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
 		
 		# set the color and pattern of the shape: (r, g, b, alpha)
-		painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))  # TODO set color
+		painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
 		
 		# retrieve the resolution of the system
 		sys_width, sys_height = self.screen_resolution()
 		
 		# set the properties of the rectangle: (x-coord, y-coord, width, height)
-		painter.drawRect(0, 127, sys_width, 60)  # TODO rectangle properties (or another shape)
+		painter.drawRect(0, 127, sys_width, 60)
 	
 	# resets the coordinates of the window after switching to this page
 	def set_position(self):

@@ -26,6 +26,9 @@ class Homepage(QWidget):
         self.setWindowTitle("Welcome!")    # TODO set window title correctly
         self.win = None
         
+        # set the page id
+        self.this_page = cs.PAGE_HOME
+        
         # draw the page
         self.draw()
     
