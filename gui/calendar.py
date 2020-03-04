@@ -13,6 +13,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from functools import partial
 
 try:
 	from non_profit.gui.login import *
@@ -21,6 +22,8 @@ except:
 	from gui.login import *
 	import constants as cs
 
+
+# TODO handle approving requests somewhere, idk where we want that functionality to go
 
 class Calendar(QWidget):
 	def __init__(self, parent=None):
@@ -34,7 +37,7 @@ class Calendar(QWidget):
 		self.currentMonth = datetime.now().month
 		self.currentYear = datetime.now().year
 		self.currentDay = datetime.now().day
-		
+
 		# draw the page
 		self.draw()
 	
@@ -78,16 +81,20 @@ class Calendar(QWidget):
 		self.cal_label.setProperty('class', 'cal-label')
 		self.cal_label.setFixedHeight(62)
 		self.hbox_2.addWidget(self.cal_label)
-		
+
+		self.tab_label = QLabel("Events")
+		self.tab_label.setProperty('class', 'cal-label')
+		self.tab_label.setFixedHeight(62)
+		self.hbox_2.addWidget(self.tab_label)
 		# create the two VBoxes to divide the screen into two columns
 		self.vbox_1 = QVBoxLayout()
 		self.vbox_2 = QVBoxLayout()
 
 		# Create the tabs Widget and populate the tabs
-		cs.CURRENT_DATE = self.calendar.selectedDate()
+		cs.CURRENT_DATE = self.calendar.selectedDate()  # TODO ------ do not delete this line, can be modified tho --------
 		self.tabs = QTabWidget()
 		self.tabs.setProperty('class', 'tab-layout')
-		self.calendar.clicked.connect(self.draw_tab(self.tabs))
+		self.calendar.clicked.connect(partial(self.draw_tab, self.tabs))  # self.draw_tab(self.tabs))
 
 		# add the calendar and the tab widget that will display events
 		self.vbox_1.addWidget(self.calendar)
@@ -129,57 +136,140 @@ class Calendar(QWidget):
 		# set the maximum width of the calendar widget
 		self.calendar.setMaximumWidth(sys_width / 2)
 
+	# If the selected date is not the same as the previous date, delete all the tabs
 	def check_existing_tabs(self, tab_layout, day, month, year):
-		print(cs.CURRENT_DATE.day())
 		if day != cs.CURRENT_DATE.day() or month != cs.CURRENT_DATE.month() or year != cs.CURRENT_DATE.year():
 			for i in range(0, tab_layout.count()):
 				tab_layout.removeTab(i)
 		else:
 			print('Same day')
 
+	# Build the buttons for the tabs
+	def build_tab_btns(self, tab_layout, label=None, information=None):
+		tab_vbox = QVBoxLayout()
+		# tab_vbox.setAlignment(Qt.AlignCenter)
+		tab_btn_hbox = QHBoxLayout()
+		if label is not None:
+			tab_vbox.addWidget(label)
+		# TODO add information layout here
+		if information is not None:
+			pass
+		# TODO replace current tab with the create event gui
+		create_event_btn = QPushButton("Create New Event")
+		create_event_btn.clicked.connect(partial(self.create_event_form, tab_layout))
+		create_event_btn.setProperty('class', 'normal-bar-btn')
+		create_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		volunteer_btn = QPushButton("Volunteer")
+		# self.volunteer_btn.clicked.connect()
+		volunteer_btn.setProperty('class', 'normal-bar-btn')
+		volunteer_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		make_donation_btn = QPushButton("Make Donation")
+		# self.make_donation_btn.clicked.connect()
+		make_donation_btn.setProperty('class', 'normal-bar-btn')
+		make_donation_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		modify_event_btn = QPushButton("Modify Event")
+		# self.modify_event_btn.clicked.connect()
+		modify_event_btn.setProperty('class', 'normal-bar-btn')
+		modify_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		delete_event_btn = QPushButton("Delete Event")
+		# self.delete_event_btn.clicked.connect()
+		delete_event_btn.setProperty('class', 'normal-bar-btn')
+		delete_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		# Assign the correct buttons based on who's logged in
+		if cs.CURRENT_USER != 'Guest':
+			tab_btn_hbox.addWidget(create_event_btn)
+		if cs.CURRENT_USER == 'Volunteer':
+			tab_btn_hbox.addWidget(volunteer_btn)
+			tab_btn_hbox.addWidget(make_donation_btn)
+		if cs.CURRENT_USER == 'Staff' or cs.CURRENT_USER == 'Administrator':
+			tab_btn_hbox.addWidget(modify_event_btn)
+			tab_btn_hbox.addWidget(delete_event_btn)
+
+		tab_vbox.addLayout(tab_btn_hbox)
+		tab = QWidget()
+		tab.setLayout(tab_vbox)
+		tab_layout.addTab(tab, "")
+
+	def create_event_form(self, tab_layout):
+		# Set up input fields
+		event_name = QLineEdit()
+		event_location = QLineEdit()
+		# TODO idk how to do the time slot. Also calculate the duration
+		event_description = QTextEdit()
+		event_volunteers_needed = QLineEdit()
+		event_name.setPlaceholderText("Enter an Event Name")
+		event_location.setPlaceholderText("Enter the Event Location")
+		event_description.setPlaceholderText("Describe the event")
+		event_volunteers_needed.setPlaceholderText("Enter number of Volunteers needed as a number")
+
+		# set up the confirm button
+		confirm_btn = QPushButton("Confirm")
+		# confirm_btn.clicked.connect(self.verify_fields)
+		confirm_btn.setProperty('class', 'normal-bar-btn')
+		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		# set up the cancel button
+		cancel_btn = QPushButton("Cancel")
+		# cancel_btn.clicked.connect(self.go_back)
+		cancel_btn.setProperty('class', 'special-bar-btn')
+		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		vbox = QVBoxLayout()
+		vbox.addWidget(event_name)
+		vbox.addWidget(event_location)
+		vbox.addWidget(event_description)
+		vbox.addWidget(event_volunteers_needed)
+		hbox = QHBoxLayout()
+		hbox.addWidget(cancel_btn)
+		hbox.addWidget(confirm_btn)
+		vbox.addLayout(hbox)
+		form = QWidget()
+		form.setLayout(vbox)
+		tab_layout.addTab(form, "")
+
+	# TODO handle when input isn't a number, add to database, no empty fields, etc
+	def verify_fields(self):
+		pass
+
 	# TODO create an actual layout for the tabs, based on what type of user they are
 	# Build the tabs showing current events of the day
 	def draw_tab(self, tab_layout):
-		def build_tab():
-			date = self.calendar.selectedDate()
-			day = date.day()
-			month = date.month()
-			year = date.year()
-			self.check_existing_tabs(tab_layout, day, month, year)
+		date = self.calendar.selectedDate()
+		day = date.day()
+		month = date.month()
+		year = date.year()
+		self.check_existing_tabs(tab_layout, day, month, year)
 
-			# Update the current date after the check has been performed
-			cs.CURRENT_DATE = date
+		# Update the current date after the check has been performed
+		cs.CURRENT_DATE = date
+		# Get all events on this date
+		try:
+			events_id = Event.get(Event.event_id).where(
+				(Event.event_date.day == day) &
+				(Event.event_date.month == month) &
+				(Event.event_date.year == year))
+			print(events_id)
+		# No Events on this date, set as no events
+		except Event.DoesNotExist:
+			print('beep')
+			# Delete current tabs in the view, as current day doesn't have any
+			for i in range(0, tab_layout.count()):
+				tab_layout.removeTab(i)
+			no_events = QLabel('No set events on this day')
+			no_events.setProperty('class', 'cal-label')
+			self.build_tab_btns(tab_layout, no_events)
+			return
+		# TODO update accordingly
+		# for event_id in events_id:
+		# 	event_details = Event.select(Event.event_id == event_id)
+		# 	event_name = event_details.event_name
+		# 	event_description = event_details.event_description
+		# 	event_date_time = event_details.event_date
 
-			# Get all events on this date
-			try:
-				events_id = Event.get(Event.event_id).where(
-					(Event.event_date.day == day) &
-					(Event.event_date.month == month) &
-					(Event.event_date.year == year))
-				print(events_id)
-			# No Event(s) on this date
-			except Event.DoesNotExist:
-				for i in range(0, tab_layout.count()):
-					tab_layout.removeTab(i)
-				tab = QWidget()
-				vbox = QVBoxLayout()
-				vbox.addWidget(QLabel('No set events on this day'))
-				vbox.setAlignment(Qt.AlignCenter)
-				tab.setLayout(vbox)
-				tab_layout.addTab(tab, "")
-
-			# TODO uncomment when events are actually added
-			# for event_id in events_id:
-			# 	tab = QWidget()
-			# 	vbox = QVBoxLayout()
-			#
-			# 	event_details = Event.select(Event.event_id == event_id)
-			# 	event_name = event_details.event_name
-			# 	event_description = event_details.event_description
-			# 	event_date_time = event_details.event_date
-			# 	vbox.addWidget(QLabel('hecc'))
-			# 	tab.setLayout(vbox)
-		return build_tab
 
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):

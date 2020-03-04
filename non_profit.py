@@ -43,7 +43,6 @@ def main():
     if cs.DELETE:
         # delete all data from the database
         db.drop_tables([User, Event])
-    
     # create the tables within the database
     db.create_tables([User, Event])
     

@@ -28,8 +28,10 @@ class Event(Model):
     event_id = AutoField()
     event_date = DateTimeField()
     event_name = CharField()
+    event_location = TextField()
     event_duration = IntegerField()
     event_description = TextField()
+    event_volunteers_needed = IntegerField()
     # TODO: Each time a user says they'll attend an event, they're added to the EventAttendance Table.
     # Currently, i want to store information in this field regarding who is attending the
     # event, based on the id, then use split to get a list of each attending member. There is probably a better way to

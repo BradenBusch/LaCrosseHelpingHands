@@ -108,25 +108,19 @@ class Login(QWidget):
         try:
             username_check = User.get(User.username == entered_username).username
         except User.DoesNotExist:
-            username_check = None
-        
+            msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
+            self.username_check.clear()
+            self.password_check.clear()
+            return
         # retrieve and check the password
         hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
         password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
-        
         # ensure the user entered viable information
         if len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
             self.username_check.clear()
             self.password_check.clear()
             return
-        
-        elif username_check is None:
-            msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
-            self.username_check.clear()
-            self.password_check.clear()
-            return
-        
         elif password_check is not True:
             msg = QMessageBox.warning(None, " ", " Incorrect Password. Try re-entering. ")
             self.password_check.clear()

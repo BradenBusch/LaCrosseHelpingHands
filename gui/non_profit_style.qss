@@ -69,10 +69,6 @@ QPushButton {{
     border: 2px solid red;
 }}
 
-QCalendarWidget[class="calendar"] {{
-
-}}
-
 QPushButton[class="normal-bar-btn"] {{
     background-color: rgb(60, 125, 158);
     padding: 10px;
@@ -103,12 +99,13 @@ QPushButton.special-bar-btn:hover {{
     border: 3px solid white;
 }}
 
+
 /* actually style the QTabLayout() */
-.tab-layout {{
+/* .tab-widget{{
     color: red;
     border: 1px solid red;
     background-color: red;
-}}
+}} */
 
 QLabel.cal-label {{
     font-size: 40px;
