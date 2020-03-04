@@ -272,8 +272,17 @@ class Calendar(QWidget):
 		# 	event_name = event_details.event_name
 		# 	event_description = event_details.event_description
 		# 	event_date_time = event_details.event_date
-
-
+	
+	# reset the day to the current day
+	def reset_day(self):
+		# determine the current date
+		self.currentMonth = datetime.now().month
+		self.currentYear = datetime.now().year
+		self.currentDay = datetime.now().day
+		
+		# set the selected date as the current day
+		self.calendar.setSelectedDate(QDate(self.currentYear, self.currentMonth, self.currentDay))
+	
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):
 		# set up the home button
@@ -355,6 +364,7 @@ class Calendar(QWidget):
 	# go to the homepage
 	def home_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_HOME)
+		self.reset_day()
 	
 	# go to the calendar page
 	def cal_click(self):
@@ -363,33 +373,39 @@ class Calendar(QWidget):
 	# go to the about us page
 	def about_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_ABOUT)
+		self.reset_day()
 	
 	# go to the contact us page
 	def contact_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_CONTACT)
+		self.reset_day()
 	
 	# go to the search page
 	def search_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_SEARCH)
+		self.reset_day()
 	
 	# go to the account page
 	def account_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_ACCOUNT)
+		self.reset_day()
 	
 	# return to the login signup screen
 	def logout_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
+		self.reset_day()
 		
-		# TODO actually log the user out of their account
 		cs.CURRENT_USER = "Guest"
 	
 	# go to the login page
 	def login_click(self):
-		self.win.set_page(cs.PAGE_CAL, cs.PAGE_LOGIN)
+		self.win.set_page(self.this_page, cs.PAGE_LOGIN)
+		self.reset_day()
 	
 	# go to the new account page
 	def signup_click(self):
-		self.win.set_page(cs.PAGE_CAL, cs.PAGE_NEW_ACCOUNT)
+		self.win.set_page(self.this_page, cs.PAGE_NEW_ACCOUNT)
+		self.reset_day()
 	
 	# TODO to be used for debugging
 	def printDateInfo(self, qDate):
