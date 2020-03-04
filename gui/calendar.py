@@ -148,14 +148,14 @@ class Calendar(QWidget):
 			print('Same day')
 
 	# Build the buttons for the tabs
-	def build_tab_btns(self, tab_layout, label=None, information=None):
+	def build_tab_btns(self, tab_layout, label=None, event=None):
 		tab_vbox = QVBoxLayout()
 		# tab_vbox.setAlignment(Qt.AlignCenter)
 		tab_btn_hbox = QHBoxLayout()
 		if label is not None:
 			tab_vbox.addWidget(label)
 		# TODO add information layout here
-		if information is not None:
+		if event is not None:
 			pass
 		# TODO replace current tab with the create event gui
 		create_event_btn = QPushButton("Create New Event")
@@ -184,7 +184,8 @@ class Calendar(QWidget):
 		delete_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
 		# Assign the correct buttons based on who's logged in
-		if cs.CURRENT_USER != 'Guest':
+		print(cs.CURRENT_USER)
+		if cs.CURRENT_USER != 'Guest' and cs.CURRENT_USER != 'Volunteer':
 			tab_btn_hbox.addWidget(create_event_btn)
 		if cs.CURRENT_USER == 'Volunteer':
 			tab_btn_hbox.addWidget(volunteer_btn)
@@ -200,19 +201,38 @@ class Calendar(QWidget):
 
 	def create_event_form(self, tab_layout):
 		# Set up input fields
+		for i in range(0, tab_layout.count()):
+			tab_layout.removeTab(i)
 		event_name = QLineEdit()
 		event_location = QLineEdit()
-		# TODO idk how to do the time slot. Also calculate the duration
+		event_start_time = QComboBox()
+		event_end_time = QComboBox()
 		event_description = QTextEdit()
 		event_volunteers_needed = QLineEdit()
 		event_name.setPlaceholderText("Enter an Event Name")
 		event_location.setPlaceholderText("Enter the Event Location")
+		for i in range(24):
+			if i < 12:
+				hour_time = '0' + str(i) + ':00'
+				half_hour_time = '0' + str(i) + ':30'
+			else:
+				hour_time = str(i) + ':00'
+				half_hour_time = str(i) + ':30'
+			event_start_time.addItem(hour_time)
+			event_start_time.addItem(half_hour_time)
+			event_end_time.addItem(hour_time)
+			event_end_time.addItem(half_hour_time)
 		event_description.setPlaceholderText("Describe the event")
 		event_volunteers_needed.setPlaceholderText("Enter number of Volunteers needed as a number")
 
+		# TODO verify will verify the information in the fields. When it is done it will call a function to repopulate
+		#      the events being shown
+		#  - Cancel will call the function that repopulates the events being shown
 		# set up the confirm button
+
+		form_list = [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
 		confirm_btn = QPushButton("Confirm")
-		# confirm_btn.clicked.connect(self.verify_fields)
+		# confirm_btn.clicked.connect(partial(self.verify_fields, form_list))
 		confirm_btn.setProperty('class', 'normal-bar-btn')
 		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		# set up the cancel button
@@ -221,20 +241,30 @@ class Calendar(QWidget):
 		cancel_btn.setProperty('class', 'special-bar-btn')
 		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
+		time_hbox = QHBoxLayout()
+		time_hbox.addWidget(QLabel('Event Start Time'))
+		time_hbox.addWidget(event_start_time)
+		time_hbox.addWidget(QLabel('Event End Time'))
+		time_hbox.addWidget(event_end_time)
 		vbox = QVBoxLayout()
 		vbox.addWidget(event_name)
 		vbox.addWidget(event_location)
+		vbox.addLayout(time_hbox)
 		vbox.addWidget(event_description)
 		vbox.addWidget(event_volunteers_needed)
-		hbox = QHBoxLayout()
-		hbox.addWidget(cancel_btn)
-		hbox.addWidget(confirm_btn)
-		vbox.addLayout(hbox)
+		btn_hbox = QHBoxLayout()
+		btn_hbox.addWidget(cancel_btn)
+		btn_hbox.addWidget(confirm_btn)
+		vbox.addLayout(btn_hbox)
 		form = QWidget()
 		form.setLayout(vbox)
-		tab_layout.addTab(form, "")
+		tab_layout.addTab(form, "Event Creation")
 
-	# TODO handle when input isn't a number, add to database, no empty fields, etc
+	# TODO make information showing window
+	def show_events(self, tab_layout):
+		pass
+
+	# TODO handle when input isn't a number, add to database, no empty fields, isnt a day that hasnt happened, etc
 	def verify_fields(self):
 		pass
 
@@ -258,7 +288,6 @@ class Calendar(QWidget):
 			print(events_id)
 		# No Events on this date, set as no events
 		except Event.DoesNotExist:
-			print('beep')
 			# Delete current tabs in the view, as current day doesn't have any
 			for i in range(0, tab_layout.count()):
 				tab_layout.removeTab(i)
@@ -272,7 +301,6 @@ class Calendar(QWidget):
 		# 	event_name = event_details.event_name
 		# 	event_description = event_details.event_description
 		# 	event_date_time = event_details.event_date
-
 
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):

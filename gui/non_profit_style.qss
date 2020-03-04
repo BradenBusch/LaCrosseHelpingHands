@@ -35,6 +35,10 @@ QLineEdit {{
     padding: 5px;
 }}
 
+QPlainTextEdit {{
+
+}}
+
 QLabel.login-label {{
     font-weight: bold;
 }}
