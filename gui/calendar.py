@@ -144,27 +144,50 @@ class Calendar(QWidget):
 		if day != cs.CURRENT_DATE.day() or month != cs.CURRENT_DATE.month() or year != cs.CURRENT_DATE.year():
 			for i in range(0, tab_layout.count()):
 				tab_layout.removeTab(i)
-		else:
-			print('Same day')
+
+	# TODO make this work correctly instead of just adding one. Write join query
+	def update_volunteer(self, tab_layout, event_id):
+		print('Event ID: ' + str(event_id))
+		volunteer_ids = Event.get(Event.event_id == event_id).event_volunteers_ids
+		print('VOLUNTEER ID: ' + str(volunteer_ids))
+
+		# First volunteer for event
+		if volunteer_ids == '-1':
+			pass
+		ids = volunteer_ids.split(' ')
+		print('Ids: ' + ids)
+		# if cs.CURRENT_USER_ID not in ids:
+		# 	num_volunteers = Event.get(Event.event_id == event_id).event_volunteers_attending
+		# 	print('num: {0}'.format(num_volunteers))
+		# 	num_volunteers += 1
+		# 	Event.update(event_volunteers_attending=num_volunteers).where(Event.event_id == event_id).execute()
+		# 	Event.update(event_volunteers_ids=v).where(Event.event_id == event_id).execute()
+		# else:
+		# 	msg = QMessageBox(None, " ", " You already volunteered for this event")
+		# 	# return
+		# print('f')
+		# self.draw_tab(tab_layout)
 
 	# Build the buttons for the tabs
-	def build_tab_btns(self, tab_layout, label=None, event=None):
+	# TODO find a way to limit the event_id to the current tab selected
+	def build_tab_btns(self, tab_layout, label=None, event_vbox=None, event_id=None):
 		tab_vbox = QVBoxLayout()
 		# tab_vbox.setAlignment(Qt.AlignCenter)
 		tab_btn_hbox = QHBoxLayout()
 		if label is not None:
+			label.setAlignment(Qt.AlignCenter)
 			tab_vbox.addWidget(label)
-		# TODO add information layout here
-		if event is not None:
-			pass
-		# TODO replace current tab with the create event gui
+		if event_vbox is not None:
+			tab_vbox.addLayout(event_vbox)
 		create_event_btn = QPushButton("Create New Event")
 		create_event_btn.clicked.connect(partial(self.create_event_form, tab_layout))
 		create_event_btn.setProperty('class', 'normal-bar-btn')
 		create_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
 		volunteer_btn = QPushButton("Volunteer")
-		# self.volunteer_btn.clicked.connect()
+		if event_id is not None:
+			# print("Event: " + str(event_id))
+			volunteer_btn.clicked.connect(partial(self.update_volunteer, tab_layout, event_id))
 		volunteer_btn.setProperty('class', 'normal-bar-btn')
 		volunteer_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -184,7 +207,6 @@ class Calendar(QWidget):
 		delete_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
 		# Assign the correct buttons based on who's logged in
-		print(cs.CURRENT_USER)
 		if cs.CURRENT_USER != 'Guest' and cs.CURRENT_USER != 'Volunteer':
 			tab_btn_hbox.addWidget(create_event_btn)
 		if cs.CURRENT_USER == 'Volunteer':
@@ -197,8 +219,16 @@ class Calendar(QWidget):
 		tab_vbox.addLayout(tab_btn_hbox)
 		tab = QWidget()
 		tab.setLayout(tab_vbox)
-		tab_layout.addTab(tab, "")
+		try:
+			event_name = Event.get(Event.event_id == event_id).event_name
+		except:
+			event_name = None
+		if event_id is None:
+			tab_layout.addTab(tab, "")
+		else:
+			tab_layout.addTab(tab, event_name)
 
+	# Build the form for creating an event. Will add an event to the day that the user currently has selected on Calender
 	def create_event_form(self, tab_layout):
 		# Set up input fields
 		for i in range(0, tab_layout.count()):
@@ -225,19 +255,14 @@ class Calendar(QWidget):
 		event_description.setPlaceholderText("Describe the event")
 		event_volunteers_needed.setPlaceholderText("Enter number of Volunteers needed as a number")
 
-		# TODO verify will verify the information in the fields. When it is done it will call a function to repopulate
-		#      the events being shown
-		#  - Cancel will call the function that repopulates the events being shown
-		# set up the confirm button
-
+		# Build the buttons
 		form_list = [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
 		confirm_btn = QPushButton("Confirm")
-		# confirm_btn.clicked.connect(partial(self.verify_fields, form_list))
+		confirm_btn.clicked.connect(partial(self.verify_fields, form_list))
 		confirm_btn.setProperty('class', 'normal-bar-btn')
 		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
-		# set up the cancel button
 		cancel_btn = QPushButton("Cancel")
-		# cancel_btn.clicked.connect(self.go_back)
+		cancel_btn.clicked.connect(partial(self.draw_tab, tab_layout))
 		cancel_btn.setProperty('class', 'special-bar-btn')
 		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -246,6 +271,7 @@ class Calendar(QWidget):
 		time_hbox.addWidget(event_start_time)
 		time_hbox.addWidget(QLabel('Event End Time'))
 		time_hbox.addWidget(event_end_time)
+
 		vbox = QVBoxLayout()
 		vbox.addWidget(event_name)
 		vbox.addWidget(event_location)
@@ -256,17 +282,113 @@ class Calendar(QWidget):
 		btn_hbox.addWidget(cancel_btn)
 		btn_hbox.addWidget(confirm_btn)
 		vbox.addLayout(btn_hbox)
+
 		form = QWidget()
 		form.setLayout(vbox)
 		tab_layout.addTab(form, "Event Creation")
 
-	# TODO make information showing window
+	# TODO weird bug where tabs are duplicating, not sure where this is happening. Can be avoided by not clicking the
+	#  same day twice. I will look into this but for now, just don't click twice!!
+	# Show all the information for each event on the currently selected day
 	def show_events(self, tab_layout):
-		pass
+		date = self.calendar.selectedDate()
+		day = date.day()
+		month = date.month()
+		year = date.year()
+		events = Event.select().where(
+			(Event.event_day == day) &
+			(Event.event_month == month) &
+			(Event.event_year == year))
+		for event in events:
+			vbox = QVBoxLayout()
+			spacer = QLabel("")
+			spacer.setProperty('class', "cal-bar-spacer-label")
+
+			name_hbox = QHBoxLayout()
+			name = QLabel('Name: ')
+			name.setProperty('class', 'bold-label')
+			name_hbox.addWidget(name)
+			n = QLabel(event.event_name)
+			n.setProperty('class', 'tab-info')
+			name_hbox.addWidget(n)
+			name_hbox.addWidget(spacer)
+
+			location_hbox = QHBoxLayout()
+			location = QLabel('Location: ')
+			location.setProperty('class', 'bold-label')
+			location_hbox.addWidget(location)
+			loc = QLabel(event.event_location)
+			loc.setProperty('class', 'tab-info')
+			location_hbox.addWidget(loc)
+			location_hbox.addWidget(spacer)
+
+			date_hbox = QHBoxLayout()
+			date = QLabel('Date: ')
+			date.setProperty('class', 'bold-label')
+			date_hbox.addWidget(date)
+			time = "%s/%s/%s %s-%s" % (event.event_month, event.event_day, event.event_year, event.event_start_date, event.event_end_date)
+			t = QLabel(time)
+			t.setProperty('class', 'tab-info')
+			date_hbox.addWidget(t)
+			date_hbox.addWidget(spacer)
+
+			description_hbox = QHBoxLayout()
+			description = QLabel('Description: ')
+			description.setProperty('class', 'bold-label')
+			description_hbox.addWidget(description)
+			d = QLabel(event.event_description)
+			d.setProperty('class', 'tab-info')
+			description_hbox.addWidget(d)
+			description_hbox.addWidget(spacer)
+
+			# # TODO UPDATE THE VOLUNTEERS QUERY
+			volunteer_hbox = QHBoxLayout()
+			volunteer = QLabel('Volunteers: ')
+			volunteer.setProperty('class', 'bold-label')
+			volunteer_hbox.addWidget(volunteer)
+			v = "%s / %s" % (str(event.event_volunteers_attending), str(event.event_volunteers_needed))
+			vol = QLabel(v)
+			vol.setProperty('class', 'tab-info')
+			volunteer_hbox.addWidget(vol)
+			volunteer_hbox.addWidget(spacer)
+
+			vbox.addLayout(name_hbox)
+			vbox.addLayout(location_hbox)
+			vbox.addLayout(date_hbox)
+			vbox.addLayout(description_hbox)
+			vbox.addLayout(volunteer_hbox)
+			self.build_tab_btns(tab_layout, None, vbox, event.event_id)
 
 	# TODO handle when input isn't a number, add to database, no empty fields, isnt a day that hasnt happened, etc
-	def verify_fields(self):
-		pass
+	#  - Call show events after
+	# [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
+	# Validate the input and store in the database if it is.
+	def verify_fields(self, form_list):
+		for i, field in enumerate(form_list):
+			if i == 2 or i == 3 or i == 4:
+				continue
+			if field.text() == "":
+				msg = QMessageBox.warning(None, " ", " You must fill all fields. ")
+				return
+		if not form_list[5].text().isdigit():
+			msg = QMessageBox.warning(None, " ", " Your number of volunteers must be a number. ")
+			form_list[5].clear()
+			return
+
+		event_start = str(form_list[2].currentText()).split(':')[0]
+		event_end = str(form_list[3].currentText()).split(':')[0]
+		if int(event_end) < int(event_start):
+			msg = QMessageBox(None, " ", " Your event start time must be before it's end time. ")
+			return
+		date = self.calendar.selectedDate()
+		day = date.day()
+		month = date.month()
+		year = date.year()
+		event_start_time = str(form_list[2].currentText())
+		event_end_time = str(form_list[3].currentText())
+		new_event = Event(event_day=day, event_month=month, event_year=year, event_start_date=event_start_time, event_end_date=event_end_time, event_name=form_list[0].text(), event_description=form_list[4].toPlainText(), event_location=form_list[1].text(), event_volunteers_needed=form_list[5].text(), event_volunteers_attending=0, event_volunteers_ids="-1")
+		new_event.save()
+		self.draw_tab(self.tabs)
 
 	# TODO create an actual layout for the tabs, based on what type of user they are
 	# Build the tabs showing current events of the day
@@ -279,13 +401,13 @@ class Calendar(QWidget):
 
 		# Update the current date after the check has been performed
 		cs.CURRENT_DATE = date
-		# Get all events on this date
+
+		# Check if there are events in the database on this day
 		try:
-			events_id = Event.get(Event.event_id).where(
-				(Event.event_date.day == day) &
-				(Event.event_date.month == month) &
-				(Event.event_date.year == year))
-			print(events_id)
+			event = Event.get(
+				(Event.event_day == day) &
+				(Event.event_month == month) &
+				(Event.event_year == year)).event_id
 		# No Events on this date, set as no events
 		except Event.DoesNotExist:
 			# Delete current tabs in the view, as current day doesn't have any
@@ -293,14 +415,23 @@ class Calendar(QWidget):
 				tab_layout.removeTab(i)
 			no_events = QLabel('No set events on this day')
 			no_events.setProperty('class', 'cal-label')
-			self.build_tab_btns(tab_layout, no_events)
+			self.build_tab_btns(tab_layout, no_events, None, None)
 			return
 		# TODO update accordingly
-		# for event_id in events_id:
-		# 	event_details = Event.select(Event.event_id == event_id)
-		# 	event_name = event_details.event_name
-		# 	event_description = event_details.event_description
-		# 	event_date_time = event_details.event_date
+
+		for i in range(0, tab_layout.count()):
+			tab_layout.removeTab(i)
+		self.show_events(tab_layout)
+
+	# reset the day to the current day
+	def reset_day(self):
+		# determine the current date
+		self.currentMonth = datetime.now().month
+		self.currentYear = datetime.now().year
+		self.currentDay = datetime.now().day
+
+		# set the selected date as the current day
+		self.calendar.setSelectedDate(QDate(self.currentYear, self.currentMonth, self.currentDay))
 
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):
@@ -383,7 +514,8 @@ class Calendar(QWidget):
 	# go to the homepage
 	def home_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_HOME)
-	
+		self.reset_day()
+
 	# go to the calendar page
 	def cal_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_CAL)
@@ -391,33 +523,40 @@ class Calendar(QWidget):
 	# go to the about us page
 	def about_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_ABOUT)
-	
+		self.reset_day()
+
 	# go to the contact us page
 	def contact_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_CONTACT)
-	
+		self.reset_day()
+
 	# go to the search page
 	def search_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_SEARCH)
-	
+		self.reset_day()
+
 	# go to the account page
 	def account_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_ACCOUNT)
-	
+		self.reset_day()
+
 	# return to the login signup screen
 	def logout_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
-		
+		self.reset_day()
+
 		# TODO actually log the user out of their account
 		cs.CURRENT_USER = "Guest"
 	
 	# go to the login page
 	def login_click(self):
-		self.win.set_page(cs.PAGE_CAL, cs.PAGE_LOGIN)
+		self.win.set_page(self.this_page, cs.PAGE_LOGIN)
+		self.reset_day()
 	
 	# go to the new account page
 	def signup_click(self):
-		self.win.set_page(cs.PAGE_CAL, cs.PAGE_NEW_ACCOUNT)
+		self.win.set_page(self.this_page, cs.PAGE_NEW_ACCOUNT)
+		self.reset_day()
 	
 	# TODO to be used for debugging
 	def printDateInfo(self, qDate):
@@ -487,5 +626,4 @@ class Calendar(QWidget):
 	def screen_resolution(self):
 		# retrieve the resolution of the current system
 		geometry = QDesktopWidget().screenGeometry(0)
-		
 		return geometry.width(), geometry.height()

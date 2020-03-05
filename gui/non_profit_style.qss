@@ -35,12 +35,23 @@ QLineEdit {{
     padding: 5px;
 }}
 
-QPlainTextEdit {{
-
+QTextEdit {{
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 5px;
 }}
 
 QLabel.login-label {{
     font-weight: bold;
+}}
+
+.bold-label {{
+    font-weight: bold;
+    font-size: 20px;
+}}
+
+.tab-info {{
+    font-size: 20px;
 }}
 
 QPushButton {{

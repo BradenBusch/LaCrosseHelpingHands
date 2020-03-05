@@ -26,12 +26,17 @@ class User(Model):
 # Event information
 class Event(Model):
     event_id = AutoField()
-    event_date = DateTimeField()
+    event_day = CharField()
+    event_month = CharField()
+    event_year = CharField()
+    event_start_date = CharField()  # the times the event starts at
+    event_end_date = CharField()
     event_name = CharField()
-    event_location = TextField()
-    event_duration = IntegerField()
+    event_location = CharField()
     event_description = TextField()
     event_volunteers_needed = IntegerField()
+    event_volunteers_attending = IntegerField()
+    event_volunteers_ids = TextField()
     # TODO: Each time a user says they'll attend an event, they're added to the EventAttendance Table.
     # Currently, i want to store information in this field regarding who is attending the
     # event, based on the id, then use split to get a list of each attending member. There is probably a better way to
@@ -42,8 +47,8 @@ class Event(Model):
 
 
 class EventAttendance(Model):
-    event_id = ForeignKeyField(User)
-    account_id = ForeignKeyField(Event)
+    event_id = ForeignKeyField(Event)
+    user_id = ForeignKeyField(User)
     # event_id = IntegerField()
     # account_id = IntegerField()
 

@@ -130,6 +130,8 @@ class Login(QWidget):
             return
         else:
             cs.CURRENT_USER = User.get(User.username == entered_username).account_type
+            cs.CURRENT_USER_ID = User.get(User.username == entered_username).user_id
+            print(cs.CURRENT_USER_ID)
             print(cs.CURRENT_USER)
             self.go_forward()
             return

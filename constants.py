@@ -11,6 +11,7 @@ CURRENT_USER = "Guest"    # indicates which type of user is logged in: Guest, Vo
 CURRENT_PAGE = -1    # indicates what page the application is currently on, this is the list index in window_manager.py
 PREV_PAGE = -1    # indicates what page the user came from to arrive on the current page
 CURRENT_DATE = -1    # indicates what date was clicked on the calendar by the user
+CURRENT_USER_ID = -1   # indicates the user_id of the logged in user for database purposes
 
 # hardcoded globals
 ADMIN_PASSWORD = "ADMIN"    # holds the password given to Guests who sign up to become an Administrator

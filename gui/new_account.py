@@ -91,7 +91,7 @@ class NewAccount(QWidget):
         self.password_edit.setPlaceholderText("Password (At least 8 Characters)")
         self.password_edit.setEchoMode(QLineEdit.Password)
         self.confirm_password_edit.setPlaceholderText("Confirm Password")
-        self.confirm_password_edit.returnPressed.connect(self.verify_fields)
+        # self.confirm_password_edit.returnPressed.connect(self.verify_fields)
         self.confirm_password_edit.setEchoMode(QLineEdit.Password)
         self.admin_code_box.setPlaceholderText("Enter the Administrator Password")
         self.admin_code_box.setEchoMode(QLineEdit.Password)
