@@ -148,25 +148,31 @@ class Calendar(QWidget):
 	# TODO make this work correctly instead of just adding one. Write join query
 	def update_volunteer(self, tab_layout, event_id):
 		print('Event ID: ' + str(event_id))
+		# Get events volunteer ids
 		volunteer_ids = Event.get(Event.event_id == event_id).event_volunteers_ids
-		print('VOLUNTEER ID: ' + str(volunteer_ids))
+		# num_volunteers = Event.get(Event.event_id == event_id).event_volunteers_attending
 
-		# First volunteer for event
+		print('VOLUNTEER ID: ' + str(volunteer_ids) + 'K')
+		# First volunteer for event, current user couldn't already be attending
 		if volunteer_ids == '-1':
-			pass
-		ids = volunteer_ids.split(' ')
-		print('Ids: ' + ids)
-		# if cs.CURRENT_USER_ID not in ids:
-		# 	num_volunteers = Event.get(Event.event_id == event_id).event_volunteers_attending
-		# 	print('num: {0}'.format(num_volunteers))
-		# 	num_volunteers += 1
-		# 	Event.update(event_volunteers_attending=num_volunteers).where(Event.event_id == event_id).execute()
-		# 	Event.update(event_volunteers_ids=v).where(Event.event_id == event_id).execute()
-		# else:
-		# 	msg = QMessageBox(None, " ", " You already volunteered for this event")
-		# 	# return
-		# print('f')
-		# self.draw_tab(tab_layout)
+			new_ids = str(cs.CURRENT_USER_ID) + " "
+			Event.update(event_volunteers_ids=new_ids).where(Event.event_id == event_id).execute()
+			Event.update({Event.event_volunteers_attending: 1}).where(Event.event_id == event_id).execute()
+			QMessageBox.about(self, " ", " You are now registered for this event. ")
+		else:
+			# Get each volunteer, ends in "" which is a terminating num
+			ids = volunteer_ids.split(' ')
+			if str(cs.CURRENT_USER_ID) not in ids:
+				new_volunteer_num = len(ids)
+				# Event.update(event_volunteers_attending=new_volunteer_num).where(Event.event_id == event_id).execute()
+				Event.update({Event.event_volunteers_attending: new_volunteer_num}).where(Event.event_id == event_id).execute()
+				QMessageBox.about(self, " ", " You are now registered for this event. ")
+			# This current volunteer already signed up for this event.
+			else:
+				QMessageBox.about(self, " ", "You already volunteered for this event!")
+		print('f')
+		self.draw_tab(tab_layout)
+		# self.show_events(tab_layout)
 
 	# Build the buttons for the tabs
 	# TODO find a way to limit the event_id to the current tab selected
@@ -289,6 +295,8 @@ class Calendar(QWidget):
 
 	# TODO weird bug where tabs are duplicating, not sure where this is happening. Can be avoided by not clicking the
 	#  same day twice. I will look into this but for now, just don't click twice!!
+	#  - this bug will persist whenever multiple events are on the same day. So if i volunteer and there are 2 events,
+	#  it can duplicate the event and just have a weird UI. The data in the database is all correct though
 	# Show all the information for each event on the currently selected day
 	def show_events(self, tab_layout):
 		date = self.calendar.selectedDate()
@@ -390,7 +398,6 @@ class Calendar(QWidget):
 		new_event.save()
 		self.draw_tab(self.tabs)
 
-	# TODO create an actual layout for the tabs, based on what type of user they are
 	# Build the tabs showing current events of the day
 	def draw_tab(self, tab_layout):
 		date = self.calendar.selectedDate()

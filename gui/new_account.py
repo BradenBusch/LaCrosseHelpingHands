@@ -191,7 +191,7 @@ class NewAccount(QWidget):
         
         # return to the login page, all checks passed
         else:
-            msg = QMessageBox.warning(None, " ", " Account created successfully. ")
+            QMessageBox.about(self, " ", " Account Creation Successful!")
             stored_password = self.hash_password(password)
             account_type = self.get_account_type()
             self.store_user(username, email, stored_password, account_type)
