@@ -45,10 +45,9 @@ def main():
         db.drop_tables([User, Event])
     # create the tables within the database
     db.create_tables([User, Event])
-
     events = Event.select()
     for e in events:
-        print('{0}/{1}/{2} Volunteers: {3}'.format(e.event_month, e.event_day, e.event_year, e.event_volunteers_attending))
+        print('{0}/{1}/{2} Volunteers: {3}'.format(e.month, e.day, e.year, e.volunteers_attending))
     # create the pages for the application within the WindowManager
     current_window = WindowManager([LogInSignUp(),
                                     Login(),

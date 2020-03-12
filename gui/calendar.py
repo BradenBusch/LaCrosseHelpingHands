@@ -24,7 +24,11 @@ except:
 
 
 # TODO handle approving requests somewhere, idk where we want that functionality to go
-
+# TODO make page showing events the user has signed up for
+# TODO make the database handle multiple day events by just creating multiple events with the same name (maybe)
+#  - They will have the same name but different autofields so users can register for multiple days then
+#  - Maybe click a checkbox or something to indicate that you want a multi day event
+#  - Will have to query based on name so we will have to start caring about names
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -147,17 +151,13 @@ class Calendar(QWidget):
 
 	# TODO make this work correctly instead of just adding one. Write join query
 	def update_volunteer(self, tab_layout, event_id):
-		print('Event ID: ' + str(event_id))
 		# Get events volunteer ids
-		volunteer_ids = Event.get(Event.event_id == event_id).event_volunteers_ids
-		# num_volunteers = Event.get(Event.event_id == event_id).event_volunteers_attending
-
-		print('VOLUNTEER ID: ' + str(volunteer_ids) + 'K')
+		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
 		# First volunteer for event, current user couldn't already be attending
 		if volunteer_ids == '-1':
 			new_ids = str(cs.CURRENT_USER_ID) + " "
-			Event.update(event_volunteers_ids=new_ids).where(Event.event_id == event_id).execute()
-			Event.update({Event.event_volunteers_attending: 1}).where(Event.event_id == event_id).execute()
+			Event.update(volunteers_ids=new_ids).where(Event.id == event_id).execute()
+			Event.update({Event.volunteers_attending: 1}).where(Event.id == event_id).execute()
 			QMessageBox.about(self, " ", " You are now registered for this event. ")
 		else:
 			# Get each volunteer, ends in "" which is a terminating num
@@ -165,12 +165,11 @@ class Calendar(QWidget):
 			if str(cs.CURRENT_USER_ID) not in ids:
 				new_volunteer_num = len(ids)
 				# Event.update(event_volunteers_attending=new_volunteer_num).where(Event.event_id == event_id).execute()
-				Event.update({Event.event_volunteers_attending: new_volunteer_num}).where(Event.event_id == event_id).execute()
+				Event.update({Event.volunteers_attending: new_volunteer_num}).where(Event.id == event_id).execute()
 				QMessageBox.about(self, " ", " You are now registered for this event. ")
 			# This current volunteer already signed up for this event.
 			else:
 				QMessageBox.about(self, " ", "You already volunteered for this event!")
-		print('f')
 		self.draw_tab(tab_layout)
 		# self.show_events(tab_layout)
 
@@ -226,7 +225,7 @@ class Calendar(QWidget):
 		tab = QWidget()
 		tab.setLayout(tab_vbox)
 		try:
-			event_name = Event.get(Event.event_id == event_id).event_name
+			event_name = Event.get(Event.id == event_id).name
 		except:
 			event_name = None
 		if event_id is None:
@@ -248,7 +247,7 @@ class Calendar(QWidget):
 		event_name.setPlaceholderText("Enter an Event Name")
 		event_location.setPlaceholderText("Enter the Event Location")
 		for i in range(24):
-			if i < 12:
+			if i < 10:
 				hour_time = '0' + str(i) + ':00'
 				half_hour_time = '0' + str(i) + ':30'
 			else:
@@ -304,9 +303,9 @@ class Calendar(QWidget):
 		month = date.month()
 		year = date.year()
 		events = Event.select().where(
-			(Event.event_day == day) &
-			(Event.event_month == month) &
-			(Event.event_year == year))
+			(Event.day == day) &
+			(Event.month == month) &
+			(Event.year == year))
 		for event in events:
 			vbox = QVBoxLayout()
 			spacer = QLabel("")
@@ -316,7 +315,7 @@ class Calendar(QWidget):
 			name = QLabel('Name: ')
 			name.setProperty('class', 'bold-label')
 			name_hbox.addWidget(name)
-			n = QLabel(event.event_name)
+			n = QLabel(event.name)
 			n.setProperty('class', 'tab-info')
 			name_hbox.addWidget(n)
 			name_hbox.addWidget(spacer)
@@ -325,7 +324,7 @@ class Calendar(QWidget):
 			location = QLabel('Location: ')
 			location.setProperty('class', 'bold-label')
 			location_hbox.addWidget(location)
-			loc = QLabel(event.event_location)
+			loc = QLabel(event.location)
 			loc.setProperty('class', 'tab-info')
 			location_hbox.addWidget(loc)
 			location_hbox.addWidget(spacer)
@@ -334,7 +333,7 @@ class Calendar(QWidget):
 			date = QLabel('Date: ')
 			date.setProperty('class', 'bold-label')
 			date_hbox.addWidget(date)
-			time = "%s/%s/%s %s-%s" % (event.event_month, event.event_day, event.event_year, event.event_start_date, event.event_end_date)
+			time = "%s/%s/%s  %s-%s" % (event.month, event.day, event.year, event.start_date, event.end_date)
 			t = QLabel(time)
 			t.setProperty('class', 'tab-info')
 			date_hbox.addWidget(t)
@@ -344,7 +343,7 @@ class Calendar(QWidget):
 			description = QLabel('Description: ')
 			description.setProperty('class', 'bold-label')
 			description_hbox.addWidget(description)
-			d = QLabel(event.event_description)
+			d = QLabel(event.description)
 			d.setProperty('class', 'tab-info')
 			description_hbox.addWidget(d)
 			description_hbox.addWidget(spacer)
@@ -354,7 +353,7 @@ class Calendar(QWidget):
 			volunteer = QLabel('Volunteers: ')
 			volunteer.setProperty('class', 'bold-label')
 			volunteer_hbox.addWidget(volunteer)
-			v = "%s / %s" % (str(event.event_volunteers_attending), str(event.event_volunteers_needed))
+			v = "%s / %s" % (str(event.volunteers_attending), str(event.volunteers_needed))
 			vol = QLabel(v)
 			vol.setProperty('class', 'tab-info')
 			volunteer_hbox.addWidget(vol)
@@ -365,7 +364,7 @@ class Calendar(QWidget):
 			vbox.addLayout(date_hbox)
 			vbox.addLayout(description_hbox)
 			vbox.addLayout(volunteer_hbox)
-			self.build_tab_btns(tab_layout, None, vbox, event.event_id)
+			self.build_tab_btns(tab_layout, None, vbox, event.id)
 
 	# TODO handle when input isn't a number, add to database, no empty fields, isnt a day that hasnt happened, etc
 	#  - Call show events after
@@ -386,7 +385,7 @@ class Calendar(QWidget):
 		event_start = str(form_list[2].currentText()).split(':')[0]
 		event_end = str(form_list[3].currentText()).split(':')[0]
 		if int(event_end) < int(event_start):
-			msg = QMessageBox(None, " ", " Your event start time must be before it's end time. ")
+			msg = QMessageBox.warning(None, " ", " Your event start time must be before it's end time. ")
 			return
 		date = self.calendar.selectedDate()
 		day = date.day()
@@ -394,7 +393,7 @@ class Calendar(QWidget):
 		year = date.year()
 		event_start_time = str(form_list[2].currentText())
 		event_end_time = str(form_list[3].currentText())
-		new_event = Event(event_day=day, event_month=month, event_year=year, event_start_date=event_start_time, event_end_date=event_end_time, event_name=form_list[0].text(), event_description=form_list[4].toPlainText(), event_location=form_list[1].text(), event_volunteers_needed=form_list[5].text(), event_volunteers_attending=0, event_volunteers_ids="-1")
+		new_event = Event(day=day, month=month, year=year, start_date=event_start_time, end_date=event_end_time, name=form_list[0].text(), description=form_list[4].toPlainText(), location=form_list[1].text(), volunteers_needed=form_list[5].text(), volunteers_attending=0, volunteers_ids="-1")
 		new_event.save()
 		self.draw_tab(self.tabs)
 
@@ -412,9 +411,10 @@ class Calendar(QWidget):
 		# Check if there are events in the database on this day
 		try:
 			event = Event.get(
-				(Event.event_day == day) &
-				(Event.event_month == month) &
-				(Event.event_year == year)).event_id
+				(Event.day == day) &
+				(Event.month == month) &
+				(Event.year == year)).id
+
 		# No Events on this date, set as no events
 		except Event.DoesNotExist:
 			# Delete current tabs in the view, as current day doesn't have any
@@ -424,7 +424,6 @@ class Calendar(QWidget):
 			no_events.setProperty('class', 'cal-label')
 			self.build_tab_btns(tab_layout, no_events, None, None)
 			return
-		# TODO update accordingly
 
 		for i in range(0, tab_layout.count()):
 			tab_layout.removeTab(i)
@@ -471,7 +470,7 @@ class Calendar(QWidget):
 		self.search_btn.clicked.connect(self.search_click)
 		self.search_btn.setProperty('class', 'normal-bar-btn')
 		self.search_btn.setCursor(QCursor(Qt.PointingHandCursor))
-		
+
 		# set up the account button (if the user is logged in)
 		self.account_btn = QPushButton("Account")
 		self.account_btn.clicked.connect(self.account_click)
