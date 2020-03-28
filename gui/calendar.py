@@ -29,6 +29,10 @@ except:
 #  - They will have the same name but different autofields so users can register for multiple days then
 #  - Maybe click a checkbox or something to indicate that you want a multi day event
 #  - Will have to query based on name so we will have to start caring about names
+
+# TODO 3/28
+#  -> Only let users create events when it is after current time
+
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -147,34 +151,83 @@ class Calendar(QWidget):
 	def check_existing_tabs(self, tab_layout, day, month, year):
 		if day != cs.CURRENT_DATE.day() or month != cs.CURRENT_DATE.month() or year != cs.CURRENT_DATE.year():
 			for i in range(0, tab_layout.count()):
-				tab_layout.removeTab(i)
+				tab_layout.removeTab(0)
 
-	# TODO make this work correctly instead of just adding one. Write join query
+	def is_conflicting_event(self, event_id):
+		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+		event_ids = user_events.split(' ')
+		check_event = Event.get(Event.id == event_id)
+		print('Event Ids: ' + str(event_ids))
+		# User is signed up for no events, impossible to conflict with other events
+		if event_ids[0] == '-1':
+			return False
+		# Check each event the user is attending and check if it has conflicting time
+		for event in event_ids:
+			e_start_time = Event.get(Event.id == event).start_date
+			e_end_time = Event.get(Event.id == event).end_date
+			e_s = datetime.strptime(e_start_time, '%H:%M')
+			e_e = datetime.strptime(e_end_time, '%H:%M')
+			c_e_s = datetime.strptime(check_event.start_date, '%H:%M')
+			c_e_e = datetime.strptime(check_event.end_date, '%H:%M')
+			# print(f'check_event_s {c_e_s} check_event_e {c_e_e} e_s {e_s} e_e {e_e}')  TODO use for debug
+			if self.time_in_range(e_s, e_e, c_e_s) or self.time_in_range(e_s, e_e, c_e_e):
+				return True
+			else:
+				continue
+		return False
+
+	# Return true if time is in the range [start, end]
+	def time_in_range(self, start, end, time):
+		if start <= end:
+			return start <= time <= end
+		else:
+			return start <= time or time <= end
+
+	# Update the volunteer window when a volunteer volunteers for an event.
 	def update_volunteer(self, tab_layout, event_id):
 		# Get events volunteer ids
 		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
-		# First volunteer for event, current user couldn't already be attending
-		if volunteer_ids == '-1':
-			new_ids = str(cs.CURRENT_USER_ID) + " "
-			Event.update(volunteers_ids=new_ids).where(Event.id == event_id).execute()
-			Event.update({Event.volunteers_attending: 1}).where(Event.id == event_id).execute()
-			QMessageBox.about(self, " ", " You are now registered for this event. ")
+		# TODO
+		#  -> check if the user is signed up for any events. If not, they are good to sign up.
+		#  -> check if the user has already signed up for the current event, as well as if they have conflicts at the same time
+
+		# Check if the user has a conflicting event
+		if self.is_conflicting_event(event_id):
+			QMessageBox.about(None, " ", " You already have an event that conflicts with this event. ")
 		else:
-			# Get each volunteer, ends in "" which is a terminating num
 			ids = volunteer_ids.split(' ')
-			if str(cs.CURRENT_USER_ID) not in ids:
-				new_volunteer_num = len(ids)
-				# Event.update(event_volunteers_attending=new_volunteer_num).where(Event.event_id == event_id).execute()
-				Event.update({Event.volunteers_attending: new_volunteer_num}).where(Event.id == event_id).execute()
-				QMessageBox.about(self, " ", " You are now registered for this event. ")
-			# This current volunteer already signed up for this event.
+			print(ids)
+			# Check if event is already full
+			if Event.get(Event.id == event_id).volunteers_attending == Event.get(Event.id == event_id).volunteers_needed:
+				QMessageBox.about(None, " ", " This event has max volunteers already. ")
+			# First volunteer for the event
+			elif volunteer_ids == '-1':
+				new_ids = str(cs.CURRENT_USER_ID) + " "
+				Event.update(volunteers_ids=new_ids).where(Event.id == event_id).execute()
+				Event.update({Event.volunteers_attending: 1}).where(Event.id == event_id).execute()
+				User.update({User.event_ids: event_id}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+				QMessageBox.about(None, " ", " You are now registered for this event. ")
+			# No conflicting events, let user volunteer. Update the Event and User.
 			else:
-				QMessageBox.about(self, " ", "You already volunteered for this event!")
+				new_volunteer_num = len(ids)
+				volunteer_ids.append(cs.CURRENT_USER_ID)
+				print('Old: ' + str(new_volunteer_num))
+				print('New: ' + str(volunteer_ids))
+				Event.update({Event.volunteers_attending: new_volunteer_num}).where(Event.id == event_id).execute()
+				Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
+				user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+				if user_events == '-1':
+					user_events = str(event_id + " ")
+				else:
+					user_events.append(event_id)
+				print(user_events)
+				User.update({User.event_ids: user_events}).where(User.user_id == cs.CURRENT_USER_ID).execute()
 		self.draw_tab(tab_layout)
 		# self.show_events(tab_layout)
 
 	# Build the buttons for the tabs
 	# TODO find a way to limit the event_id to the current tab selected
+	# TODO i think the duplication bug is not happening in here
 	def build_tab_btns(self, tab_layout, label=None, event_vbox=None, event_id=None):
 		tab_vbox = QVBoxLayout()
 		# tab_vbox.setAlignment(Qt.AlignCenter)
@@ -191,7 +244,6 @@ class Calendar(QWidget):
 
 		volunteer_btn = QPushButton("Volunteer")
 		if event_id is not None:
-			# print("Event: " + str(event_id))
 			volunteer_btn.clicked.connect(partial(self.update_volunteer, tab_layout, event_id))
 		volunteer_btn.setProperty('class', 'normal-bar-btn')
 		volunteer_btn.setCursor(QCursor(Qt.PointingHandCursor))
@@ -236,8 +288,14 @@ class Calendar(QWidget):
 	# Build the form for creating an event. Will add an event to the day that the user currently has selected on Calender
 	def create_event_form(self, tab_layout):
 		# Set up input fields
-		for i in range(0, tab_layout.count()):
-			tab_layout.removeTab(i)
+		count = tab_layout.count()
+		print(count)
+		for i in range(count):
+			print(f'i {i}')
+			print(f'count {tab_layout.count()}')
+			tab_layout.removeTab(0)
+
+		print(tab_layout.count())
 		event_name = QLineEdit()
 		event_location = QLineEdit()
 		event_start_time = QComboBox()
@@ -333,7 +391,7 @@ class Calendar(QWidget):
 			date = QLabel('Date: ')
 			date.setProperty('class', 'bold-label')
 			date_hbox.addWidget(date)
-			time = "%s/%s/%s  %s-%s" % (event.month, event.day, event.year, event.start_date, event.end_date)
+			time = "%s/%s/%s, %s-%s" % (event.month, event.day, event.year, event.start_date, event.end_date)
 			t = QLabel(time)
 			t.setProperty('class', 'tab-info')
 			date_hbox.addWidget(t)
@@ -348,7 +406,6 @@ class Calendar(QWidget):
 			description_hbox.addWidget(d)
 			description_hbox.addWidget(spacer)
 
-			# # TODO UPDATE THE VOLUNTEERS QUERY
 			volunteer_hbox = QHBoxLayout()
 			volunteer = QLabel('Volunteers: ')
 			volunteer.setProperty('class', 'bold-label')
@@ -366,8 +423,6 @@ class Calendar(QWidget):
 			vbox.addLayout(volunteer_hbox)
 			self.build_tab_btns(tab_layout, None, vbox, event.id)
 
-	# TODO handle when input isn't a number, add to database, no empty fields, isnt a day that hasnt happened, etc
-	#  - Call show events after
 	# [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
 	# Validate the input and store in the database if it is.
 	def verify_fields(self, form_list):
@@ -403,12 +458,14 @@ class Calendar(QWidget):
 		day = date.day()
 		month = date.month()
 		year = date.year()
-		self.check_existing_tabs(tab_layout, day, month, year)
-
+		# self.check_existing_tabs(tab_layout, day, month, year)
+		# Delete all tabs to then redraw them.
+		for i in range(0, tab_layout.count()):
+			tab_layout.removeTab(0)
 		# Update the current date after the check has been performed
 		cs.CURRENT_DATE = date
 
-		# Check if there are events in the database on this day
+		# Check if there are events in the database on this day (this query will fail if there are no events this day)
 		try:
 			event = Event.get(
 				(Event.day == day) &
@@ -419,14 +476,14 @@ class Calendar(QWidget):
 		except Event.DoesNotExist:
 			# Delete current tabs in the view, as current day doesn't have any
 			for i in range(0, tab_layout.count()):
-				tab_layout.removeTab(i)
+				tab_layout.removeTab(0)
 			no_events = QLabel('No set events on this day')
 			no_events.setProperty('class', 'cal-label')
 			self.build_tab_btns(tab_layout, no_events, None, None)
 			return
 
 		for i in range(0, tab_layout.count()):
-			tab_layout.removeTab(i)
+			tab_layout.removeTab(0)
 		self.show_events(tab_layout)
 
 	# reset the day to the current day
@@ -438,6 +495,10 @@ class Calendar(QWidget):
 
 		# set the selected date as the current day
 		self.calendar.setSelectedDate(QDate(self.currentYear, self.currentMonth, self.currentDay))
+
+		# Remove tabs from the current day TODO remove me if necessary
+		for i in range(0, self.tabs.count()):
+			self.tabs.removeTab(0)
 
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):

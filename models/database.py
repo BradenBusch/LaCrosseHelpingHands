@@ -11,6 +11,7 @@ from peewee import *
 
 db = SqliteDatabase('nonprofit.sqlite')
 
+
 # User information
 class User(Model):
     user_id = AutoField()
@@ -18,6 +19,7 @@ class User(Model):
     password = TextField()
     account_email = TextField()
     account_type = TextField()
+    event_ids = TextField()
 
     class Meta:
         database = db
@@ -29,7 +31,7 @@ class Event(Model):
     day = CharField()
     month = CharField()
     year = CharField()
-    start_date = CharField()  # the times the event starts at
+    start_date = CharField()  # the clock times the event starts at
     end_date = CharField()
     name = CharField()
     location = CharField()

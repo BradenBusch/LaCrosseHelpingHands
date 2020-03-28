@@ -205,10 +205,11 @@ class NewAccount(QWidget):
     
     # store the new user's information in the database
     def store_user(self, username, email, password, account_type=None):
-        new_user = User(username=username, password=password, account_email=email, account_type=account_type)
+        new_user = User(username=username, password=password, account_email=email, account_type=account_type, event_ids='-1')
         new_user.save()
-        # query = User.select()
-        # print([user.user_id for user in query]) # TODO for debugging
+
+        query = User.select()
+        print([user.event_ids for user in query])  # TODO for debugging
     
     # hash the user's password
     def hash_password(self, password):
