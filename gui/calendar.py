@@ -153,25 +153,40 @@ class Calendar(QWidget):
 			for i in range(0, tab_layout.count()):
 				tab_layout.removeTab(0)
 
+	# Check if the event a user is signing up for conflicts with an event they have already signed up for.
 	def is_conflicting_event(self, event_id):
 		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+		# print(f'User Events {user_events}s')
 		event_ids = user_events.split(' ')
 		check_event = Event.get(Event.id == event_id)
-		print('Event Ids: ' + str(event_ids))
+		# print('Event Ids: ' + str(event_ids))
 		# User is signed up for no events, impossible to conflict with other events
 		if event_ids[0] == '-1':
 			return False
 		# Check each event the user is attending and check if it has conflicting time
 		for event in event_ids:
-			e_start_time = Event.get(Event.id == event).start_date
-			e_end_time = Event.get(Event.id == event).end_date
+			curr_event = Event.get(Event.id == event)
+			e_year = curr_event.year
+			e_month = curr_event.month
+			e_day = curr_event.day
+			e_start_time = curr_event.start_date
+			e_end_time = curr_event.end_date
 			e_s = datetime.strptime(e_start_time, '%H:%M')
 			e_e = datetime.strptime(e_end_time, '%H:%M')
 			c_e_s = datetime.strptime(check_event.start_date, '%H:%M')
 			c_e_e = datetime.strptime(check_event.end_date, '%H:%M')
 			# print(f'check_event_s {c_e_s} check_event_e {c_e_e} e_s {e_s} e_e {e_e}')  TODO use for debug
-			if self.time_in_range(e_s, e_e, c_e_s) or self.time_in_range(e_s, e_e, c_e_e):
-				return True
+			if e_year == check_event.year:
+				if e_month == check_event.month:
+					if e_day == check_event.day:
+						if self.time_in_range(e_s, e_e, c_e_s) or self.time_in_range(e_s, e_e, c_e_e):
+							return True
+						else:
+							continue
+					else:
+						continue
+				else:
+					continue
 			else:
 				continue
 		return False
@@ -187,16 +202,15 @@ class Calendar(QWidget):
 	def update_volunteer(self, tab_layout, event_id):
 		# Get events volunteer ids
 		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
-		# TODO
-		#  -> check if the user is signed up for any events. If not, they are good to sign up.
-		#  -> check if the user has already signed up for the current event, as well as if they have conflicts at the same time
-
+		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+		# print(f'Volunteer ids: {volunteer_ids}')
+		# print(f'Current User Events {user_events}s')
 		# Check if the user has a conflicting event
 		if self.is_conflicting_event(event_id):
 			QMessageBox.about(None, " ", " You already have an event that conflicts with this event. ")
 		else:
+			# Get each id of the volunteer
 			ids = volunteer_ids.split(' ')
-			print(ids)
 			# Check if event is already full
 			if Event.get(Event.id == event_id).volunteers_attending == Event.get(Event.id == event_id).volunteers_needed:
 				QMessageBox.about(None, " ", " This event has max volunteers already. ")
@@ -205,29 +219,31 @@ class Calendar(QWidget):
 				new_ids = str(cs.CURRENT_USER_ID) + " "
 				Event.update(volunteers_ids=new_ids).where(Event.id == event_id).execute()
 				Event.update({Event.volunteers_attending: 1}).where(Event.id == event_id).execute()
-				User.update({User.event_ids: event_id}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+				if user_events == '-1':
+					user_events = str(event_id)
+				else:
+					user_events += ' ' + str(event_id)
+				User.update({User.event_ids: user_events}).where(User.user_id == cs.CURRENT_USER_ID).execute()
 				QMessageBox.about(None, " ", " You are now registered for this event. ")
 			# No conflicting events, let user volunteer. Update the Event and User.
 			else:
+				# print(f'Current User Id {cs.CURRENT_USER_ID} volunteer ids: {volunteer_ids}s')
+				# print(str(cs.CURRENT_USER_ID) + str(volunteer_ids))
 				new_volunteer_num = len(ids)
-				volunteer_ids.append(cs.CURRENT_USER_ID)
-				print('Old: ' + str(new_volunteer_num))
-				print('New: ' + str(volunteer_ids))
+
 				Event.update({Event.volunteers_attending: new_volunteer_num}).where(Event.id == event_id).execute()
-				Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
-				user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+				Event.update(volunteers_ids=volunteer_ids).where(Event.id == event_id).execute()
 				if user_events == '-1':
-					user_events = str(event_id + " ")
+					user_events = str(event_id)
 				else:
-					user_events.append(event_id)
-				print(user_events)
+					# TODO might need a space here
+					user_events += ' ' + str(event_id)
+				# print(f'User Events: {user_events}')
 				User.update({User.event_ids: user_events}).where(User.user_id == cs.CURRENT_USER_ID).execute()
 		self.draw_tab(tab_layout)
 		# self.show_events(tab_layout)
 
 	# Build the buttons for the tabs
-	# TODO find a way to limit the event_id to the current tab selected
-	# TODO i think the duplication bug is not happening in here
 	def build_tab_btns(self, tab_layout, label=None, event_vbox=None, event_id=None):
 		tab_vbox = QVBoxLayout()
 		# tab_vbox.setAlignment(Qt.AlignCenter)
@@ -287,15 +303,9 @@ class Calendar(QWidget):
 
 	# Build the form for creating an event. Will add an event to the day that the user currently has selected on Calender
 	def create_event_form(self, tab_layout):
-		# Set up input fields
-		count = tab_layout.count()
-		print(count)
-		for i in range(count):
-			print(f'i {i}')
-			print(f'count {tab_layout.count()}')
+		for i in range(tab_layout.count()):
 			tab_layout.removeTab(0)
 
-		print(tab_layout.count())
 		event_name = QLineEdit()
 		event_location = QLineEdit()
 		event_start_time = QComboBox()
@@ -350,10 +360,6 @@ class Calendar(QWidget):
 		form.setLayout(vbox)
 		tab_layout.addTab(form, "Event Creation")
 
-	# TODO weird bug where tabs are duplicating, not sure where this is happening. Can be avoided by not clicking the
-	#  same day twice. I will look into this but for now, just don't click twice!!
-	#  - this bug will persist whenever multiple events are on the same day. So if i volunteer and there are 2 events,
-	#  it can duplicate the event and just have a weird UI. The data in the database is all correct though
 	# Show all the information for each event on the currently selected day
 	def show_events(self, tab_layout):
 		date = self.calendar.selectedDate()
@@ -424,7 +430,7 @@ class Calendar(QWidget):
 			self.build_tab_btns(tab_layout, None, vbox, event.id)
 
 	# [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
-	# Validate the input and store in the database if it is.
+	# Validate the input from 'Create Event' and store in the database if it is.
 	def verify_fields(self, form_list):
 		for i, field in enumerate(form_list):
 			if i == 2 or i == 3 or i == 4:

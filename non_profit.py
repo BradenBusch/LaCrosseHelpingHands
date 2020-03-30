@@ -40,9 +40,9 @@ def main():
     db.connect(reuse_if_open=True)
     
     # check if the database will be erased upon application start-up
-    if cs.DELETE:
+    # if cs.DELETE:
         # delete all data from the database
-        db.drop_tables([User, Event])
+    # db.drop_tables([User, Event])
     # create the tables within the database
     db.create_tables([User, Event])
     events = Event.select()
