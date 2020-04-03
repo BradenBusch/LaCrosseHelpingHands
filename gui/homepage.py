@@ -12,62 +12,168 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 try:
+    from non_profit.models.database import *
     from non_profit import constants as cs
 except:
+    from models.database import *
     import constants as cs
 
 
+# TODO make the program not crash when a guest is logged in
 class Homepage(QWidget):
     def __init__(self, parent=None):
+
         super().__init__(parent)
-        
         # set window title and properties, initialize the window reference
-        self.setProperty('class', 'homepage')    # TODO set property name correctly
-        self.setWindowTitle("Welcome!")    # TODO set window title correctly
+        self.setProperty('class', 'homepage')
+        self.setWindowTitle("Welcome!")
         self.win = None
         
         # set the page id
         self.this_page = cs.PAGE_HOME
-        
+
         # draw the page
         self.draw()
     
     # adds all buttons and sets up the layout
     def draw(self):
-        # TODO style the button in 'non_profit_style.qss'
-        # self.btn_name = QPushButton("Button")    # TODO name button
-        # self.btn_name.clicked.connect(self.btn_click)    # TODO call button click method
-        # self.btn_name.setProperty('class', 'button-btn')    # TODO set button name correctly
-        # self.btn_name.setCursor(QCursor(Qt.PointingHandCursor))
-        
-        # TODO add more buttons here
-        
-        # TODO choose from the three layouts to form the layout of the window
-        # self.grid = QGridLayout()
-        #self.vbox = QVBoxLayout()
-        # self.hbox = QHBoxLayout()
-        
-        # EXAMPLE:
-        # define the VBox
         self.vbox_screen = QVBoxLayout()
-        # vbox.addStretch(1)    # TODO add "stretches" to create padding between buttons
-        # vbox.addWidget(self.btn_name)
-        # TODO add more button widgets to the vbox here
-        
+
+        self.hbox_1 = QHBoxLayout()
+        self.spacer_1 = QLabel("")
+        self.spacer_1.setProperty('class', 'cal-bar-spacer-label')
+        self.hbox_1.addWidget(self.spacer_1)
+        self.vbox_screen.addLayout(self.hbox_1)
+
         # create the top bar of tabs for the application
         self.top_bar()
-        
+
+        # create hbox's
+        self.hbox_2 = QHBoxLayout()
+        self.hbox_screen = QHBoxLayout()
+
+        # create labels for the information
+        self.all_events_label = QLabel("All Scheduled Events")
+        self.all_events_label.setProperty('class', 'cal-label')
+        self.all_events_label.setFixedHeight(62)
+        self.hbox_2.addWidget(self.all_events_label)
+
+        self.user_events_label = QLabel("My Scheduled Events")
+        self.user_events_label.setProperty('class', 'cal-label')
+        self.user_events_label.setFixedHeight(62)
+        self.hbox_2.addWidget(self.user_events_label)
+
+        # Divide the screen into halves
+        self.vbox_1 = QVBoxLayout()
+        self.vbox_2 = QVBoxLayout()
+
+        # Add information to the vboxs TODO keep
+        # self.my_events = QScrollArea()
+        # self.my_events.setWidgetResizable(True)
+
+        # TODO Make the scroll only take up half the page
+        self.populate_all_events()
+        self.show_events_btn = QPushButton("View My Events")
+        self.show_events_btn.clicked.connect(self.populate_user_events)
+        self.vbox_2.addWidget(self.show_events_btn)
+
+        # Add two vboxes to top level hbox
+        self.hbox_screen.addLayout(self.vbox_1)
+        self.hbox_screen.addLayout(self.vbox_2)
+
+        # Add hboxs to vbox
+        self.vbox_screen.addLayout(self.hbox_2)
+        self.vbox_screen.addLayout(self.hbox_screen)
+
+        # create spacer for bottom of screen TODO REMOVE THIS?
+        self.hbox_3 = QHBoxLayout()
+        self.spacer_2 = QLabel("")
+        self.spacer_2.setProperty('class', 'cal-bottom-spacer-label')
+        self.hbox_3.addWidget(self.spacer_2)
+        self.vbox_screen.addLayout(self.hbox_3)
+
         # set up the layout
-        self.setLayout(self.vbox_screen)    # TODO set layout according to the layout chosen
+        self.setLayout(self.vbox_screen)
         
-        # set the geometry of the window    # TODO set geometry of the window correctly
+        # set the geometry of the window
         sys_width, sys_height = self.screen_resolution()
         self.x_coord = 0
         self.y_coord = 40
         self.width = sys_width
         self.height = sys_height
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
-    
+
+    def populate_all_events(self):
+        self.all_events_widget = QWidget()
+        self.all_events_vbox = QVBoxLayout()
+        self.all_events_widget.setLayout(self.all_events_vbox)
+        self.all_events = QScrollArea()
+        self.all_events.setWidget(self.all_events_widget)
+        self.all_events.setWidgetResizable(True)
+        self.all_events.setFixedHeight(500)
+        self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        # ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+        # event_ids = ids.split(' ')
+        # print(f'ids {event_ids}')
+        for id in range(100):
+            # event = Event.get(Event.id == id)
+
+            # v = QLabel(event.name)
+            self.all_events_vbox.addWidget(QLabel('ficl'))
+        self.vbox_1.addWidget(self.all_events)
+
+    # Populate the users events
+    def populate_user_events(self):
+        # Hide the button
+        self.show_events_btn.hide()
+
+        # Build scroll area (its weird, i had to look up so much documentation)
+        self.my_events_widget = QWidget()
+        self.my_events_vbox = QVBoxLayout()
+        self.my_events_widget.setLayout(self.my_events_vbox)
+        self.my_events = QScrollArea()
+        self.my_events.setWidget(self.my_events_widget)
+        self.my_events.setWidgetResizable(True)
+        self.my_events.setFixedHeight(600)  # TODO change this to how the calendar size was made
+        self.my_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
+        # print(f'cs.CURRENT_USER_ID: {cs.CURRENT_USER_ID}') TODO debug
+        ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+        event_ids = ids.split(' ')
+        # print(f'ids {event_ids}')
+        for id in event_ids:
+            event = Event.get(Event.id == id)
+            hbox = QHBoxLayout()
+
+            name = QLabel('Name: ')
+            name.setProperty('class', 'bold-label')
+            hbox.addWidget(name)
+            n = QLabel(event.name)
+            n.setProperty('class', 'tab-info')
+            hbox.addWidget(n)
+
+            location = QLabel('Location: ')
+            location.setProperty('class', 'bold-label')
+            hbox.addWidget(location)
+            l = QLabel(event.location)
+            l.setProperty('class', 'tab-info')
+            hbox.addWidget(l)
+
+            date = QLabel('Date: ')
+            date.setProperty('class', 'bold-label')
+            hbox.addWidget(date)
+            time = '%s/%s/%s, %s-%s' % (event.month, event.day, event.year, event.start_date, event.end_date)
+            t = QLabel(time)
+            t.setProperty('class', 'tab-info')
+            hbox.addWidget(t)
+
+            cancel_btn = QPushButton('Cancel ' + str(event.name))
+            cancel_btn.setProperty('class', 'normal-bar-btn')
+            # cancel_btn.clicked.connect()
+            hbox.addWidget(cancel_btn)
+            self.my_events_vbox.addLayout(hbox)
+        self.vbox_2.addWidget(self.my_events)
+
     # creates the layout for the bar of tabs at the top of the application
     def top_bar(self):
         # set up the home button

@@ -16,22 +16,13 @@ from PyQt5.QtGui import *
 from functools import partial
 
 try:
+	from non_profit.gui.homepage import *
 	from non_profit.gui.login import *
 	from non_profit import constants as cs
 except:
 	from gui.login import *
 	import constants as cs
 
-
-# TODO handle approving requests somewhere, idk where we want that functionality to go
-# TODO make page showing events the user has signed up for
-# TODO make the database handle multiple day events by just creating multiple events with the same name (maybe)
-#  - They will have the same name but different autofields so users can register for multiple days then
-#  - Maybe click a checkbox or something to indicate that you want a multi day event
-#  - Will have to query based on name so we will have to start caring about names
-
-# TODO 3/28
-#  -> Only let users create events when it is after current time
 
 class Calendar(QWidget):
 	def __init__(self, parent=None):
@@ -118,7 +109,7 @@ class Calendar(QWidget):
 		# add the top level HBox to the top level VBox
 		self.vbox_screen.addLayout(self.hbox_2)
 		self.vbox_screen.addLayout(self.hbox_screen)
-		
+
 		# create the spacer for the bottom of the screen
 		self.hbox_3 = QHBoxLayout()
 		self.spacer_2 = QLabel("")
@@ -265,7 +256,8 @@ class Calendar(QWidget):
 		volunteer_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
 		make_donation_btn = QPushButton("Make Donation")
-		# self.make_donation_btn.clicked.connect()
+		if event_id is not None:
+			make_donation_btn.clicked.connect(partial(self.create_donation_form, tab_layout, event_id))
 		make_donation_btn.setProperty('class', 'normal-bar-btn')
 		make_donation_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -300,6 +292,61 @@ class Calendar(QWidget):
 			tab_layout.addTab(tab, "")
 		else:
 			tab_layout.addTab(tab, event_name)
+
+	# build the donate money form
+	def create_donation_form(self, tab_layout, event_id=None):
+		for i in range(tab_layout.count()):
+			tab_layout.removeTab(0)
+
+		dollar_label = QLabel("$")
+		dollar_label.setProperty('class', 'bold-label')
+		donation_field = QLineEdit()
+		donation_field.setPlaceholderText("Enter a donation value as a number")
+
+		donation_hbox = QHBoxLayout()
+		donation_hbox.addWidget(dollar_label)
+		donation_hbox.addWidget(donation_field)
+
+		spacer_hbox = QHBoxLayout()
+		spacer = QLabel("")
+		spacer.setProperty('class', 'cal-bar-spacer-label')
+		spacer_hbox.addWidget(spacer)
+
+		btn_hbox = QHBoxLayout()
+		confirm_btn = QPushButton("Confirm")
+		confirm_btn.clicked.connect(partial(self.verify_donation, tab_layout, donation_field, event_id))
+		confirm_btn.setProperty('class', 'normal-bar-btn')
+		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		cancel_btn = QPushButton("Cancel")
+		cancel_btn.clicked.connect(partial(self.draw_tab, tab_layout))
+		cancel_btn.setProperty('class', 'special-bar-btn')
+		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		btn_hbox.addWidget(confirm_btn)
+		btn_hbox.addWidget(cancel_btn)
+
+		vbox = QVBoxLayout()
+		vbox.addLayout(donation_hbox)
+		vbox.addLayout(spacer_hbox)
+		vbox.addLayout(btn_hbox)
+		vbox.setAlignment(Qt.AlignCenter)
+
+		form = QWidget()
+		form.setLayout(vbox)
+		tab_layout.addTab(form, "Event Donation")
+
+	def verify_donation(self, tab_layout, amount, event_id=None):
+		if amount.text() == "":
+			QMessageBox.warning(None, " ", "You did not enter an amount!")
+			return
+		elif not amount.text().isdigit():
+			QMessageBox.warning(None, " ", "Please enter only numbers (0-9)")
+			return
+		else:
+			curr_donation = Event.get(Event.id == event_id).donations
+			# print(f'current_donation {curr_donation} amount {amount.text()}') TODO use for debug
+			curr_donation = curr_donation + int(amount.text())
+			Event.update(donations=curr_donation).where(Event.id == event_id).execute()
+		self.draw_tab(tab_layout)
 
 	# Build the form for creating an event. Will add an event to the day that the user currently has selected on Calender
 	def create_event_form(self, tab_layout):
@@ -422,11 +469,22 @@ class Calendar(QWidget):
 			volunteer_hbox.addWidget(vol)
 			volunteer_hbox.addWidget(spacer)
 
+			donations_hbox = QHBoxLayout()
+			donation = QLabel('Donations: ')
+			donation.setProperty('class', 'bold-label')
+			donations_hbox.addWidget(donation)
+			donation_val = "$ " + str(event.donations)
+			donation_lab = QLabel(donation_val)
+			donation_lab.setProperty('class', 'tab-info')
+			donations_hbox.addWidget(donation_lab)
+			donations_hbox.addWidget(spacer)
+
 			vbox.addLayout(name_hbox)
 			vbox.addLayout(location_hbox)
 			vbox.addLayout(date_hbox)
 			vbox.addLayout(description_hbox)
 			vbox.addLayout(volunteer_hbox)
+			vbox.addLayout(donations_hbox)
 			self.build_tab_btns(tab_layout, None, vbox, event.id)
 
 	# [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
@@ -454,7 +512,7 @@ class Calendar(QWidget):
 		year = date.year()
 		event_start_time = str(form_list[2].currentText())
 		event_end_time = str(form_list[3].currentText())
-		new_event = Event(day=day, month=month, year=year, start_date=event_start_time, end_date=event_end_time, name=form_list[0].text(), description=form_list[4].toPlainText(), location=form_list[1].text(), volunteers_needed=form_list[5].text(), volunteers_attending=0, volunteers_ids="-1")
+		new_event = Event(day=day, month=month, year=year, start_date=event_start_time, end_date=event_end_time, name=form_list[0].text(), description=form_list[4].toPlainText(), location=form_list[1].text(), volunteers_needed=form_list[5].text(), volunteers_attending=0, volunteers_ids="-1", donations=0)
 		new_event.save()
 		self.draw_tab(self.tabs)
 
@@ -586,8 +644,10 @@ class Calendar(QWidget):
 	
 	# go to the homepage
 	def home_click(self):
+		Homepage()
 		self.win.set_page(self.this_page, cs.PAGE_HOME)
 		self.reset_day()
+
 
 	# go to the calendar page
 	def cal_click(self):
