@@ -2,7 +2,7 @@
 Manages the relationship between all of the different pages.
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
@@ -42,13 +42,13 @@ class WindowManager(QMainWindow):
         # set the helping hands banner
         banner = QLabel(self)
         
-        # if file exits else use the other one (handles path to the image)
+        # if file exists else use the other one (handles path to the image)
         if os.path.isfile('gui\\photos\\helping_hands_banner.png'):
             pixmap = QPixmap('gui\\photos\\helping_hands_banner.png')
         else:
             pixmap = QPixmap('non_profit\\gui\\photos\\helping_hands_banner.png')
         
-        scaled_height = pixmap.height() * (sys_width / pixmap.width())
+        scaled_height = int(pixmap.height() * (sys_width / pixmap.width()))
         pixmap = pixmap.scaled(sys_width, scaled_height, transformMode=Qt.SmoothTransformation)
         banner.setPixmap(pixmap)
         banner.resize(pixmap.width(), pixmap.height())

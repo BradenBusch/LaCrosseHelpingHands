@@ -3,7 +3,7 @@ Holds the everything related to the calendar page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
@@ -58,6 +58,7 @@ class Calendar(QWidget):
 		self.calendar.setSelectedDate(QDate(self.currentYear, self.currentMonth, self.currentDay))
 
 		# self.calendar.clicked.connect(self.printDateInfo)
+		
 		# retrieve the resolution of the system
 		sys_width, sys_height = self.screen_resolution()
 		
@@ -136,7 +137,7 @@ class Calendar(QWidget):
 		# self.calendar.setGeometry(self.x_coord_cal, self.y_coord_cal, self.cal_width, self.cal_height)
 		
 		# set the maximum width of the calendar widget
-		self.calendar.setMaximumWidth(sys_width / 2)
+		self.calendar.setMaximumWidth(sys_width // 2)
 
 	# If the selected date is not the same as the previous date, delete all the tabs
 	def check_existing_tabs(self, tab_layout, day, month, year):
@@ -439,7 +440,7 @@ class Calendar(QWidget):
 			loc.setProperty('class', 'tab-info')
 			location_hbox.addWidget(loc)
 			location_hbox.addWidget(spacer)
-
+			
 			date_hbox = QHBoxLayout()
 			date = QLabel('Date: ')
 			date.setProperty('class', 'bold-label')
@@ -449,13 +450,14 @@ class Calendar(QWidget):
 			t.setProperty('class', 'tab-info')
 			date_hbox.addWidget(t)
 			date_hbox.addWidget(spacer)
-
+			
 			description_hbox = QHBoxLayout()
 			description = QLabel('Description: ')
 			description.setProperty('class', 'bold-label')
 			description_hbox.addWidget(description)
 			d = QLabel(event.description)
 			d.setProperty('class', 'tab-info')
+			d.setWordWrap(True)
 			description_hbox.addWidget(d)
 			description_hbox.addWidget(spacer)
 
@@ -644,10 +646,8 @@ class Calendar(QWidget):
 	
 	# go to the homepage
 	def home_click(self):
-		Homepage()
 		self.win.set_page(self.this_page, cs.PAGE_HOME)
 		self.reset_day()
-
 
 	# go to the calendar page
 	def cal_click(self):

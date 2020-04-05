@@ -3,10 +3,11 @@ Window template, copy this file and rename it to create a new page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
+import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -31,78 +32,153 @@ class Homepage(QWidget):
         
         # set the page id
         self.this_page = cs.PAGE_HOME
-
+        
         # draw the page
         self.draw()
     
     # adds all buttons and sets up the layout
     def draw(self):
         self.vbox_screen = QVBoxLayout()
-
+        
         self.hbox_1 = QHBoxLayout()
         self.spacer_1 = QLabel("")
-        self.spacer_1.setProperty('class', 'cal-bar-spacer-label')
+        self.spacer_1.setProperty('class', 'home-bar-spacer-label')
         self.hbox_1.addWidget(self.spacer_1)
         self.vbox_screen.addLayout(self.hbox_1)
-
+        
+        # create the my events button, to be used below
+        self.my_events_btn = QPushButton("View My Events")
+        
         # create the top bar of tabs for the application
         self.top_bar()
-
-        # create hbox's
+        
+        # create HBoxes
         self.hbox_2 = QHBoxLayout()
         self.hbox_screen = QHBoxLayout()
-
-        # create labels for the information
-        self.all_events_label = QLabel("All Scheduled Events")
-        self.all_events_label.setProperty('class', 'cal-label')
-        self.all_events_label.setFixedHeight(62)
-        self.hbox_2.addWidget(self.all_events_label)
-
-        self.user_events_label = QLabel("My Scheduled Events")
-        self.user_events_label.setProperty('class', 'cal-label')
-        self.user_events_label.setFixedHeight(62)
-        self.hbox_2.addWidget(self.user_events_label)
-
+        
+        self.welcome_label = QLabel("Welcome!")
+        self.welcome_label.setProperty('class', 'cal-label')
+        self.welcome_label.setFixedHeight(62)
+        self.hbox_2.addWidget(self.welcome_label)
+        
+        # self.user_events_label = QLabel("My Scheduled Events")
+        # self.user_events_label.setProperty('class', 'cal-label')
+        # self.user_events_label.setFixedHeight(62)
+        # self.hbox_2.addWidget(self.user_events_label)
+        
         # Divide the screen into halves
         self.vbox_1 = QVBoxLayout()
         self.vbox_2 = QVBoxLayout()
+        
+        # set the paragraph of text to display above the picture
+        self.home_desc = QLabel(self.get_text("home_description.txt"))
+        self.home_desc.setProperty('class', 'home-desc-label')
+        self.home_desc.setWordWrap(True)
+        #self.vbox_1.addWidget(self.home_desc)
+        
+        
+        # self.home_desc1 = QLabel("Welcome to Helping Hands La Crosse!")
+        # self.home_desc1.setProperty('class', 'bold-label')
+        # self.home_desc1.setWordWrap(True)
+        # self.vbox_1.addWidget(self.home_desc1)
 
-        # Add information to the vboxs TODO keep
+        self.home_desc2 = QLabel(self.get_text("home_description.txt"))
+        self.home_desc2.setProperty('class', 'home-desc-label')
+        self.home_desc2.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc2)
+        
+        self.home_desc3 = QLabel("Interested in volunteering at one of our events and making your mark in the La Crosse community?")
+        self.home_desc3.setProperty('class', 'bold-text-label')
+        self.home_desc3.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc3)
+        
+        self.home_desc4 = QLabel("• Register an account and head over to our Calendar page to register for events!")
+        self.home_desc4.setProperty('class', 'home-desc-label')
+        self.home_desc4.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc4)
+        
+        self.home_desc5 = QLabel("Interested in making a donation to our organization?")
+        self.home_desc5.setProperty('class', 'bold-text-label')
+        self.home_desc5.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc5)
+        
+        self.home_desc6 = QLabel("• Register an account and donate to your heart's content!")
+        self.home_desc6.setProperty('class', 'home-desc-label')
+        self.home_desc6.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc6)
+        
+        self.home_desc7 = QLabel("Interested in joining our staff or administrator team?")
+        self.home_desc7.setProperty('class', 'bold-text-label')
+        self.home_desc7.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc7)
+        
+        self.home_desc8 = QLabel("• Visit the Contact Us page and contact us directly, we'd be delighted to have you join us!")
+        self.home_desc8.setProperty('class', 'home-desc-label')
+        self.home_desc8.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc8)
+        
+        # retrieve system resolution
+        sys_width, sys_height = self.screen_resolution()
+        
+        # set up the image
+        self.hands_image = QLabel(self)
+        
+        # if file exists else use the other one (handles path to the image)
+        if os.path.isfile('gui\\photos\\homepage.png'):
+            pixmap = QPixmap('gui\\photos\\homepage.png')
+        else:
+            pixmap = QPixmap('non_profit\\gui\\photos\\homepage.png')
+        
+        # set width and height of image
+        scaled_height = int(pixmap.height() * ((sys_width // 2) / pixmap.width()))
+        pixmap = pixmap.scaled((sys_width // 2), scaled_height, transformMode=Qt.SmoothTransformation)
+        self.hands_image.setPixmap(pixmap)
+        self.hands_image.resize(pixmap.width(), pixmap.height())
+        self.vbox_1.addWidget(self.hands_image)
+        
+        # Add information to the vboxes TODO keep
         # self.my_events = QScrollArea()
         # self.my_events.setWidgetResizable(True)
-
-        # TODO Make the scroll only take up half the page
+        
+        # create labels for the information
+        self.events_label = QLabel("Upcoming Events")
+        self.events_label.setProperty('class', 'home-events-label')
+        self.events_label.setFixedHeight(40)
+        self.vbox_2.addWidget(self.events_label)
+        
+        # populate scroll area with upcoming events
         self.populate_all_events()
-        self.show_events_btn = QPushButton("View My Events")
-        self.show_events_btn.clicked.connect(self.populate_user_events)
-        self.vbox_2.addWidget(self.show_events_btn)
-
-        # Add two vboxes to top level hbox
+        self.my_events_btn.clicked.connect(self.account_click)
+        self.my_events_btn.setProperty('class', 'special-bar-btn')
+        self.my_events_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.show_events_btn.clicked.connect(self.populate_user_events)
+        self.vbox_2.addWidget(self.my_events_btn)
+        
+        # add two VBoxes to top level HBox
         self.hbox_screen.addLayout(self.vbox_1)
         self.hbox_screen.addLayout(self.vbox_2)
-
-        # Add hboxs to vbox
+        
+        # add HBoxes to top level VBox
         self.vbox_screen.addLayout(self.hbox_2)
         self.vbox_screen.addLayout(self.hbox_screen)
-
-        # create spacer for bottom of screen TODO REMOVE THIS?
+        
+        # create spacer for bottom of screen
         self.hbox_3 = QHBoxLayout()
         self.spacer_2 = QLabel("")
-        self.spacer_2.setProperty('class', 'cal-bottom-spacer-label')
+        self.spacer_2.setProperty('class', 'home-bottom-spacer-label')
         self.hbox_3.addWidget(self.spacer_2)
         self.vbox_screen.addLayout(self.hbox_3)
-
+        
         # set up the layout
         self.setLayout(self.vbox_screen)
         
         # set the geometry of the window
-        sys_width, sys_height = self.screen_resolution()
         self.x_coord = 0
         self.y_coord = 40
         self.width = sys_width
         self.height = sys_height
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
-
+    
     def populate_all_events(self):
         self.all_events_widget = QWidget()
         self.all_events_vbox = QVBoxLayout()
@@ -117,16 +193,16 @@ class Homepage(QWidget):
         # print(f'ids {event_ids}')
         for id in range(100):
             # event = Event.get(Event.id == id)
-
+            
             # v = QLabel(event.name)
             self.all_events_vbox.addWidget(QLabel('ficl'))
-        self.vbox_1.addWidget(self.all_events)
-
+        self.vbox_2.addWidget(self.all_events)
+    
     # Populate the users events
     def populate_user_events(self):
         # Hide the button
-        self.show_events_btn.hide()
-
+        self.my_events_btn.hide()
+        
         # Build scroll area (its weird, i had to look up so much documentation)
         self.my_events_widget = QWidget()
         self.my_events_vbox = QVBoxLayout()
@@ -136,7 +212,7 @@ class Homepage(QWidget):
         self.my_events.setWidgetResizable(True)
         self.my_events.setFixedHeight(600)  # TODO change this to how the calendar size was made
         self.my_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
+        
         # print(f'cs.CURRENT_USER_ID: {cs.CURRENT_USER_ID}') TODO debug
         ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
         event_ids = ids.split(' ')
@@ -173,7 +249,21 @@ class Homepage(QWidget):
             hbox.addWidget(cancel_btn)
             self.my_events_vbox.addLayout(hbox)
         self.vbox_2.addWidget(self.my_events)
-
+    
+    # reads in all text from a passed .txt file and returns it as a string
+    def get_text(self, filename):
+        # if file exists else use the other one (handles path to the image)
+        if os.path.isfile('gui\\text\\{}'.format(filename)):
+            path = 'gui\\text\\{}'.format(filename)
+        else:
+            path = 'non_profit\\gui\\text\\{}'.format(filename)
+        
+        # open the file and read in all text
+        with open(path, 'r') as text_file:
+            text = text_file.read()
+        
+        return text
+    
     # creates the layout for the bar of tabs at the top of the application
     def top_bar(self):
         # set up the home button
@@ -280,6 +370,7 @@ class Homepage(QWidget):
     def logout_click(self):
         self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
         
+        # TODO actually log the user out of their account
         cs.CURRENT_USER = "Guest"
     
     # go to the login page
@@ -307,6 +398,18 @@ class Homepage(QWidget):
         
         # set the properties of the rectangle: (x-coord, y-coord, width, height)
         painter.drawRect(0, 127, sys_width, 60)
+        
+        # set the color and pattern of the shape: (r, g, b, alpha)
+        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+        
+        # set the properties of the rectangle: (x-coord, y-coord, width, height)
+        painter.drawRect(0, 250, (sys_width // 2) - 5, 675)
+        
+        # set the color and pattern of the shape: (r, g, b, alpha)
+        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+
+        # set the properties of the rectangle: (x-coord, y-coord, width, height)
+        painter.drawRect((sys_width // 2) + 5, 250, (sys_width // 2) - 5, 675)
     
     # resets the coordinates of the window after switching to this page
     def set_position(self):
@@ -320,10 +423,13 @@ class Homepage(QWidget):
             # show the signup and login buttons
             self.signup_btn.show()
             self.login_btn.show()
-        
+            
             # hide the account and logout buttons
             self.account_btn.hide()
             self.logout_btn.hide()
+            
+            # hide the my events button
+            self.my_events_btn.hide()
         
         # if the current user is not a guest
         else:
@@ -334,6 +440,9 @@ class Homepage(QWidget):
             # show the account and logout buttons
             self.account_btn.show()
             self.logout_btn.show()
+            
+            # show the my events button
+            self.my_events_btn.show()
         
         # check if the current user is a volunteer
         if cs.CURRENT_USER == "Volunteer":

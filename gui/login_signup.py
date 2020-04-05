@@ -3,7 +3,7 @@ Holds everything related to the welcome page, where users decide how to access t
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
@@ -86,7 +86,7 @@ class LogInSignUp(QWidget):
     
     # go to the homepage
     def guest_click(self):
-        self.win.set_page(self.this_page, cs.PAGE_CAL)    # TODO change cs.PAGE_CAL to cs.PAGE_HOME when homepage is done
+        self.win.set_page(self.this_page, cs.PAGE_HOME)
     
     # draws rectangle around buttons
     def paintEvent(self, e):

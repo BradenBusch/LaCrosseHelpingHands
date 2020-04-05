@@ -128,11 +128,36 @@ QLabel.cal-label {{
     color: black;
 }}
 
+QLabel.bold-text-label {{
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+}}
+
+QLabel.home-events-label {{
+    font-size: 30px;
+    font-weight: bold;
+    color: black;
+}}
+
+QLabel.home-desc-label {{
+    font-size: 15px;
+    color: black;
+}}
+
 QLabel.cal-bar-spacer-label {{
     font-size: 100px;
 }}
 
 QLabel.cal-bottom-spacer-label {{
+    font-size: 125px;
+}}
+
+QLabel.home-bar-spacer-label {{
+    font-size: 100px;
+}}
+
+QLabel.home-bottom-spacer-label {{
     font-size: 125px;
 }}
 

@@ -2,7 +2,7 @@
 Holds the global variables used by every script.
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
@@ -14,7 +14,8 @@ CURRENT_DATE = -1    # indicates what date was clicked on the calendar by the us
 CURRENT_USER_ID = -1   # indicates the user_id of the logged in user for database purposes
 
 # hardcoded globals
-ADMIN_PASSWORD = "ADMIN"    # holds the password given to Guests who sign up to become an Administrator
+STAFF_CODE = "STAFF"    # holds the code given to Guests who sign up to become a Staff member
+ADMIN_CODE = "ADMIN"    # holds the code given to Guests who sign up to become an Administrator
 DELETE = False    # indicates if all data in the database should be deleted upon application start-up
 
 # page identification

@@ -2,7 +2,7 @@
 Top level script, starts the application.
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 PyQt5 Documentation: https://www.riverbankcomputing.com/static/Docs/PyQt5/
 PyQt5 Tutorial: https://build-system.fman.io/pyqt5-tutorial
@@ -46,8 +46,10 @@ def main():
     # create the tables within the database
     db.create_tables([User, Event])
     events = Event.select()
+    
     for e in events:
         print('{0}/{1}/{2} Volunteers: {3}'.format(e.month, e.day, e.year, e.volunteers_attending))
+    
     # create the pages for the application within the WindowManager
     current_window = WindowManager([LogInSignUp(),
                                     Login(),

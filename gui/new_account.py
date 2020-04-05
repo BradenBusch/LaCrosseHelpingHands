@@ -3,7 +3,7 @@ Holds everything related to the new account page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
@@ -41,6 +41,8 @@ class NewAccount(QWidget):
         self.email_edit = QLineEdit()
         self.password_edit = QLineEdit()
         self.confirm_password_edit = QLineEdit()
+        self.staff_code_box = QLineEdit()
+        self.staff_code_box.hide()
         self.admin_code_box = QLineEdit()
         self.admin_code_box.hide()
         self.radio_btns = []
@@ -48,6 +50,7 @@ class NewAccount(QWidget):
                        self.email_edit,
                        self.password_edit,
                        self.confirm_password_edit,
+                       self.staff_code_box,
                        self.admin_code_box]
         
         # draw the page
@@ -69,15 +72,18 @@ class NewAccount(QWidget):
         
         # set up the volunteer radio button
         self.volunteer_radio = QRadioButton("Volunteer")
+        self.volunteer_radio.toggled.connect(self.hide_staff)
         self.volunteer_radio.toggled.connect(self.hide_admin)
         self.volunteer_radio.setChecked(True)
         
         # set up the staff radio button
         self.staff_radio = QRadioButton("Staff")
         self.staff_radio.toggled.connect(self.hide_admin)
+        self.staff_radio.toggled.connect(self.staff_click)
         
         # set up the administrator radio button
         self.admin_radio = QRadioButton("Administrator")
+        self.admin_radio.toggled.connect(self.hide_staff)
         self.admin_radio.toggled.connect(self.admin_click)
         
         # set up the radio buttons
@@ -93,7 +99,9 @@ class NewAccount(QWidget):
         self.confirm_password_edit.setPlaceholderText("Confirm Password")
         # self.confirm_password_edit.returnPressed.connect(self.verify_fields)
         self.confirm_password_edit.setEchoMode(QLineEdit.Password)
-        self.admin_code_box.setPlaceholderText("Enter the Administrator Password")
+        self.staff_code_box.setPlaceholderText("Enter the Staff Code")
+        self.staff_code_box.setEchoMode(QLineEdit.Password)
+        self.admin_code_box.setPlaceholderText("Enter the Administrator Code")
         self.admin_code_box.setEchoMode(QLineEdit.Password)
         
         # set up the VBox
@@ -102,6 +110,7 @@ class NewAccount(QWidget):
         self.vbox.addWidget(self.email_edit)
         self.vbox.addWidget(self.password_edit)
         self.vbox.addWidget(self.confirm_password_edit)
+        self.vbox.addWidget(self.staff_code_box)
         self.vbox.addWidget(self.admin_code_box)
         
         # set up the HBox
@@ -184,8 +193,13 @@ class NewAccount(QWidget):
             self.email_edit.clear()
             return
         
-        elif self.get_account_type() == "Administrator" and self.admin_code_box.text() != cs.ADMIN_PASSWORD:
-            msg = QMessageBox.warning(None, " ", " You entered the wrong admin password. ")
+        elif self.get_account_type() == "Staff" and self.staff_code_box.text() != cs.STAFF_CODE:
+            msg = QMessageBox.warning(None, " ", " You entered the wrong staff code. ")
+            self.staff_code_box.clear()
+            return
+        
+        elif self.get_account_type() == "Administrator" and self.admin_code_box.text() != cs.ADMIN_CODE:
+            msg = QMessageBox.warning(None, " ", " You entered the wrong Administrator code. ")
             self.admin_code_box.clear()
             return
         
@@ -228,6 +242,15 @@ class NewAccount(QWidget):
     def go_back_success(self):
         self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
         self.clear_fields()
+    
+    # show the staff_code text box widget
+    def staff_click(self):
+        self.staff_code_box.show()
+
+    # hide the staff_code text box widget
+    def hide_staff(self):
+        self.staff_code_box.hide()
+        self.staff_code_box.clear()
     
     # show the admin_code text box widget
     def admin_click(self):

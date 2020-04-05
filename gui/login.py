@@ -3,7 +3,7 @@ Holds everything related to the login page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 03/02/2020
+Version: 04/05/2020
 
 '''
 
@@ -131,8 +131,8 @@ class Login(QWidget):
         else:
             cs.CURRENT_USER = User.get(User.username == entered_username).account_type
             cs.CURRENT_USER_ID = User.get(User.username == entered_username).user_id
-            print(cs.CURRENT_USER_ID)
-            print(cs.CURRENT_USER)
+            # print(cs.CURRENT_USER_ID)
+            # print(cs.CURRENT_USER)
             self.go_forward()
             return
     
@@ -162,7 +162,7 @@ class Login(QWidget):
         
         # go to the homepage if the user is coming from the login signup page
         else:
-            self.win.set_page(self.this_page, cs.PAGE_CAL)  # TODO change cs.PAGE_CAL to cs.PAGE_HOME when homepage is done
+            self.win.set_page(self.this_page, cs.PAGE_HOME)
         
         self.username_check.clear()
         self.password_check.clear()
