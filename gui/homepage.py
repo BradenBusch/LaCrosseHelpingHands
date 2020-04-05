@@ -20,7 +20,6 @@ except:
     import constants as cs
 
 
-# TODO make the program not crash when a guest is logged in
 class Homepage(QWidget):
     def __init__(self, parent=None):
 
