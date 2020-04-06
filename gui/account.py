@@ -37,10 +37,10 @@ class Account(QWidget):
 
 		# set the geometry of the window    # TODO set geometry of the window correctly
 		sys_width, sys_height = self.screen_resolution()
-		self.x_coord = sys_width / 2
-		self.y_coord = sys_height / 4
-		self.width = 500
-		self.height = 500
+		self.x_coord = 0
+		self.y_coord = 40
+		self.width = sys_width
+		self.height = sys_height
 		self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
 
 	# returns the resolution of the current system (width and height)

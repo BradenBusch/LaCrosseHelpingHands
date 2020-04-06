@@ -391,8 +391,9 @@ class Homepage(QWidget):
     
     # go to the account page
     def account_click(self):
+        print('i was clicked')
         self.win.set_page(self.this_page, cs.PAGE_ACCOUNT)
-    
+
     # return to the login signup screen
     def logout_click(self):
         self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
