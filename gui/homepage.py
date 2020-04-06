@@ -74,7 +74,7 @@ class Homepage(QWidget):
         self.home_desc.setProperty('class', 'home-desc-label')
         self.home_desc.setWordWrap(True)
         #self.vbox_1.addWidget(self.home_desc)
-        
+
         
         # self.home_desc1 = QLabel("Welcome to Helping Hands La Crosse!")
         # self.home_desc1.setProperty('class', 'bold-label')
@@ -190,11 +190,39 @@ class Homepage(QWidget):
         # ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
         # event_ids = ids.split(' ')
         # print(f'ids {event_ids}')
-        for id in range(100):
-            # event = Event.get(Event.id == id)
-            
-            # v = QLabel(event.name)
-            self.all_events_vbox.addWidget(QLabel('ficl'))
+
+        try:
+            events = Event.select()
+        except Event.DoesNotExist:
+            return
+
+        for e in events:
+            print("hello")
+            event = Event.get(Event.id == e.id)
+            hbox = QHBoxLayout()
+
+            name = QLabel('Name: ')
+            name.setProperty('class', 'bold-label')
+            hbox.addWidget(name)
+            n = QLabel(event.name)
+            n.setProperty('class', 'tab-info')
+            hbox.addWidget(n)
+
+            location = QLabel('Location: ')
+            location.setProperty('class', 'bold-label')
+            hbox.addWidget(location)
+            l = QLabel(event.location)
+            l.setProperty('class', 'tab-info')
+            hbox.addWidget(l)
+
+            date = QLabel('Date: ')
+            date.setProperty('class', 'bold-label')
+            hbox.addWidget(date)
+            time = '%s/%s/%s, %s-%s' % (event.month, event.day, event.year, event.start_date, event.end_date)
+            t = QLabel(time)
+            t.setProperty('class', 'tab-info')
+            hbox.addWidget(t)
+            self.all_events_vbox.addLayout(hbox)
         self.vbox_2.addWidget(self.all_events)
     
     # Populate the users events

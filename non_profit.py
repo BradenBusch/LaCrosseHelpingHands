@@ -18,6 +18,7 @@ try:
     from non_profit.gui.login_signup import *
     from non_profit.gui.homepage import *
     from non_profit.gui.calendar import *
+    from non_profit.gui.account import *
     from non_profit.gui.non_profit_style_driver import *
 except:
     from models.database import *
@@ -25,6 +26,7 @@ except:
     from gui.login_signup import *
     from gui.homepage import *
     from gui.calendar import *
+    from gui.account import *
     from gui.non_profit_style_driver import *
 
 
@@ -55,7 +57,8 @@ def main():
                                     Login(),
                                     NewAccount(),
                                     Homepage(),
-                                    Calendar()])
+                                    Calendar(),
+                                    Account()])
     
     # retrieve the current system resolution
     sys_width, sys_height = screen_resolution()
