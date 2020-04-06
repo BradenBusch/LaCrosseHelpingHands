@@ -1,5 +1,5 @@
 '''
-Window template, copy this file and rename it to create a new page.
+Homepage of the application, all users are directed here after logging in.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
@@ -22,8 +22,8 @@ except:
 
 class Homepage(QWidget):
     def __init__(self, parent=None):
-
         super().__init__(parent)
+        
         # set window title and properties, initialize the window reference
         self.setProperty('class', 'homepage')
         self.setWindowTitle("Welcome!")
@@ -186,6 +186,8 @@ class Homepage(QWidget):
         self.all_events.setWidget(self.all_events_widget)
         self.all_events.setWidgetResizable(True)
         self.all_events.setFixedHeight(500)
+        sys_width, sys_height = self.screen_resolution()
+        self.all_events.setFixedWidth((sys_width // 2) - 35)
         self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         # ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
         # event_ids = ids.split(' ')
@@ -225,7 +227,7 @@ class Homepage(QWidget):
             self.all_events_vbox.addLayout(hbox)
         self.vbox_2.addWidget(self.all_events)
     
-    # Populate the users events
+    # TODO I don't think we need this method since user events are in account page
     def populate_user_events(self):
         # Hide the button
         self.my_events_btn.hide()
