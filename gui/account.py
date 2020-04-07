@@ -11,6 +11,7 @@ import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from functools import partial
 try:
 	from non_profit.models.database import *
 	from non_profit import constants as cs
@@ -42,20 +43,18 @@ class Account(QWidget):
 		self.hbox_1.addWidget(self.spacer_1)
 		self.vbox_screen.addLayout(self.hbox_1)
 		
-		# create the my events button, to be used below
-		self.my_events_btn = QPushButton("View My Events")
-		
 		# create the top bar of tabs for the application
 		self.top_bar()
 		
 		# create HBoxes
 		self.hbox_2 = QHBoxLayout()
 		self.hbox_screen = QHBoxLayout()
-		
-		self.welcome_label = QLabel("My Account")
-		self.welcome_label.setProperty('class', 'cal-label')
-		self.welcome_label.setFixedHeight(62)
-		self.hbox_2.addWidget(self.welcome_label)
+
+		# TODO we can think of splitting the screen after the demo but for now i dont think we need this
+		# self.welcome_label = QLabel("My Account")
+		# self.welcome_label.setProperty('class', 'cal-label')
+		# self.welcome_label.setFixedHeight(62)
+		# self.hbox_2.addWidget(self.welcome_label)
 		
 		# self.user_events_label = QLabel("My Scheduled Events")
 		# self.user_events_label.setProperty('class', 'cal-label')
@@ -64,12 +63,12 @@ class Account(QWidget):
 		
 		# Divide the screen into halves
 		self.vbox_1 = QVBoxLayout()
-		self.vbox_2 = QVBoxLayout()
+		# self.vbox_2 = QVBoxLayout()
 		
 		# set the paragraph of text to display above the picture
-		self.home_desc = QLabel(self.get_text("home_description.txt"))
-		self.home_desc.setProperty('class', 'home-desc-label')
-		self.home_desc.setWordWrap(True)
+		# self.home_desc = QLabel(self.get_text("home_description.txt"))
+		# self.home_desc.setProperty('class', 'home-desc-label')
+		# self.home_desc.setWordWrap(True)
 		# self.vbox_1.addWidget(self.home_desc)
 		
 		# self.home_desc1 = QLabel("Welcome to Helping Hands La Crosse!")
@@ -77,59 +76,59 @@ class Account(QWidget):
 		# self.home_desc1.setWordWrap(True)
 		# self.vbox_1.addWidget(self.home_desc1)
 		
-		self.home_desc2 = QLabel(self.get_text("home_description.txt"))
-		self.home_desc2.setProperty('class', 'home-desc-label')
-		self.home_desc2.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc2)
-		
-		self.home_desc3 = QLabel(
-			"Interested in volunteering at one of our events and making your mark in the La Crosse community?")
-		self.home_desc3.setProperty('class', 'bold-text-label')
-		self.home_desc3.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc3)
-		
-		self.home_desc4 = QLabel("• Register an account and head over to our Calendar page to register for events!")
-		self.home_desc4.setProperty('class', 'home-desc-label')
-		self.home_desc4.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc4)
-		
-		self.home_desc5 = QLabel("Interested in making a donation to our organization?")
-		self.home_desc5.setProperty('class', 'bold-text-label')
-		self.home_desc5.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc5)
-		
-		self.home_desc6 = QLabel("• Register an account and donate to your heart's content!")
-		self.home_desc6.setProperty('class', 'home-desc-label')
-		self.home_desc6.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc6)
-		
-		self.home_desc7 = QLabel("Interested in joining our staff or administrator team?")
-		self.home_desc7.setProperty('class', 'bold-text-label')
-		self.home_desc7.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc7)
-		
-		self.home_desc8 = QLabel(
-			"• Visit the Contact Us page and contact us directly, we'd be delighted to have you join us!")
-		self.home_desc8.setProperty('class', 'home-desc-label')
-		self.home_desc8.setWordWrap(True)
-		self.vbox_1.addWidget(self.home_desc8)
-		
-		# Add information to the vboxes TODO keep
-		# self.my_events = QScrollArea()
-		# self.my_events.setWidgetResizable(True)
+		# self.home_desc2 = QLabel(self.get_text("home_description.txt"))
+		# self.home_desc2.setProperty('class', 'home-desc-label')
+		# self.home_desc2.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc2)
+		#
+		# self.home_desc3 = QLabel(
+		# 	"Interested in volunteering at one of our events and making your mark in the La Crosse community?")
+		# self.home_desc3.setProperty('class', 'bold-text-label')
+		# self.home_desc3.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc3)
+		#
+		# self.home_desc4 = QLabel("• Register an account and head over to our Calendar page to register for events!")
+		# self.home_desc4.setProperty('class', 'home-desc-label')
+		# self.home_desc4.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc4)
+		#
+		# self.home_desc5 = QLabel("Interested in making a donation to our organization?")
+		# self.home_desc5.setProperty('class', 'bold-text-label')
+		# self.home_desc5.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc5)
+		#
+		# self.home_desc6 = QLabel("• Register an account and donate to your heart's content!")
+		# self.home_desc6.setProperty('class', 'home-desc-label')
+		# self.home_desc6.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc6)
+		#
+		# self.home_desc7 = QLabel("Interested in joining our staff or administrator team?")
+		# self.home_desc7.setProperty('class', 'bold-text-label')
+		# self.home_desc7.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc7)
+		#
+		# self.home_desc8 = QLabel(
+		# 	"• Visit the Contact Us page and contact us directly, we'd be delighted to have you join us!")
+		# self.home_desc8.setProperty('class', 'home-desc-label')
+		# self.home_desc8.setWordWrap(True)
+		# self.vbox_1.addWidget(self.home_desc8)
 		
 		# create labels for the information
 		self.events_label = QLabel("My Events")
 		self.events_label.setProperty('class', 'home-events-label')
-		self.events_label.setFixedHeight(40)
-		self.vbox_2.addWidget(self.events_label)
-		
-		# populate scroll area with the user's events
-		self.populate_user_events()
-		
+		# self.events_label.setFixedHeight(40)
+
+		# create the my events btn. This necessary because otherwise a database call will be made at __init__
+		self.my_events_btn = QPushButton("View My Events")
+		self.my_events_btn.setProperty('class', 'special-bar-btn')
+		self.my_events_btn.clicked.connect(self.populate_user_events)
+		self.my_events = QScrollArea()
+		self.vbox_1.addWidget(self.events_label)
+		self.vbox_1.addWidget(self.my_events_btn)
+		self.vbox_1.addWidget(self.my_events)
 		# add two VBoxes to top level HBox
 		self.hbox_screen.addLayout(self.vbox_1)
-		self.hbox_screen.addLayout(self.vbox_2)
+		# self.hbox_screen.addLayout(self.vbox_2)
 		
 		# add HBoxes to top level VBox
 		self.vbox_screen.addLayout(self.hbox_2)
@@ -152,75 +151,30 @@ class Account(QWidget):
 		self.width = sys_width
 		self.height = sys_height
 		self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
-	
-	# TODO I don't think we need this method since all we need are the user events which is in the next method
-	def populate_all_events(self):
-		self.all_events_widget = QWidget()
-		self.all_events_vbox = QVBoxLayout()
-		self.all_events_widget.setLayout(self.all_events_vbox)
-		self.all_events = QScrollArea()
-		self.all_events.setWidget(self.all_events_widget)
-		self.all_events.setWidgetResizable(True)
-		self.all_events.setFixedHeight(500)
-		self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-		# ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-		# event_ids = ids.split(' ')
-		# print(f'ids {event_ids}')
-		
-		try:
-			events = Event.select()
-		except Event.DoesNotExist:
-			return
-		
-		for e in events:
-			print("hello")
-			event = Event.get(Event.id == e.id)
-			hbox = QHBoxLayout()
-			
-			name = QLabel('Name: ')
-			name.setProperty('class', 'bold-label')
-			hbox.addWidget(name)
-			n = QLabel(event.name)
-			n.setProperty('class', 'tab-info')
-			hbox.addWidget(n)
-			
-			location = QLabel('Location: ')
-			location.setProperty('class', 'bold-label')
-			hbox.addWidget(location)
-			l = QLabel(event.location)
-			l.setProperty('class', 'tab-info')
-			hbox.addWidget(l)
-			
-			date = QLabel('Date: ')
-			date.setProperty('class', 'bold-label')
-			hbox.addWidget(date)
-			time = '%s/%s/%s, %s-%s' % (event.month, event.day, event.year, event.start_date, event.end_date)
-			t = QLabel(time)
-			t.setProperty('class', 'tab-info')
-			hbox.addWidget(t)
-			self.all_events_vbox.addLayout(hbox)
-		self.vbox_2.addWidget(self.all_events)
-	
+
 	# populate the user's events
 	def populate_user_events(self):
 		# Build scroll area (its weird, i had to look up so much documentation)
+		self.my_events_btn.hide()
 		self.my_events_widget = QWidget()
 		self.my_events_vbox = QVBoxLayout()
 		self.my_events_widget.setLayout(self.my_events_vbox)
-		self.my_events = QScrollArea()
 		self.my_events.setWidget(self.my_events_widget)
 		self.my_events.setWidgetResizable(True)
-		self.my_events.setFixedHeight(500)
-		sys_width, sys_height = self.screen_resolution()
-		self.my_events.setFixedWidth((sys_width // 2) - 35)
+		# TODO we will change these based on how we want / don't want description
+		# self.my_events.setFixedHeight(500)
+		# sys_width, sys_height = self.screen_resolution()
+		# self.my_events.setFixedWidth((sys_width // 2) - 35)
 		self.my_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-		
-		# TODO this causes the program to crash
+
+		ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+		# User is not signed up for any events
+		if ids == '-1':
+			QMessageBox.about(None, " ", "You aren't currently signed up for any events")
+			self.my_events_btn.show()  # Needs to be reshown because the user has no events. This is a weird corner case
+			return
 		# print(f'cs.CURRENT_USER_ID: {cs.CURRENT_USER_ID}') TODO debug
-		# ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-		# event_ids = ids.split(' ')
-		# print(f'ids {event_ids}')
-		event_ids = []    # TODO delete this line, I only made event_ids empty so it wouldn't crash the program
+		event_ids = ids.split(' ')
 		for id in event_ids:
 			event = Event.get(Event.id == id)
 			hbox = QHBoxLayout()
@@ -238,7 +192,15 @@ class Account(QWidget):
 			l = QLabel(event.location)
 			l.setProperty('class', 'tab-info')
 			hbox.addWidget(l)
-			
+
+			# TODO find some way to format this nicely and make it not ugly
+			# description = QLabel('Description: ')
+			# description.setProperty('class', 'bold-label')
+			# hbox.addWidget(description)
+			# d = QLabel(event.description)
+			# d.setProperty('class', 'tab-info')
+			# hbox.addWidget(d)
+
 			date = QLabel('Date: ')
 			date.setProperty('class', 'bold-label')
 			hbox.addWidget(date)
@@ -246,14 +208,53 @@ class Account(QWidget):
 			t = QLabel(time)
 			t.setProperty('class', 'tab-info')
 			hbox.addWidget(t)
-			
-			cancel_btn = QPushButton('Cancel ' + str(event.name))
+
+			cancel_btn = QPushButton('Cancel Event')
 			cancel_btn.setProperty('class', 'normal-bar-btn')
-			# cancel_btn.clicked.connect()
+			cancel_btn.clicked.connect(partial(self.remove_event, event.id))
 			hbox.addWidget(cancel_btn)
 			self.my_events_vbox.addLayout(hbox)
-		self.vbox_2.addWidget(self.my_events)
-	
+		# self.vbox_1.addWidget(self.my_events) TODO i think we should delete this
+
+	# delete a volunteering event. This will update the User and Event tables.
+	def remove_event(self, event_id):
+		# remove the event from the user list
+		# print(f'{event_id}')
+		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+		# print(f'{user_events}s')
+		event_ids = user_events.split(' ')
+		# print(f'user events {event_ids}')
+		event_ids.remove(str(event_id))
+		# print(f'user events {event_ids}')
+		event_ids = ' '.join(event_ids)
+		# print(f'user events {event_ids}s')
+		# The user has no events left, so reset it to the value for no events
+		if event_ids == '':
+			event_ids = '-1'
+		# Update the users new events
+		User.update({User.event_ids: event_ids}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+
+		# remove the user from the event and decrement the volunteer count
+		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
+
+		# decrement the volunteer count
+		volunteer_count = Event.get(Event.id == event_id).volunteers_attending
+		volunteer_count -= 1
+
+		# No volunteers, reset the id to -1
+		if volunteer_count == 0:
+			volunteer_ids = '-1'
+		# Else just remove the id from the list
+		else:
+			volunteer_ids = volunteer_ids.split(' ')
+			print(f'volunteers {volunteer_ids}')
+			volunteer_ids.remove(str(cs.CURRENT_USER_ID))
+			print(f'volunteers {volunteer_ids}')
+		# Update the new volunteer count and volunteers
+		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()
+		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
+		self.populate_user_events()  # Redraw the scroll area
+
 	# reads in all text from a passed .txt file and returns it as a string
 	def get_text(self, filename):
 		# if file exists else use the other one (handles path to the image)
@@ -390,31 +391,45 @@ class Account(QWidget):
 	# draws shapes on the window
 	def paintEvent(self, e):
 		painter = QPainter(self)
-		
+
 		# set the color and pattern of the border of the shape: (color, thickness, pattern)
 		painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
-		
+
 		# set the color and pattern of the shape: (r, g, b, alpha)
 		painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-		
+
 		# retrieve the resolution of the system
 		sys_width, sys_height = self.screen_resolution()
-		
+
 		# set the properties of the rectangle: (x-coord, y-coord, width, height)
 		painter.drawRect(0, 127, sys_width, 60)
-		
-		# set the color and pattern of the shape: (r, g, b, alpha)
-		painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-		
-		# set the properties of the rectangle: (x-coord, y-coord, width, height)
-		painter.drawRect(0, 250, (sys_width // 2) - 5, 675)
-		
-		# set the color and pattern of the shape: (r, g, b, alpha)
-		painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-		
-		# set the properties of the rectangle: (x-coord, y-coord, width, height)
-		painter.drawRect((sys_width // 2) + 5, 250, (sys_width // 2) - 5, 675)
-	
+	# 	painter = QPainter(self)
+	#
+	# 	# set the color and pattern of the border of the shape: (color, thickness, pattern)
+	# 	painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+	#
+	# 	# set the color and pattern of the shape: (r, g, b, alpha)
+	# 	painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+	#
+	# 	# retrieve the resolution of the system
+	# 	sys_width, sys_height = self.screen_resolution()
+	#
+	# 	# set the properties of the rectangle: (x-coord, y-coord, width, height)
+	# 	painter.drawRect(0, 127, sys_width, 60)
+	#
+	# 	# set the color and pattern of the shape: (r, g, b, alpha)
+	# 	painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+	#
+	# 	# set the properties of the rectangle: (x-coord, y-coord, width, height)
+	# 	painter.drawRect(0, 250, (sys_width // 2) - 5, 675)
+	#
+	# 	# set the color and pattern of the shape: (r, g, b, alpha)
+	# 	painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
+	#
+	# 	# set the properties of the rectangle: (x-coord, y-coord, width, height)
+	# 	painter.drawRect((sys_width // 2) + 5, 250, (sys_width // 2) - 5, 675)
+
+
 	# resets the coordinates of the window after switching to this page
 	def set_position(self):
 		self.parent().move(self.x_coord, self.y_coord)

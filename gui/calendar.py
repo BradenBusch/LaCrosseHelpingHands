@@ -57,8 +57,6 @@ class Calendar(QWidget):
 		# set the selected date as the current day
 		self.calendar.setSelectedDate(QDate(self.currentYear, self.currentMonth, self.currentDay))
 
-		# self.calendar.clicked.connect(self.printDateInfo)
-		
 		# retrieve the resolution of the system
 		sys_width, sys_height = self.screen_resolution()
 		
@@ -127,15 +125,7 @@ class Calendar(QWidget):
 		self.width = sys_width
 		self.height = sys_height
 		self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
-		
-		# set the geometry of the calendar widget | NOTE: the vbox will actually resize the calendar widget on its own
-		# self.x_coord_cal = 0
-		# self.y_coord_cal = 0
-		# self.cal_width = sys_width / 2
-		# self.cal_width = 100
-		# self.cal_height = sys_height - 200
-		# self.calendar.setGeometry(self.x_coord_cal, self.y_coord_cal, self.cal_width, self.cal_height)
-		
+
 		# set the maximum width of the calendar widget
 		self.calendar.setMaximumWidth(sys_width // 2)
 
@@ -151,7 +141,7 @@ class Calendar(QWidget):
 		# print(f'User Events {user_events}s')
 		event_ids = user_events.split(' ')
 		check_event = Event.get(Event.id == event_id)
-		# print('Event Ids: ' + str(event_ids))
+		# print('TEST Event Ids: ' + str(event_ids))
 		# User is signed up for no events, impossible to conflict with other events
 		if event_ids[0] == '-1':
 			return False

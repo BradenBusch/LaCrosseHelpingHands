@@ -59,12 +59,7 @@ class Homepage(QWidget):
         self.welcome_label.setProperty('class', 'cal-label')
         self.welcome_label.setFixedHeight(62)
         self.hbox_2.addWidget(self.welcome_label)
-        
-        # self.user_events_label = QLabel("My Scheduled Events")
-        # self.user_events_label.setProperty('class', 'cal-label')
-        # self.user_events_label.setFixedHeight(62)
-        # self.hbox_2.addWidget(self.user_events_label)
-        
+
         # Divide the screen into halves
         self.vbox_1 = QVBoxLayout()
         self.vbox_2 = QVBoxLayout()
@@ -134,11 +129,7 @@ class Homepage(QWidget):
         self.hands_image.setPixmap(pixmap)
         self.hands_image.resize(pixmap.width(), pixmap.height())
         self.vbox_1.addWidget(self.hands_image)
-        
-        # Add information to the vboxes TODO keep
-        # self.my_events = QScrollArea()
-        # self.my_events.setWidgetResizable(True)
-        
+
         # create labels for the information
         self.events_label = QLabel("Upcoming Events")
         self.events_label.setProperty('class', 'home-events-label')
@@ -150,9 +141,13 @@ class Homepage(QWidget):
         self.my_events_btn.clicked.connect(self.account_click)
         self.my_events_btn.setProperty('class', 'special-bar-btn')
         self.my_events_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        # self.show_events_btn.clicked.connect(self.populate_user_events)
-        self.vbox_2.addWidget(self.my_events_btn)
-        
+        self.events_label.setAlignment(Qt.AlignCenter)
+        # this hbox is just so we can center the button
+        self.center_hbox = QHBoxLayout()
+        self.center_hbox.setAlignment(Qt.AlignCenter)
+        self.center_hbox.addWidget(self.my_events_btn)
+        self.vbox_2.addLayout(self.center_hbox)
+
         # add two VBoxes to top level HBox
         self.hbox_screen.addLayout(self.vbox_1)
         self.hbox_screen.addLayout(self.vbox_2)
@@ -189,17 +184,17 @@ class Homepage(QWidget):
         sys_width, sys_height = self.screen_resolution()
         self.all_events.setFixedWidth((sys_width // 2) - 35)
         self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        # TODO i think we can delete this, but save for now
         # ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
         # event_ids = ids.split(' ')
         # print(f'ids {event_ids}')
-
+        # ------------------------------------------------------------
         try:
             events = Event.select()
         except Event.DoesNotExist:
             return
 
         for e in events:
-            print("hello")
             event = Event.get(Event.id == e.id)
             hbox = QHBoxLayout()
 
@@ -226,59 +221,7 @@ class Homepage(QWidget):
             hbox.addWidget(t)
             self.all_events_vbox.addLayout(hbox)
         self.vbox_2.addWidget(self.all_events)
-    
-    # TODO I don't think we need this method since user events are in account page
-    def populate_user_events(self):
-        # Hide the button
-        self.my_events_btn.hide()
-        
-        # Build scroll area (its weird, i had to look up so much documentation)
-        self.my_events_widget = QWidget()
-        self.my_events_vbox = QVBoxLayout()
-        self.my_events_widget.setLayout(self.my_events_vbox)
-        self.my_events = QScrollArea()
-        self.my_events.setWidget(self.my_events_widget)
-        self.my_events.setWidgetResizable(True)
-        self.my_events.setFixedHeight(600)  # TODO change this to how the calendar size was made
-        self.my_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        
-        # print(f'cs.CURRENT_USER_ID: {cs.CURRENT_USER_ID}') TODO debug
-        ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-        event_ids = ids.split(' ')
-        # print(f'ids {event_ids}')
-        for id in event_ids:
-            event = Event.get(Event.id == id)
-            hbox = QHBoxLayout()
 
-            name = QLabel('Name: ')
-            name.setProperty('class', 'bold-label')
-            hbox.addWidget(name)
-            n = QLabel(event.name)
-            n.setProperty('class', 'tab-info')
-            hbox.addWidget(n)
-
-            location = QLabel('Location: ')
-            location.setProperty('class', 'bold-label')
-            hbox.addWidget(location)
-            l = QLabel(event.location)
-            l.setProperty('class', 'tab-info')
-            hbox.addWidget(l)
-
-            date = QLabel('Date: ')
-            date.setProperty('class', 'bold-label')
-            hbox.addWidget(date)
-            time = '%s/%s/%s, %s-%s' % (event.month, event.day, event.year, event.start_date, event.end_date)
-            t = QLabel(time)
-            t.setProperty('class', 'tab-info')
-            hbox.addWidget(t)
-
-            cancel_btn = QPushButton('Cancel ' + str(event.name))
-            cancel_btn.setProperty('class', 'normal-bar-btn')
-            # cancel_btn.clicked.connect()
-            hbox.addWidget(cancel_btn)
-            self.my_events_vbox.addLayout(hbox)
-        self.vbox_2.addWidget(self.my_events)
-    
     # reads in all text from a passed .txt file and returns it as a string
     def get_text(self, filename):
         # if file exists else use the other one (handles path to the image)
