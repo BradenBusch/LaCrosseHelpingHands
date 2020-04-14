@@ -20,6 +20,9 @@ except:
     import constants as cs
 
 
+# TODO fix the upcoming events
+#  -> Show only events on dates that havent passed
+#  -> Redraw the widget whenever a sign out / sign in happens
 class Homepage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)

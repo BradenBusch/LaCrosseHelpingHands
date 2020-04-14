@@ -209,12 +209,53 @@ class Account(QWidget):
 			t.setProperty('class', 'tab-info')
 			hbox.addWidget(t)
 
+			donate_btn = QPushButton('Donate')
+			donate_btn.setProperty('class', 'normal-bar-btn')
+			donate_btn.clicked.connect(partial(self.create_donation_form, event.id))
 			cancel_btn = QPushButton('Cancel Event')
 			cancel_btn.setProperty('class', 'normal-bar-btn')
 			cancel_btn.clicked.connect(partial(self.remove_event, event.id))
+			hbox.addWidget(donate_btn)
 			hbox.addWidget(cancel_btn)
+
 			self.my_events_vbox.addLayout(hbox)
 		# self.vbox_1.addWidget(self.my_events) TODO i think we should delete this
+
+	def create_donation_form(self, event_id):
+		dollar_label = QLabel("$")
+		dollar_label.setProperty('class', 'bold-label')
+		donation_field = QLineEdit()
+		donation_field.setPlaceholderText("Enter a donation value as a number")
+
+		donation_hbox = QHBoxLayout()
+		donation_hbox.addWidget(dollar_label)
+		donation_hbox.addWidget(donation_field)
+
+		spacer_hbox = QHBoxLayout()
+		spacer = QLabel("")
+		spacer.setProperty('class', 'cal-bar-spacer-label')
+		spacer_hbox.addWidget(spacer)
+
+		btn_hbox = QHBoxLayout()
+		confirm_btn = QPushButton("Confirm")
+		# confirm_btn.clicked.connect(partial(self.verify_donation, tab_layout, donation_field, event_id))
+		confirm_btn.setProperty('class', 'normal-bar-btn')
+		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		cancel_btn = QPushButton("Cancel")
+		# cancel_btn.clicked.connect(partial(self.draw_tab, tab_layout))
+		cancel_btn.setProperty('class', 'special-bar-btn')
+		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		btn_hbox.addWidget(confirm_btn)
+		btn_hbox.addWidget(cancel_btn)
+
+		vbox = QVBoxLayout()
+		vbox.addLayout(donation_hbox)
+		vbox.addLayout(spacer_hbox)
+		vbox.addLayout(btn_hbox)
+		vbox.setAlignment(Qt.AlignCenter)
+
+		self.my_events_widget.setLayout(vbox)
+		self.my_events.setWidget(self.my_events_widget)
 
 	# delete a volunteering event. This will update the User and Event tables.
 	def remove_event(self, event_id):

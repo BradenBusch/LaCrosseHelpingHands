@@ -269,6 +269,7 @@ class Calendar(QWidget):
 			tab_btn_hbox.addWidget(volunteer_btn)
 			tab_btn_hbox.addWidget(make_donation_btn)
 		if cs.CURRENT_USER == 'Staff' or cs.CURRENT_USER == 'Administrator':
+			tab_btn_hbox.addWidget(make_donation_btn)
 			tab_btn_hbox.addWidget(modify_event_btn)
 			tab_btn_hbox.addWidget(delete_event_btn)
 
