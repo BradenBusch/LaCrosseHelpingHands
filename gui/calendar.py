@@ -31,7 +31,7 @@ except:
 #     the program will crash. After starting the program back up, we can see the event IS removed from the user's list
 #     of events, but the number of volunteers for the event will NOT decrease. I don't know why it is happening. This
 #     ONLY happens when the dialog box does not appear confirming the user registered for the event, if the dialog box
-#     appears then you can cancel registration for the event from the account without any trouble (it works as intended).
+#     appears then you can cancel registration for the event from the account without any trouble (it works as intended)
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -191,15 +191,39 @@ class Calendar(QWidget):
 			return start <= time <= end
 		else:
 			return start <= time or time <= end
-	
+
+	# Update the users total volunteer hours (hours += [end_time - start_time])
+	def update_user_volunteer_hours(self, start_time, end_time):
+		user_time = User.get(User.user_id == cs.CURRENT_USER_ID).volunteer_hours
+		s_time = start_time.split(':')
+		e_time = end_time.split(':')
+		hour = int(e_time[0]) - int(s_time[0])
+		if int(s_time[1]) > int(e_time[1]):  # Have to carry the minutes
+			hour -= 1
+			minute = .5
+		else:  # No carrying needed, just subtract
+			minute = int(e_time[1]) - int(s_time[1])
+			if minute == 30:
+				minute = .5
+			else:
+				minute = 0
+		event_hours = float(hour) + float(minute)
+
+		total_hours = float(event_hours) + float(user_time)
+		# total_hours = float(user_time) - float(event_hours)
+		User.update({User.volunteer_hours: total_hours}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+		print(f'updated volunteer hours {total_hours}')
+
 	# Update the volunteer window when a volunteer volunteers for an event.
 	def update_volunteer(self, tab_layout, event_id):
 		# Get events volunteer ids
 		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
 		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-		# print(f'Volunteer ids: {volunteer_ids}')
-		# print(f'Current User Events {user_events}s')
-		
+
+		# Get times
+		event_start = Event.get(Event.id == event_id).start_date
+		event_end = Event.get(Event.id == event_id).end_date
+
 		# Check if the user has a conflicting event
 		if self.is_conflicting_event(event_id):
 			QMessageBox.about(self, " ", " You are already registered for another event that conflicts with this event! ")
@@ -218,23 +242,22 @@ class Calendar(QWidget):
 					user_events = str(event_id)
 				else:
 					user_events += ' ' + str(event_id)
+				# Update users events and hours
 				User.update({User.event_ids: user_events}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+				self.update_user_volunteer_hours(event_start, event_end)
 				QMessageBox.about(self, " ", " You are now registered for this event. ")
 			# No conflicting events, let user volunteer. Update the Event and User.
 			else:
-				# print(f'Current User Id {cs.CURRENT_USER_ID} volunteer ids: {volunteer_ids}s')
-				# print(str(cs.CURRENT_USER_ID) + str(volunteer_ids))
 				new_volunteer_num = len(ids)
-
 				Event.update({Event.volunteers_attending: new_volunteer_num}).where(Event.id == event_id).execute()
 				Event.update(volunteers_ids=volunteer_ids).where(Event.id == event_id).execute()
 				if user_events == '-1':
 					user_events = str(event_id)
 				else:
-					# TODO might need a space here
 					user_events += ' ' + str(event_id)
-				# print(f'User Events: {user_events}')
+				# Update the users events and hours
 				User.update({User.event_ids: user_events}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+				self.update_user_volunteer_hours(event_start, event_end)
 				QMessageBox.about(self, " ", " You are now registered for this event. ")
 		self.draw_tab(tab_layout)
 		# self.show_events(tab_layout)
@@ -373,14 +396,19 @@ class Calendar(QWidget):
 	
 	# verify that the donation is valid
 	def verify_donation(self, tab_layout, amount, event_id=None):
+		# User did not enter an amount
 		if amount.text() == "":
 			QMessageBox.warning(self, " ", "You did not enter an amount!")
 			return
+		# Update the user and event with the donation amount
 		else:
 			curr_donation = Event.get(Event.id == event_id).donations
-			# print(f'current_donation {curr_donation} amount {amount.text()}') TODO use for debug
+			user_donations = User.get(User.user_id == cs.CURRENT_USER_ID).total_donations
 			curr_donation = curr_donation + int(amount.text())
+			user_donations = user_donations + int(amount.text())
 			Event.update(donations=curr_donation).where(Event.id == event_id).execute()
+			User.update(total_donations=user_donations).where(User.user_id == cs.CURRENT_USER_ID).execute()
+			QMessageBox.about(self, " ", "Thank you for the donation!")
 		self.draw_tab(tab_layout)
 	
 	# Build the form for creating an event. Will add an event to the day that the user currently has selected on Calendar

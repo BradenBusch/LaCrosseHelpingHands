@@ -30,7 +30,7 @@ except:
 class Account(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
-		
+
 		# set window title and properties, initialize the window reference
 		self.setProperty('class', 'homepage')
 		self.setWindowTitle('My Account')
@@ -45,6 +45,8 @@ class Account(QWidget):
 	
 	# adds all buttons and sets up the layout
 	def draw(self):
+		#user = User.get(User.user_id == cs.CURRENT_USER_ID)
+
 		self.vbox_screen = QVBoxLayout()
 		
 		self.hbox_1 = QHBoxLayout()
@@ -164,7 +166,6 @@ class Account(QWidget):
 		
 		# populate the scroll area with the user's upcoming events
 		self.populate_user_events()
-		
 		# add two VBoxes to top level HBox
 		self.hbox_screen.addLayout(self.vbox_1)
 		self.hbox_screen.addLayout(self.vbox_2)
@@ -210,7 +211,7 @@ class Account(QWidget):
 		sys_width, sys_height = self.screen_resolution()
 		self.my_events.setFixedWidth((2 * sys_width // 3) - 35)
 		self.my_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-		
+
 		try:
 			ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
 		except:
@@ -411,44 +412,58 @@ class Account(QWidget):
 			curr_donation = curr_donation + int(amount.text())
 			Event.update(donations=curr_donation).where(Event.id == event_id).execute()
 		self.populate_user_events()
-	
+
+	# Decrement the users volunteer hours when they cancel an event
+	def update_user_volunteer_hours(self, start_time, end_time):
+		user_time = User.get(User.user_id == cs.CURRENT_USER_ID).volunteer_hours
+		s_time = start_time.split(':')
+		e_time = end_time.split(':')
+		hour = int(e_time[0]) - int(s_time[0])
+		if int(s_time[1]) > int(e_time[1]):  # Have to carry the minutes
+			hour -= 1
+			minute = .5
+		else:  # No carrying needed, just subtract
+			minute = int(e_time[1]) - int(s_time[1])
+			if minute == 30:
+				minute = .5
+			else:
+				minute = 0
+		event_hours = float(hour) + float(minute)
+
+		# total_hours = float(event_hours) + float(user_time)
+		total_hours = float(user_time) - float(event_hours)
+		User.update({User.volunteer_hours: total_hours}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+		print(f'updated volunteer hours {total_hours}')
+
 	# delete a volunteering event. This will update the User and Event tables.
 	def remove_event(self, event_id):
 		# remove the event from the user list
-		# print(f'{event_id}')
 		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-		# print(f'{user_events}s')
 		event_ids = user_events.split(' ')
-		# print(f'user events {event_ids}')
 		event_ids.remove(str(event_id))
-		# print(f'user events {event_ids}')
 		event_ids = ' '.join(event_ids)
-		# print(f'user events {event_ids}s')
+
+		# Update users volunteer hours
+		s_time = Event.get(Event.id == event_id).start_date
+		e_time = Event.get(Event.id == event_id).end_date
+		self.update_user_volunteer_hours(s_time, e_time)
+
 		# The user has no events left, so reset it to the value for no events
 		if event_ids == '':
 			event_ids = '-1'
-		# Update the users new events
+
+		# Update the users new events. Remove the user from the event and decrement the volunteer count
 		User.update({User.event_ids: event_ids}).where(User.user_id == cs.CURRENT_USER_ID).execute()
-		
-		# remove the user from the event and decrement the volunteer count
 		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
-		
-		# decrement the volunteer count
 		volunteer_count = Event.get(Event.id == event_id).volunteers_attending
 		volunteer_count -= 1
-		print(f'volunteers here {volunteer_ids} volunteer count {volunteer_count}')
+		# print(f'volunteers here {volunteer_ids} volunteer count {volunteer_count}')
 		# No volunteers, reset the id to -1
-		if volunteer_count == 0 or volunteer_ids == '':
+		if volunteer_count == 0:
 			volunteer_ids = '-1'
-		# Else just remove the id from the list
-		else:
-			print('here?')
-			volunteer_ids = volunteer_ids.split(' ')
-			print(f'volunteers {volunteer_ids}')
-			volunteer_ids.remove(str(cs.CURRENT_USER_ID))
-			print(f'volunteers {volunteer_ids}')
+
 		# Update the new volunteer count and volunteers
-		print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
+		# print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
 		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()
 		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
 		self.hide_previous()    # get rid of previous scroll area

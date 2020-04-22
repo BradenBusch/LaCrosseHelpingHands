@@ -20,6 +20,8 @@ class User(Model):
     account_email = TextField()
     account_type = TextField()
     event_ids = TextField()  # String of each users events they are attending
+    volunteer_hours = FloatField()
+    total_donations = IntegerField()
 
     class Meta:
         database = db
