@@ -583,6 +583,12 @@ class Calendar(QWidget):
 		self.contact_btn.setProperty('class', 'normal-bar-btn')
 		self.contact_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
+		# set up the help button
+		self.help_btn = QPushButton("Help")
+		self.help_btn.clicked.connect(self.help_click)
+		self.help_btn.setProperty('class', 'normal-bar-btn')
+		self.help_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		
 		# set up the search button
 		self.search_btn = QPushButton("Search")
 		self.search_btn.clicked.connect(self.search_click)
@@ -619,9 +625,9 @@ class Calendar(QWidget):
 		# add all buttons to the HBox
 		self.hbox_bar.addWidget(self.home_btn)
 		self.hbox_bar.addWidget(self.cal_btn)
-		# TODO add additional pages here
 		self.hbox_bar.addWidget(self.about_btn)
 		self.hbox_bar.addWidget(self.contact_btn)
+		self.hbox_bar.addWidget(self.help_btn)
 		self.hbox_bar.addWidget(self.search_btn)
 		self.hbox_bar.addWidget(QLabel(""))
 		self.hbox_bar.addWidget(self.account_btn)
@@ -652,6 +658,11 @@ class Calendar(QWidget):
 	# go to the contact us page
 	def contact_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_CONTACT)
+		self.reset_day()
+	
+	# go to the help page
+	def help_click(self):
+		self.win.set_page(self.this_page, cs.PAGE_HELP)
 		self.reset_day()
 
 	# go to the search page

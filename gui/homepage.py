@@ -8,6 +8,7 @@ Version: 04/05/2020
 '''
 
 import os
+from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -20,9 +21,6 @@ except:
     import constants as cs
 
 
-# TODO fix the upcoming events
-#  -> Show only events on dates that havent passed
-#  -> Redraw the widget whenever a sign out / sign in happens
 class Homepage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -62,7 +60,7 @@ class Homepage(QWidget):
         self.welcome_label.setProperty('class', 'cal-label')
         self.welcome_label.setFixedHeight(62)
         self.hbox_2.addWidget(self.welcome_label)
-
+        
         # Divide the screen into halves
         self.vbox_1 = QVBoxLayout()
         self.vbox_2 = QVBoxLayout()
@@ -71,14 +69,7 @@ class Homepage(QWidget):
         self.home_desc = QLabel(self.get_text("home_description.txt"))
         self.home_desc.setProperty('class', 'home-desc-label')
         self.home_desc.setWordWrap(True)
-        #self.vbox_1.addWidget(self.home_desc)
-
         
-        # self.home_desc1 = QLabel("Welcome to Helping Hands La Crosse!")
-        # self.home_desc1.setProperty('class', 'bold-label')
-        # self.home_desc1.setWordWrap(True)
-        # self.vbox_1.addWidget(self.home_desc1)
-
         self.home_desc2 = QLabel(self.get_text("home_description.txt"))
         self.home_desc2.setProperty('class', 'home-desc-label')
         self.home_desc2.setWordWrap(True)
@@ -137,6 +128,7 @@ class Homepage(QWidget):
         self.events_label = QLabel("Upcoming Events")
         self.events_label.setProperty('class', 'home-events-label')
         self.events_label.setFixedHeight(40)
+        self.events_label.setAlignment(Qt.AlignCenter)
         self.vbox_2.addWidget(self.events_label)
         
         # populate scroll area with upcoming events
@@ -196,35 +188,94 @@ class Homepage(QWidget):
             events = Event.select()
         except Event.DoesNotExist:
             return
-
+        
+        # master list to hold all events
+        master_events = []
+        
         for e in events:
             event = Event.get(Event.id == e.id)
+            
+            master_events.append([event.name,
+                                  event.location,
+                                  event.month,
+                                  event.day,
+                                  event.year,
+                                  event.start_date,
+                                  event.end_date])
+        
+        # set the current date and time
+        self.currentMonth = datetime.now().month
+        self.currentYear = datetime.now().year
+        self.currentDay = datetime.now().day
+        
+        # filter out events that have already passed and sort the events by date
+        master_events = [event for event in master_events if not int(event[4]) < self.currentYear]
+        master_events = [event for event in master_events if not ((int(event[2]) < self.currentMonth) and
+                                                                  (int(event[4]) <= self.currentYear))]
+        master_events = [event for event in master_events if not ((int(event[3]) < self.currentDay) and
+                                                                  (int(event[2]) <= self.currentMonth))]
+        master_events.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
+        
+        # fill in the upcoming events form
+        for event in master_events:
             hbox = QHBoxLayout()
-
-            name = QLabel('Name: ')
+            
+            name = QLabel('Name:')
             name.setProperty('class', 'bold-label')
             hbox.addWidget(name)
-            n = QLabel(event.name)
+            n = QLabel(event[0])
             n.setProperty('class', 'tab-info')
             hbox.addWidget(n)
-
-            location = QLabel('Location: ')
+            
+            location = QLabel('Location:')
             location.setProperty('class', 'bold-label')
             hbox.addWidget(location)
-            l = QLabel(event.location)
+            l = QLabel(event[1])
             l.setProperty('class', 'tab-info')
             hbox.addWidget(l)
-
-            date = QLabel('Date: ')
+            
+            date = QLabel('Date:')
             date.setProperty('class', 'bold-label')
             hbox.addWidget(date)
-            time = '%s/%s/%s, %s-%s' % (event.month, event.day, event.year, event.start_date, event.end_date)
+            time = '%s/%s/%s, %s-%s' % (event[2], event[3], event[4], event[5], event[6])
             t = QLabel(time)
             t.setProperty('class', 'tab-info')
             hbox.addWidget(t)
+            
+            hbox_2 = QHBoxLayout()
+            spacer = QLabel("")
+            spacer.setProperty('class', 'upcoming-label')
+            hbox_2.addWidget(spacer)
+            
             self.all_events_vbox.addLayout(hbox)
+            self.all_events_vbox.addLayout(hbox_2)
         self.vbox_2.addWidget(self.all_events)
-
+    
+    # hides the previous items from view
+    def hide_previous(self, thing_to_hide):
+        # check which item to hide
+        if thing_to_hide == 1:
+            # hide the scrollbox
+            self.all_events.hide()
+        elif thing_to_hide == 2:
+            # hide the button
+            self.my_events_btn.hide()
+            
+            # recreate the my events button
+            self.my_events_btn = QPushButton("View My Events")
+            self.my_events_btn.clicked.connect(self.account_click)
+            self.my_events_btn.setProperty('class', 'special-bar-btn')
+            self.my_events_btn.setCursor(QCursor(Qt.PointingHandCursor))
+            
+            # recreate the center HBox
+            self.center_hbox = QHBoxLayout()
+            self.center_hbox.setAlignment(Qt.AlignCenter)
+            self.center_hbox.addWidget(self.my_events_btn)
+            self.vbox_2.addLayout(self.center_hbox)
+            
+            # check which type of user is logged in to determine what buttons will show up
+            self.check_user()
+    
     # reads in all text from a passed .txt file and returns it as a string
     def get_text(self, filename):
         # if file exists else use the other one (handles path to the image)
@@ -265,6 +316,12 @@ class Homepage(QWidget):
         self.contact_btn.setProperty('class', 'normal-bar-btn')
         self.contact_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
+        # set up the help button
+        self.help_btn = QPushButton("Help")
+        self.help_btn.clicked.connect(self.help_click)
+        self.help_btn.setProperty('class', 'normal-bar-btn')
+        self.help_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        
         # set up the search button
         self.search_btn = QPushButton("Search")
         self.search_btn.clicked.connect(self.search_click)
@@ -301,9 +358,9 @@ class Homepage(QWidget):
         # add all buttons to the HBox
         self.hbox_bar.addWidget(self.home_btn)
         self.hbox_bar.addWidget(self.cal_btn)
-        # TODO add additional pages here
         self.hbox_bar.addWidget(self.about_btn)
         self.hbox_bar.addWidget(self.contact_btn)
+        self.hbox_bar.addWidget(self.help_btn)
         self.hbox_bar.addWidget(self.search_btn)
         self.hbox_bar.addWidget(QLabel(""))
         self.hbox_bar.addWidget(self.account_btn)
@@ -333,15 +390,18 @@ class Homepage(QWidget):
     def contact_click(self):
         self.win.set_page(self.this_page, cs.PAGE_CONTACT)
     
+    # go to the help page
+    def help_click(self):
+        self.win.set_page(self.this_page, cs.PAGE_HELP)
+    
     # go to the search page
     def search_click(self):
         self.win.set_page(self.this_page, cs.PAGE_SEARCH)
     
     # go to the account page
     def account_click(self):
-        print('i was clicked')
         self.win.set_page(self.this_page, cs.PAGE_ACCOUNT)
-
+    
     # return to the login signup screen
     def logout_click(self):
         self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)

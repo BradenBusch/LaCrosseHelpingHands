@@ -104,8 +104,16 @@ class WindowManager(QMainWindow):
             self.setWindowTitle(self.widgets[page_num].windowTitle())
             self.stacker.setGeometry(self.widgets[page_num].geometry())
             self.stacker.setCurrentIndex(page_num)
+            # self.widgets[page_num].draw()
             self.widgets[page_num].set_position()
             self.widgets[page_num].check_user()
+            
+            # if navigating to the homepage, refresh the upcoming events
+            if page_num == cs.PAGE_HOME:
+                # self.widgets[page_num].vbox_2.removeWidget(self.widgets[page_num].all_events)
+                self.widgets[page_num].hide_previous(1)
+                self.widgets[page_num].populate_all_events()
+                self.widgets[page_num].hide_previous(2)
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

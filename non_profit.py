@@ -19,6 +19,10 @@ try:
     from non_profit.gui.homepage import *
     from non_profit.gui.calendar import *
     from non_profit.gui.account import *
+    # from non_profit.gui.about import *
+    # from non_profit.gui.contact import *
+    # from non_profit.gui.help import *
+    # from non_profit.gui.search import *
     from non_profit.gui.non_profit_style_driver import *
 except:
     from models.database import *
@@ -27,6 +31,10 @@ except:
     from gui.homepage import *
     from gui.calendar import *
     from gui.account import *
+    # from gui.about import *
+    # from gui.contact import *
+    # from gui.help import *
+    # from gui.search import *
     from gui.non_profit_style_driver import *
 
 
@@ -59,6 +67,10 @@ def main():
                                     Homepage(),
                                     Calendar(),
                                     Account()])
+                                    #About(),
+                                    #Contact(),
+                                    #Help(),
+                                    #Search()])
     
     # retrieve the current system resolution
     sys_width, sys_height = screen_resolution()
