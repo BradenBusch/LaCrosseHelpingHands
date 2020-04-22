@@ -3,7 +3,7 @@ Holds everything related to the new account page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/05/2020
+Version: 04/21/2020
 
 '''
 
@@ -92,9 +92,9 @@ class NewAccount(QWidget):
         self.radio_btns.append(self.admin_radio)
         
         # set up the text fields to be filled in by the user
-        self.username_edit.setPlaceholderText("Username (At least 8 Characters)")
+        self.username_edit.setPlaceholderText("Username (At least 8 characters)")
         self.email_edit.setPlaceholderText("E-Mail")
-        self.password_edit.setPlaceholderText("Password (At least 8 Characters)")
+        self.password_edit.setPlaceholderText("Password (At least 8 characters)")
         self.password_edit.setEchoMode(QLineEdit.Password)
         self.confirm_password_edit.setPlaceholderText("Confirm Password")
         # self.confirm_password_edit.returnPressed.connect(self.verify_fields)
@@ -158,54 +158,54 @@ class NewAccount(QWidget):
 
         # ensure the user entered viable information
         if len(username) < 8:
-            msg = QMessageBox.warning(None, " ", " Your Username must be 8 characters or longer. ")
+            msg = QMessageBox.warning(self, " ", " Your Username must be 8 characters or longer. ")
             self.username_edit.clear()
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
         
         elif len(email) == 0:
-            msg = QMessageBox.warning(None, " ", " You must enter an email address. ")
+            msg = QMessageBox.warning(self, " ", " You must enter an E-Mail address. ")
             self.email_edit.clear()
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
         
         elif len(password) < 8:
-            msg = QMessageBox.warning(None, " ", " Your Password must be 8 characters or longer. ")
+            msg = QMessageBox.warning(self, " ", " Your Password must be 8 characters or longer. ")
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
         
         elif password != confirm_pass:
-            msg = QMessageBox.warning(None, " ", " Your passwords do not match. ")
+            msg = QMessageBox.warning(self, " ", " Your Passwords do not match. ")
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
         
         elif username_check is not None:
-            msg = QMessageBox.warning(None, " ", " That username is already taken. Try another. ")
+            msg = QMessageBox.warning(self, " ", " That Username is already taken. Try another. ")
             self.username_edit.clear()
             return
         
         elif email_check is not None:
-            msg = QMessageBox.warning(None, " ", " That email is already taken. Log in or use a different email. ")
+            msg = QMessageBox.warning(self, " ", " That E-Mail is already taken. Log in or use a different E-Mail. ")
             self.email_edit.clear()
             return
         
         elif self.get_account_type() == "Staff" and self.staff_code_box.text() != cs.STAFF_CODE:
-            msg = QMessageBox.warning(None, " ", " You entered the wrong staff code. ")
+            msg = QMessageBox.warning(self, " ", " You entered the wrong Staff Code. ")
             self.staff_code_box.clear()
             return
         
         elif self.get_account_type() == "Administrator" and self.admin_code_box.text() != cs.ADMIN_CODE:
-            msg = QMessageBox.warning(None, " ", " You entered the wrong Administrator code. ")
+            msg = QMessageBox.warning(self, " ", " You entered the wrong Administrator Code. ")
             self.admin_code_box.clear()
             return
         
         # return to the login page, all checks passed
         else:
-            QMessageBox.about(self, " ", " Account Creation Successful!")
+            QMessageBox.about(self, " ", " Account creation successful!")
             stored_password = self.hash_password(password)
             account_type = self.get_account_type()
             self.store_user(username, email, stored_password, account_type)
@@ -223,7 +223,7 @@ class NewAccount(QWidget):
         new_user.save()
 
         query = User.select()
-        print([user.event_ids for user in query])  # TODO for debugging
+        # print([user.event_ids for user in query])  # TODO for debugging
     
     # hash the user's password
     def hash_password(self, password):

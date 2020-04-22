@@ -50,6 +50,11 @@ QLabel.login-label {{
     font-size: 20px;
 }}
 
+.no-events-label {{
+    font-weight: bold;
+    font-size: 25px;
+}}
+
 .tab-info {{
     font-size: 20px;
 }}
@@ -114,6 +119,20 @@ QPushButton.special-bar-btn:hover {{
     border: 3px solid white;
 }}
 
+QPushButton[class="red-bar-btn"] {{
+    background-color: rgb(214, 47, 47);
+    padding: 10px;
+    max-width: 150px;
+    border: 3px solid rgb(138, 0, 0);
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.red-bar-btn:hover {{
+    border: 3px solid gray;
+}}
 
 /* actually style the QTabLayout() */
 /* .tab-widget{{

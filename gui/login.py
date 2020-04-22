@@ -3,7 +3,7 @@ Holds everything related to the login page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/05/2020
+Version: 04/21/2020
 
 '''
 
@@ -111,7 +111,7 @@ class Login(QWidget):
         try:
             username_check = User.get(User.username == entered_username).username
         except User.DoesNotExist:
-            msg = QMessageBox.warning(None, " ", " That username doesn't exist. Try another. ")
+            msg = QMessageBox.warning(self, " ", " That Username does not exist. Please try again. ")
             self.username_check.clear()
             self.password_check.clear()
             return
@@ -120,12 +120,12 @@ class Login(QWidget):
         password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
         # ensure the user entered viable information
         if len(entered_username) < 8 or len(entered_password) < 8:
-            msg = QMessageBox.warning(None, " ", " Enter a username and password of valid length (greater than 8)")
+            msg = QMessageBox.warning(self, " ", " Enter a Username and Password of valid length (8 characters or longer).")
             self.username_check.clear()
             self.password_check.clear()
             return
         elif password_check is not True:
-            msg = QMessageBox.warning(None, " ", " Incorrect Password. Try re-entering. ")
+            msg = QMessageBox.warning(self, " ", " Incorrect Password. Try re-entering. ")
             self.password_check.clear()
             return
         else:

@@ -3,7 +3,7 @@ Homepage of the application, all users are directed here after logging in.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/05/2020
+Version: 04/21/2020
 
 '''
 
@@ -168,7 +168,9 @@ class Homepage(QWidget):
         self.height = sys_height
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
     
+    # populate a scrollbox with all of the upcoming events
     def populate_all_events(self):
+        # create the scrollbox
         self.all_events_widget = QWidget()
         self.all_events_vbox = QVBoxLayout()
         self.all_events_widget.setLayout(self.all_events_vbox)
@@ -179,14 +181,23 @@ class Homepage(QWidget):
         sys_width, sys_height = self.screen_resolution()
         self.all_events.setFixedWidth((sys_width // 2) - 35)
         self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        # TODO i think we can delete this, but save for now
-        # ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-        # event_ids = ids.split(' ')
-        # print(f'ids {event_ids}')
-        # ------------------------------------------------------------
+        
+        # attempt to retrieve events from the database
         try:
             events = Event.select()
         except Event.DoesNotExist:
+            return
+        
+        # if there are no events yet
+        if len(events) == 0:
+            # inform the user that no events have been scheduled yet
+            hbox = QHBoxLayout()
+            no_events = QLabel('No upcoming events have been scheduled by the organization!')
+            no_events.setAlignment(Qt.AlignCenter)
+            no_events.setProperty('class', 'no-events-label')
+            hbox.addWidget(no_events)
+            self.all_events_vbox.addLayout(hbox)
+            self.vbox_2.addWidget(self.all_events)
             return
         
         # master list to hold all events

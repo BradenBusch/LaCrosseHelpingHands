@@ -2,7 +2,7 @@
 Manages the relationship between all of the different pages.
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/05/2020
+Version: 04/21/2020
 
 '''
 
@@ -110,10 +110,13 @@ class WindowManager(QMainWindow):
             
             # if navigating to the homepage, refresh the upcoming events
             if page_num == cs.PAGE_HOME:
-                # self.widgets[page_num].vbox_2.removeWidget(self.widgets[page_num].all_events)
                 self.widgets[page_num].hide_previous(1)
                 self.widgets[page_num].populate_all_events()
                 self.widgets[page_num].hide_previous(2)
+            
+            # if naviagating to the calendar page, display events for the current day
+            elif page_num == cs.PAGE_CAL:
+                self.widgets[page_num].draw_tab(self.widgets[page_num].tabs)
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):
