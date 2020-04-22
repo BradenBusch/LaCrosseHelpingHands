@@ -279,6 +279,13 @@ class Calendar(QWidget):
 		self.delete_event_btn.setProperty('class', 'normal-bar-btn')
 		self.delete_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
+		date = self.calendar.selectedDate()
+		day = date.day()
+		month = date.month()
+		year = date.year()
+		
+		# check if the date is valid
+		#if self.date_valid(day, month, year):
 		# add appropriate buttons depending on which user is logged in
 		if cs.CURRENT_USER == 'Volunteer':
 			tab_btn_hbox.addWidget(self.volunteer_btn)
@@ -289,6 +296,19 @@ class Calendar(QWidget):
 			tab_btn_hbox.addWidget(self.create_event_btn)
 			tab_btn_hbox.addWidget(self.modify_event_btn)
 			tab_btn_hbox.addWidget(self.delete_event_btn)
+		
+		if not self.date_valid(day, month, year):
+			try:
+				self.volunteer_btn.hide()
+				self.make_donation_btn.hide()
+			except:
+				pass
+			try:
+				self.create_event_btn.hide()
+				self.modify_event_btn.hide()
+				self.delete_event_btn.hide()
+			except:
+				pass
 		
 		tab_vbox.addLayout(tab_btn_hbox)
 		tab = QWidget()
@@ -586,6 +606,8 @@ class Calendar(QWidget):
 			try:
 				if not (cs.CURRENT_USER == "Staff" or cs.CURRENT_USER == "Administrator"):
 					self.create_event_btn.hide()
+				if not self.date_valid(day, month, year):
+					self.create_event_btn.hide()
 			except:
 				pass
 			try:
@@ -599,8 +621,8 @@ class Calendar(QWidget):
 		
 		# if specific buttons need to be shown
 		else:
-			# check if the current user is a guest
-			if cs.CURRENT_USER == "Guest":
+			# check if the current user is a guest or if the date is invalid
+			if cs.CURRENT_USER == "Guest" or not self.date_valid(day, month, year):
 				# hide the buttons that need to be hidden
 				try:
 					self.volunteer_btn.hide()
@@ -622,6 +644,7 @@ class Calendar(QWidget):
 					self.delete_event_btn.hide()
 				except:
 					pass
+				return
 			
 			# check if the current user is a volunteer
 			if cs.CURRENT_USER == "Volunteer":
