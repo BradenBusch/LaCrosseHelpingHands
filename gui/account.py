@@ -436,17 +436,19 @@ class Account(QWidget):
 		# decrement the volunteer count
 		volunteer_count = Event.get(Event.id == event_id).volunteers_attending
 		volunteer_count -= 1
-		
+		print(f'volunteers here {volunteer_ids} volunteer count {volunteer_count}')
 		# No volunteers, reset the id to -1
-		if volunteer_count == 0:
+		if volunteer_count == 0 or volunteer_ids == '':
 			volunteer_ids = '-1'
 		# Else just remove the id from the list
 		else:
+			print('here?')
 			volunteer_ids = volunteer_ids.split(' ')
 			print(f'volunteers {volunteer_ids}')
 			volunteer_ids.remove(str(cs.CURRENT_USER_ID))
 			print(f'volunteers {volunteer_ids}')
 		# Update the new volunteer count and volunteers
+		print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
 		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()
 		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
 		self.hide_previous()    # get rid of previous scroll area

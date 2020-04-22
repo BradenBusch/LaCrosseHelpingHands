@@ -235,6 +235,7 @@ class Calendar(QWidget):
 					user_events += ' ' + str(event_id)
 				# print(f'User Events: {user_events}')
 				User.update({User.event_ids: user_events}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+				QMessageBox.about(self, " ", " You are now registered for this event. ")
 		self.draw_tab(tab_layout)
 		# self.show_events(tab_layout)
 	
