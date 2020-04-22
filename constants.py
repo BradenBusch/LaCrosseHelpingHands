@@ -16,7 +16,7 @@ CURRENT_USER_ID = -1   # indicates the user_id of the logged in user for databas
 # hardcoded globals
 STAFF_CODE = "STAFF"    # holds the code given to Guests who sign up to become a Staff member
 ADMIN_CODE = "ADMIN"    # holds the code given to Guests who sign up to become an Administrator
-DELETE = False    # indicates if all data in the database should be deleted upon application start-up
+ORG_ID = 0    # holds the organization's "event ID" so that donations can be made to it
 
 # page identification
 PAGE_LOGIN_SIGNUP = 0
@@ -25,7 +25,8 @@ PAGE_NEW_ACCOUNT = 2
 PAGE_HOME = 3
 PAGE_CAL = 4
 PAGE_ACCOUNT = 5
-PAGE_ABOUT = 6
-PAGE_CONTACT = 7
-PAGE_HELP = 8
-PAGE_SEARCH = 9
+PAGE_PRIVILEGES = 6
+PAGE_ABOUT = 7
+PAGE_CONTACT = 8
+PAGE_HELP = 9
+PAGE_SEARCH = 10

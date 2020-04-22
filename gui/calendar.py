@@ -3,7 +3,7 @@ Holds the everything related to the calendar page.
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/21/2020
+Version: 04/22/2020
 
 '''
 
@@ -24,6 +24,14 @@ except:
 	import constants as cs
 
 
+# TODO fix the following:
+#  -> There is a strange bug where the confirmation dialog box will sometimes NOT appear when a user registers for an
+#     event, this causes the number of volunteers for the event to increase like normal, and the user is registered for
+#     the event on their account page. However, if you try to cancel registration for the event from the account page
+#     the program will crash. After starting the program back up, we can see the event IS removed from the user's list
+#     of events, but the number of volunteers for the event will NOT decrease. I don't know why it is happening. This
+#     ONLY happens when the dialog box does not appear confirming the user registered for the event, if the dialog box
+#     appears then you can cancel registration for the event from the account without any trouble (it works as intended).
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -139,11 +147,6 @@ class Calendar(QWidget):
 			for i in range(0, tab_layout.count()):
 				tab_layout.removeTab(0)
 	
-	# check if the user is attempting to register for the same event
-	def is_same_event(self, event_id):
-		# TODO finish this
-		pass
-	
 	# Check if the event a user is signing up for conflicts with an event they have already signed up for.
 	def is_conflicting_event(self, event_id):
 		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
@@ -197,13 +200,8 @@ class Calendar(QWidget):
 		# print(f'Volunteer ids: {volunteer_ids}')
 		# print(f'Current User Events {user_events}s')
 		
-		# check if the user is already registered for the event
-		if self.is_same_event(event_id):
-			# TODO unregister the volunteer from the event, update both the event and the user in the database
-			QMessageBox.about(self, " ", " You are now un-registered for this event. ")
-		
 		# Check if the user has a conflicting event
-		elif self.is_conflicting_event(event_id):
+		if self.is_conflicting_event(event_id):
 			QMessageBox.about(self, " ", " You are already registered for another event that conflicts with this event! ")
 		else:
 			# Get each id of the volunteer
@@ -263,7 +261,7 @@ class Calendar(QWidget):
 		self.volunteer_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the donation button
-		self.make_donation_btn = QPushButton("Make Donation")
+		self.make_donation_btn = QPushButton("Donate")
 		if event_id is not None:
 			self.make_donation_btn.clicked.connect(partial(self.create_donation_form, tab_layout, event_id))
 		self.make_donation_btn.setProperty('class', 'normal-bar-btn')
@@ -286,6 +284,7 @@ class Calendar(QWidget):
 			tab_btn_hbox.addWidget(self.volunteer_btn)
 			tab_btn_hbox.addWidget(self.make_donation_btn)
 		if cs.CURRENT_USER == 'Staff' or cs.CURRENT_USER == 'Administrator':
+			tab_btn_hbox.addWidget(self.volunteer_btn)
 			tab_btn_hbox.addWidget(self.make_donation_btn)
 			tab_btn_hbox.addWidget(self.create_event_btn)
 			tab_btn_hbox.addWidget(self.modify_event_btn)
@@ -305,15 +304,18 @@ class Calendar(QWidget):
 	
 	# build the donate money form
 	def create_donation_form(self, tab_layout, event_id=None):
+		# remove all tabs
 		for i in range(tab_layout.count()):
 			tab_layout.removeTab(0)
 		
+		# set up donation field
 		dollar_label = QLabel("$")
 		dollar_label.setProperty('class', 'bold-label')
 		donation_field = QLineEdit()
 		donation_field.setPlaceholderText("Enter a donation amount")
 		donation_field.setValidator(self.onlyInt)
 		
+		# set up layouts
 		donation_hbox = QHBoxLayout()
 		donation_hbox.addWidget(dollar_label)
 		donation_hbox.addWidget(donation_field)
@@ -323,6 +325,7 @@ class Calendar(QWidget):
 		spacer.setProperty('class', 'cal-bar-spacer-label')
 		spacer_hbox.addWidget(spacer)
 		
+		# set up buttons
 		btn_hbox = QHBoxLayout()
 		cancel_btn = QPushButton("Cancel")
 		cancel_btn.clicked.connect(partial(self.draw_tab, tab_layout))
@@ -335,12 +338,14 @@ class Calendar(QWidget):
 		btn_hbox.addWidget(cancel_btn)
 		btn_hbox.addWidget(confirm_btn)
 		
+		# set up layouts
 		vbox = QVBoxLayout()
 		vbox.addLayout(donation_hbox)
 		vbox.addLayout(spacer_hbox)
 		vbox.addLayout(btn_hbox)
 		vbox.setAlignment(Qt.AlignCenter)
 		
+		# build form
 		form = QWidget()
 		form.setLayout(vbox)
 		tab_layout.addTab(form, "Event Donation")
@@ -546,20 +551,111 @@ class Calendar(QWidget):
 				(Event.day == day) &
 				(Event.month == month) &
 				(Event.year == year)).id
+			
+			# show appropriate buttons depending on what user is logged in
+			self.format_buttons(False, day, month, year)
 		
 		# No Events on this date, set as no events
 		except Event.DoesNotExist:
 			# Delete current tabs in the view, as current day doesn't have any
 			for i in range(0, tab_layout.count()):
 				tab_layout.removeTab(0)
-			no_events = QLabel('No events occurring on this day!')
+			no_events = QLabel('No events scheduled on this day!')
 			no_events.setProperty('class', 'cal-label')
 			self.build_tab_btns(tab_layout, no_events, None, None)
+			self.format_buttons(True, day, month, year)  # hide all buttons on days that have no events
 			return
 		
 		for i in range(0, tab_layout.count()):
 			tab_layout.removeTab(0)
 		self.show_events(tab_layout)
+	
+	# formats the event buttons depending on which user is logged in
+	def format_buttons(self, hide, day, month, year):
+		# if all buttons are to be hidden
+		if hide:
+			# hide the buttons that need to be hidden
+			try:
+				self.volunteer_btn.hide()
+			except:
+				pass
+			try:
+				self.make_donation_btn.hide()
+			except:
+				pass
+			try:
+				if not (cs.CURRENT_USER == "Staff" or cs.CURRENT_USER == "Administrator"):
+					self.create_event_btn.hide()
+			except:
+				pass
+			try:
+				self.modify_event_btn.hide()
+			except:
+				pass
+			try:
+				self.delete_event_btn.hide()
+			except:
+				pass
+		
+		# if specific buttons need to be shown
+		else:
+			# check if the current user is a guest
+			if cs.CURRENT_USER == "Guest":
+				# hide the buttons that need to be hidden
+				try:
+					self.volunteer_btn.hide()
+				except:
+					pass
+				try:
+					self.make_donation_btn.hide()
+				except:
+					pass
+				try:
+					self.create_event_btn.hide()
+				except:
+					pass
+				try:
+					self.modify_event_btn.hide()
+				except:
+					pass
+				try:
+					self.delete_event_btn.hide()
+				except:
+					pass
+			
+			# check if the current user is a volunteer
+			if cs.CURRENT_USER == "Volunteer":
+				# hide the buttons that need to be hidden
+				self.create_event_btn.hide()
+				self.modify_event_btn.hide()
+				self.delete_event_btn.hide()
+				
+				# show the buttons that need to be shown
+				if self.date_valid(day, month, year):
+					self.volunteer_btn.show()
+					self.make_donation_btn.show()
+			
+			# check if the current user is a staff member
+			if cs.CURRENT_USER == "Staff" or cs.CURRENT_USER == "Administrator":
+				# show the buttons that need to be shown
+				self.create_event_btn.show()
+				
+				if self.date_valid(day, month, year):
+					self.volunteer_btn.show()
+					self.make_donation_btn.show()
+					self.modify_event_btn.show()
+					self.delete_event_btn.show()
+	
+	# determines if the selected date occurs before the current date
+	def date_valid(self, day, month, year):
+		if year < self.currentYear:
+			return False
+		elif (month < self.currentMonth) and (year <= self.currentYear):
+			return False
+		elif (day < self.currentDay) and (month <= self.currentMonth):
+			return False
+		else:
+			return True
 	
 	# reset the day to the current day
 	def reset_day(self):

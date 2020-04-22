@@ -104,7 +104,6 @@ class WindowManager(QMainWindow):
             self.setWindowTitle(self.widgets[page_num].windowTitle())
             self.stacker.setGeometry(self.widgets[page_num].geometry())
             self.stacker.setCurrentIndex(page_num)
-            # self.widgets[page_num].draw()
             self.widgets[page_num].set_position()
             self.widgets[page_num].check_user()
             
@@ -117,6 +116,12 @@ class WindowManager(QMainWindow):
             # if naviagating to the calendar page, display events for the current day
             elif page_num == cs.PAGE_CAL:
                 self.widgets[page_num].draw_tab(self.widgets[page_num].tabs)
+            
+            # if navigating to the account page, refresh the user events
+            elif page_num == cs.PAGE_ACCOUNT:
+                self.widgets[page_num].check_account()
+                self.widgets[page_num].hide_previous()
+                self.widgets[page_num].populate_user_events()
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

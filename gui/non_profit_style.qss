@@ -104,6 +104,21 @@ QPushButton.normal-bar-btn:hover {{
     border: 3px solid rgb(244, 47, 47);
 }}
 
+QPushButton[class="long-bar-btn"] {{
+    background-color: rgb(60, 125, 158);
+    padding: 10px;
+    max-width: 200px;
+    border: 3px solid rgb(38, 84, 124);
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.long-bar-btn:hover {{
+    border: 3px solid rgb(244, 47, 47);
+}}
+
 QPushButton[class="special-bar-btn"] {{
     background-color: rgb(214, 47, 47);
     padding: 10px;
@@ -153,6 +168,13 @@ QLabel.bold-text-label {{
     color: black;
 }}
 
+QLabel.bold-under-label {{
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    text-decoration: underline;
+}}
+
 QLabel.home-events-label {{
     font-size: 30px;
     font-weight: bold;
@@ -189,7 +211,7 @@ QLabel.acc-bar-spacer-label {{
 }}
 
 QLabel.acc-bottom-spacer-label {{
-    font-size: 125px;
+    font-size: 160px;
 }}
 
 QCalendarWidget QToolButton {{

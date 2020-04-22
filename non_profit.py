@@ -19,6 +19,7 @@ try:
     from non_profit.gui.homepage import *
     from non_profit.gui.calendar import *
     from non_profit.gui.account import *
+    # from non_profit.gui.privileges import *
     # from non_profit.gui.about import *
     # from non_profit.gui.contact import *
     # from non_profit.gui.help import *
@@ -31,6 +32,7 @@ except:
     from gui.homepage import *
     from gui.calendar import *
     from gui.account import *
+    # from gui.privileges import *
     # from gui.about import *
     # from gui.contact import *
     # from gui.help import *
@@ -49,10 +51,9 @@ def main():
     # connect to the database
     db.connect(reuse_if_open=True)
     
-    # check if the database will be erased upon application start-up
-    # if cs.DELETE:
-        # delete all data from the database
+    # delete all data from the database
     # db.drop_tables([User, Event])
+    
     # create the tables within the database
     db.create_tables([User, Event])
     events = Event.select()
@@ -68,6 +69,7 @@ def main():
                                     Homepage(),
                                     Calendar(),
                                     Account()])
+                                    #Privileges(),
                                     #About(),
                                     #Contact(),
                                     #Help(),
@@ -85,7 +87,6 @@ def main():
     
     # start the application
     app.exec_()
-
 
 # returns the resolution of the current system (width and height)
 def screen_resolution():

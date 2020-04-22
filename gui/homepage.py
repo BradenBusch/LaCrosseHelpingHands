@@ -66,44 +66,40 @@ class Homepage(QWidget):
         self.vbox_2 = QVBoxLayout()
         
         # set the paragraph of text to display above the picture
-        self.home_desc = QLabel(self.get_text("home_description.txt"))
-        self.home_desc.setProperty('class', 'home-desc-label')
-        self.home_desc.setWordWrap(True)
+        self.home_desc_1 = QLabel(self.get_text("home_description.txt"))
+        self.home_desc_1.setProperty('class', 'home-desc-label')
+        self.home_desc_1.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_1)
         
-        self.home_desc2 = QLabel(self.get_text("home_description.txt"))
-        self.home_desc2.setProperty('class', 'home-desc-label')
-        self.home_desc2.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc2)
+        self.home_desc_2 = QLabel("Interested in volunteering at one of our events and making your mark in the La Crosse community?")
+        self.home_desc_2.setProperty('class', 'bold-text-label')
+        self.home_desc_2.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_2)
         
-        self.home_desc3 = QLabel("Interested in volunteering at one of our events and making your mark in the La Crosse community?")
-        self.home_desc3.setProperty('class', 'bold-text-label')
-        self.home_desc3.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc3)
+        self.home_desc_3 = QLabel("• Register an account and head over to our Calendar page to register for events!")
+        self.home_desc_3.setProperty('class', 'home-desc-label')
+        self.home_desc_3.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_3)
         
-        self.home_desc4 = QLabel("• Register an account and head over to our Calendar page to register for events!")
-        self.home_desc4.setProperty('class', 'home-desc-label')
-        self.home_desc4.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc4)
+        self.home_desc_4 = QLabel("Interested in making a donation to our organization?")
+        self.home_desc_4.setProperty('class', 'bold-text-label')
+        self.home_desc_4.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_4)
         
-        self.home_desc5 = QLabel("Interested in making a donation to our organization?")
-        self.home_desc5.setProperty('class', 'bold-text-label')
-        self.home_desc5.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc5)
+        self.home_desc_5 = QLabel("• Register an account and donate to your heart's content!")
+        self.home_desc_5.setProperty('class', 'home-desc-label')
+        self.home_desc_5.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_5)
         
-        self.home_desc6 = QLabel("• Register an account and donate to your heart's content!")
-        self.home_desc6.setProperty('class', 'home-desc-label')
-        self.home_desc6.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc6)
+        self.home_desc_6 = QLabel("Interested in joining our staff or administrator team?")
+        self.home_desc_6.setProperty('class', 'bold-text-label')
+        self.home_desc_6.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_6)
         
-        self.home_desc7 = QLabel("Interested in joining our staff or administrator team?")
-        self.home_desc7.setProperty('class', 'bold-text-label')
-        self.home_desc7.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc7)
-        
-        self.home_desc8 = QLabel("• Visit the Contact Us page and contact us directly, we'd be delighted to have you join us!")
-        self.home_desc8.setProperty('class', 'home-desc-label')
-        self.home_desc8.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc8)
+        self.home_desc_7 = QLabel("• Visit the Contact Us page and contact us directly, we'd be delighted to have you join us!")
+        self.home_desc_7.setProperty('class', 'home-desc-label')
+        self.home_desc_7.setWordWrap(True)
+        self.vbox_1.addWidget(self.home_desc_7)
         
         # retrieve system resolution
         sys_width, sys_height = self.screen_resolution()
@@ -123,7 +119,7 @@ class Homepage(QWidget):
         self.hands_image.setPixmap(pixmap)
         self.hands_image.resize(pixmap.width(), pixmap.height())
         self.vbox_1.addWidget(self.hands_image)
-
+        
         # create labels for the information
         self.events_label = QLabel("Upcoming Events")
         self.events_label.setProperty('class', 'home-events-label')
@@ -136,13 +132,13 @@ class Homepage(QWidget):
         self.my_events_btn.clicked.connect(self.account_click)
         self.my_events_btn.setProperty('class', 'special-bar-btn')
         self.my_events_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        self.events_label.setAlignment(Qt.AlignCenter)
+        
         # this hbox is just so we can center the button
         self.center_hbox = QHBoxLayout()
         self.center_hbox.setAlignment(Qt.AlignCenter)
         self.center_hbox.addWidget(self.my_events_btn)
         self.vbox_2.addLayout(self.center_hbox)
-
+        
         # add two VBoxes to top level HBox
         self.hbox_screen.addLayout(self.vbox_1)
         self.hbox_screen.addLayout(self.vbox_2)
@@ -203,9 +199,11 @@ class Homepage(QWidget):
         # master list to hold all events
         master_events = []
         
+        # build up all event data
         for e in events:
             event = Event.get(Event.id == e.id)
             
+            # retrieve all relevant information
             master_events.append([event.name,
                                   event.location,
                                   event.month,
@@ -227,10 +225,23 @@ class Homepage(QWidget):
                                                                   (int(event[2]) <= self.currentMonth))]
         master_events.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
         
+        # if there are no events yet
+        if len(master_events) == 0:
+            # inform the user that no events have been scheduled yet
+            hbox = QHBoxLayout()
+            no_events = QLabel('No upcoming events have been scheduled by the organization!')
+            no_events.setAlignment(Qt.AlignCenter)
+            no_events.setProperty('class', 'no-events-label')
+            hbox.addWidget(no_events)
+            self.all_events_vbox.addLayout(hbox)
+            self.vbox_2.addWidget(self.all_events)
+            return
+        
         # fill in the upcoming events form
         for event in master_events:
             hbox = QHBoxLayout()
             
+            # fill in the event name
             name = QLabel('Name:')
             name.setProperty('class', 'bold-label')
             hbox.addWidget(name)
@@ -238,6 +249,7 @@ class Homepage(QWidget):
             n.setProperty('class', 'tab-info')
             hbox.addWidget(n)
             
+            # fill in the event location
             location = QLabel('Location:')
             location.setProperty('class', 'bold-label')
             hbox.addWidget(location)
@@ -245,6 +257,7 @@ class Homepage(QWidget):
             l.setProperty('class', 'tab-info')
             hbox.addWidget(l)
             
+            # fill in the event date
             date = QLabel('Date:')
             date.setProperty('class', 'bold-label')
             hbox.addWidget(date)
@@ -253,6 +266,7 @@ class Homepage(QWidget):
             t.setProperty('class', 'tab-info')
             hbox.addWidget(t)
             
+            # set up the layouts
             hbox_2 = QHBoxLayout()
             spacer = QLabel("")
             spacer.setProperty('class', 'upcoming-label')
@@ -260,6 +274,8 @@ class Homepage(QWidget):
             
             self.all_events_vbox.addLayout(hbox)
             self.all_events_vbox.addLayout(hbox_2)
+        
+        # add the scroll area to the VBox
         self.vbox_2.addWidget(self.all_events)
     
     # hides the previous items from view
