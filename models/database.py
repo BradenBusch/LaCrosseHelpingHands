@@ -43,12 +43,6 @@ class Event(Model):
     volunteers_ids = TextField()  # String of each volunteers id that is attending this event
     donations = IntegerField()
 
-
-    # TODO: Each time a user says they'll attend an event, they're added to the EventAttendance Table.
-    # Currently, i want to store information in this field regarding who is attending the
-    # event, based on the id, then use split to get a list of each attending member. There is probably a better way to
-    # do it but we'll stick with this for now. (932 392 132 392 345 321 111 029 -> Braden, Kaelan, Alex, Tori, ...)
-
     class Meta:
         database = db
 
@@ -58,6 +52,15 @@ class EventAttendance(Model):
     user_id = ForeignKeyField(User)
     # event_id = IntegerField()
     # account_id = IntegerField()
+
+    class Meta:
+        database = db
+
+
+class OrgEvent(Model):
+    id = AutoField()
+    name = CharField()
+    donations = IntegerField()
 
     class Meta:
         database = db

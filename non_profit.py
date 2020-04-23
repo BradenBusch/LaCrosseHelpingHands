@@ -52,16 +52,19 @@ def main():
     db.connect(reuse_if_open=True)
     
     # delete all data from the database
-    # db.drop_tables([User, Event])
-    
+    # db.drop_tables([User, Event, OrgEvent])
+
     # create the tables within the database
-    db.create_tables([User, Event])
-    events = Event.select()
-    
-    for e in events:
-        pass
-        #print('{0}/{1}/{2} Volunteers: {3}'.format(e.month, e.day, e.year, e.volunteers_attending)) TODO use for debugging
-    
+    db.create_tables([User, Event, OrgEvent])
+
+    # create the La Crosse Helping Hands "event" if it doesn't already exist
+    try:
+        org = OrgEvent.get(OrgEvent.id == cs.ORG_ID)
+    except:
+        org = OrgEvent(name="La Crosse Helping Hands", donations=0)
+        org.save()
+    print(f'org id {org.id}')
+
     # create the pages for the application within the WindowManager
     current_window = WindowManager([LogInSignUp(),
                                     Login(),

@@ -16,7 +16,7 @@ CURRENT_USER_ID = -1   # indicates the user_id of the logged in user for databas
 # hardcoded globals
 STAFF_CODE = "STAFF"    # holds the code given to Guests who sign up to become a Staff member
 ADMIN_CODE = "ADMIN"    # holds the code given to Guests who sign up to become an Administrator
-ORG_ID = 0    # holds the organization's "event ID" so that donations can be made to it
+ORG_ID = 1    # holds the organization's "event ID" so that donations can be made to it
 
 # page identification
 PAGE_LOGIN_SIGNUP = 0

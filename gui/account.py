@@ -22,8 +22,7 @@ except:
 
 
 # TODO fix the following:
-#  -> Add the organization as an "event" with the event id specified in constants.py as ORG_ID so that users
-#     can make donations to the organization separately from events
+#  -> 
 class Account(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -333,7 +332,6 @@ class Account(QWidget):
 	# creates the donation form so the user can donate
 	def create_donation_form(self, event_id, title):
 		self.hide_previous()
-		
 		# attempt to hide the tabs if they are already open
 		try:
 			self.tabs.hide()
@@ -377,7 +375,12 @@ class Account(QWidget):
 		cancel_btn.setProperty('class', 'red-bar-btn')
 		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		confirm_btn = QPushButton("Confirm")
-		confirm_btn.clicked.connect(partial(self.verify_donation, donation_field, event_id))
+		# If donating to event(not organization)
+		if title != "Organization Donation":
+			confirm_btn.clicked.connect(partial(self.verify_donation, donation_field, event_id))
+		# If donating to the organization
+		else:
+			confirm_btn.clicked.connect(partial(self.verify_org_donation, donation_field))
 		confirm_btn.setProperty('class', 'normal-bar-btn')
 		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		btn_hbox.addWidget(cancel_btn)
@@ -395,7 +398,7 @@ class Account(QWidget):
 		form.setLayout(vbox)
 		self.tabs.addTab(form, title)
 	
-	# verify that the donation is valid
+	# verify that the donation is valid and update the event and users donations
 	def verify_donation(self, amount, event_id=None):
 		# User did not enter an amount
 		if amount.text() == "":
@@ -417,7 +420,31 @@ class Account(QWidget):
 			QMessageBox.about(self, " ", "Thank you for the donation!")
 		self.populate_user_events()
 		self.set_account_info()
-	
+
+	# verify that the donation is valid and update the OrgEvent and users donations
+	def verify_org_donation(self, amount):
+		# User did not enter an amount
+		if amount.text() == "":
+			QMessageBox.warning(self, " ", "You did not enter an amount!")
+			return
+		# User entered a negative amount
+		elif int(amount.text()) <= 0:
+			QMessageBox.warning(self, " ", "You did not enter a valid amount!")
+			amount.clear()
+			return
+		# Update the user and event with the donation amount
+		else:
+			curr_donation = OrgEvent.get(OrgEvent.id == cs.ORG_ID).donations
+			user_donations = User.get(User.user_id == cs.CURRENT_USER_ID).total_donations
+			curr_donation = curr_donation + int(amount.text())
+			user_donations = user_donations + int(amount.text())
+			OrgEvent.update(donations=curr_donation).where(OrgEvent.id == cs.ORG_ID).execute()
+			User.update(total_donations=user_donations).where(User.user_id == cs.CURRENT_USER_ID).execute()
+			QMessageBox.about(self, " ", "Thank you for the donation!")
+		self.populate_user_events()
+		self.set_account_info()
+		print(f'total donations for OrgEvent {curr_donation}')
+
 	# Decrement the users volunteer hours when they cancel an event
 	def update_user_volunteer_hours(self, start_time, end_time):
 		user_time = User.get(User.user_id == cs.CURRENT_USER_ID).volunteer_hours
