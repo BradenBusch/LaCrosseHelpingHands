@@ -168,8 +168,14 @@ QLabel.bold-text-label {{
     color: black;
 }}
 
-QLabel.bold-under-label {{
+QLabel.acc-bold-text-label {{
     font-size: 20px;
+    font-weight: bold;
+    color: black;
+}}
+
+QLabel.bold-under-label {{
+    font-size: 25px;
     font-weight: bold;
     color: black;
     text-decoration: underline;
@@ -183,6 +189,11 @@ QLabel.home-events-label {{
 
 QLabel.home-desc-label {{
     font-size: 15px;
+    color: black;
+}}
+
+QLabel.acc-desc-label {{
+    font-size: 20px;
     color: black;
 }}
 

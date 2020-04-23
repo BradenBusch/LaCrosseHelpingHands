@@ -122,6 +122,7 @@ class WindowManager(QMainWindow):
                 self.widgets[page_num].check_account()
                 self.widgets[page_num].hide_previous()
                 self.widgets[page_num].populate_user_events()
+                self.widgets[page_num].set_account_info()
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

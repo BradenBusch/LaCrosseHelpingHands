@@ -22,10 +22,7 @@ except:
 
 
 # TODO fix the following:
-#  -> Fill in all account fields.
-#  -> Add tracking in the database for the number of hours the volunteer has volunteered for and
-#     how much money they have donated over the lifetime of their account.
-#  -> Add the organization as an "event" with the event id specified in constants.py so that users
+#  -> Add the organization as an "event" with the event id specified in constants.py as ORG_ID so that users
 #     can make donations to the organization separately from events
 class Account(QWidget):
 	def __init__(self, parent=None):
@@ -45,8 +42,6 @@ class Account(QWidget):
 	
 	# adds all buttons and sets up the layout
 	def draw(self):
-		#user = User.get(User.user_id == cs.CURRENT_USER_ID)
-
 		self.vbox_screen = QVBoxLayout()
 		
 		self.hbox_1 = QHBoxLayout()
@@ -78,30 +73,30 @@ class Account(QWidget):
 		
 		# set the account type
 		self.acc_desc_2 = QLabel("Account Type:")
-		self.acc_desc_2.setProperty('class', 'bold-text-label')
+		self.acc_desc_2.setProperty('class', 'acc-bold-text-label')
 		self.hbox_4 = QHBoxLayout()
-		self.acc_type = QLabel("TODO")    # TODO retrieve account type
-		self.acc_type.setProperty('class', 'home-desc-label')
+		self.acc_type = QLabel("Guest")
+		self.acc_type.setProperty('class', 'acc-desc-label')
 		self.hbox_4.addWidget(self.acc_desc_2)
 		self.hbox_4.addWidget(self.acc_type)
 		self.vbox_1.addLayout(self.hbox_4)
 		
 		# set the username
 		self.acc_desc_3 = QLabel("Username:")
-		self.acc_desc_3.setProperty('class', 'bold-text-label')
+		self.acc_desc_3.setProperty('class', 'acc-bold-text-label')
 		self.hbox_5 = QHBoxLayout()
-		self.acc_name = QLabel("TODO")  # TODO retrieve account username
-		self.acc_name.setProperty('class', 'home-desc-label')
+		self.acc_name = QLabel("Username")
+		self.acc_name.setProperty('class', 'acc-desc-label')
 		self.hbox_5.addWidget(self.acc_desc_3)
 		self.hbox_5.addWidget(self.acc_name)
 		self.vbox_1.addLayout(self.hbox_5)
 		
 		# set the email
 		self.acc_desc_4 = QLabel("E-Mail:")
-		self.acc_desc_4.setProperty('class', 'bold-text-label')
+		self.acc_desc_4.setProperty('class', 'acc-bold-text-label')
 		self.hbox_6 = QHBoxLayout()
-		self.acc_email = QLabel("TODO")  # TODO retrieve account email
-		self.acc_email.setProperty('class', 'home-desc-label')
+		self.acc_email = QLabel("E-Mail")
+		self.acc_email.setProperty('class', 'acc-desc-label')
 		self.hbox_6.addWidget(self.acc_desc_4)
 		self.hbox_6.addWidget(self.acc_email)
 		self.vbox_1.addLayout(self.hbox_6)
@@ -112,21 +107,21 @@ class Account(QWidget):
 		self.vbox_1.addWidget(self.acc_desc_5)
 		
 		# set the total number of hours volunteered
-		self.acc_desc_6 = QLabel("Total Hours Volunteered:")
-		self.acc_desc_6.setProperty('class', 'bold-text-label')
+		self.acc_desc_6 = QLabel("Total Hours Volunteered:           ")
+		self.acc_desc_6.setProperty('class', 'acc-bold-text-label')
 		self.hbox_7 = QHBoxLayout()
-		self.acc_hours = QLabel("TODO")  # TODO retrieve total volunteering hours from account
-		self.acc_hours.setProperty('class', 'home-desc-label')
+		self.acc_hours = QLabel("Hours")
+		self.acc_hours.setProperty('class', 'acc-desc-label')
 		self.hbox_7.addWidget(self.acc_desc_6)
 		self.hbox_7.addWidget(self.acc_hours)
 		self.vbox_1.addLayout(self.hbox_7)
 		
 		# set the total amount of money donated
-		self.acc_desc_7 = QLabel("Total Money Donated:")
-		self.acc_desc_7.setProperty('class', 'bold-text-label')
+		self.acc_desc_7 = QLabel("Total Monetary Donations:      $")
+		self.acc_desc_7.setProperty('class', 'acc-bold-text-label')
 		self.hbox_8 = QHBoxLayout()
-		self.acc_money = QLabel("TODO")  # TODO retrieve total money donated from account
-		self.acc_money.setProperty('class', 'home-desc-label')
+		self.acc_money = QLabel("Money")
+		self.acc_money.setProperty('class', 'acc-desc-label')
 		self.hbox_8.addWidget(self.acc_desc_7)
 		self.hbox_8.addWidget(self.acc_money)
 		self.vbox_1.addLayout(self.hbox_8)
@@ -227,8 +222,6 @@ class Account(QWidget):
 			self.my_events_vbox.addLayout(hbox)
 			self.vbox_2.addWidget(self.my_events)
 			return
-		
-		# print(f'cs.CURRENT_USER_ID: {cs.CURRENT_USER_ID}')    # TODO debug
 		
 		# holds event ids from database
 		event_ids = ids.split(' ')
@@ -365,6 +358,7 @@ class Account(QWidget):
 		donation_field = QLineEdit()
 		donation_field.setPlaceholderText("Enter a donation amount")
 		donation_field.setValidator(self.onlyInt)
+		donation_field.setMaxLength(4)
 		
 		# set up layouts
 		donation_hbox = QHBoxLayout()
@@ -403,16 +397,27 @@ class Account(QWidget):
 	
 	# verify that the donation is valid
 	def verify_donation(self, amount, event_id=None):
+		# User did not enter an amount
 		if amount.text() == "":
 			QMessageBox.warning(self, " ", "You did not enter an amount!")
 			return
+		# User entered a negative amount
+		elif int(amount.text()) <= 0:
+			QMessageBox.warning(self, " ", "You did not enter a valid amount!")
+			amount.clear()
+			return
+		# Update the user and event with the donation amount
 		else:
 			curr_donation = Event.get(Event.id == event_id).donations
-			# print(f'current_donation {curr_donation} amount {amount.text()}') TODO use for debug
+			user_donations = User.get(User.user_id == cs.CURRENT_USER_ID).total_donations
 			curr_donation = curr_donation + int(amount.text())
+			user_donations = user_donations + int(amount.text())
 			Event.update(donations=curr_donation).where(Event.id == event_id).execute()
+			User.update(total_donations=user_donations).where(User.user_id == cs.CURRENT_USER_ID).execute()
+			QMessageBox.about(self, " ", "Thank you for the donation!")
 		self.populate_user_events()
-
+		self.set_account_info()
+	
 	# Decrement the users volunteer hours when they cancel an event
 	def update_user_volunteer_hours(self, start_time, end_time):
 		user_time = User.get(User.user_id == cs.CURRENT_USER_ID).volunteer_hours
@@ -429,12 +434,9 @@ class Account(QWidget):
 			else:
 				minute = 0
 		event_hours = float(hour) + float(minute)
-
-		# total_hours = float(event_hours) + float(user_time)
 		total_hours = float(user_time) - float(event_hours)
 		User.update({User.volunteer_hours: total_hours}).where(User.user_id == cs.CURRENT_USER_ID).execute()
-		print(f'updated volunteer hours {total_hours}')
-
+	
 	# delete a volunteering event. This will update the User and Event tables.
 	def remove_event(self, event_id):
 		# remove the event from the user list
@@ -466,8 +468,13 @@ class Account(QWidget):
 		# print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
 		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()
 		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
+		QMessageBox.warning(self, " ", "You are now un-registered from this event.\n\n" + \
+									   "Any monetary donations you made to this event will remain donated.\n" + \
+									   "If you would like to have this money refunded, please contact one of the " + \
+									   "Administrators via our Contact Us page!")
 		self.hide_previous()    # get rid of previous scroll area
-		self.populate_user_events()  # Redraw the scroll area
+		self.populate_user_events()    # Redraw the scroll area
+		self.set_account_info()    # update the account information
 	
 	# check if the account is an administrator account
 	def check_account(self):
@@ -500,6 +507,26 @@ class Account(QWidget):
 		self.hbox_btn.addWidget(self.spacer_btn)
 		self.hbox_btn.addWidget(self.org_don_btn)
 		self.hbox_btn.addWidget(self.admin_priv_btn)
+	
+	# updates the QLabels associated with account information
+	def set_account_info(self):
+		# retrieve user from the database
+		user = User.get(User.user_id == cs.CURRENT_USER_ID)
+		
+		# set the account type
+		self.acc_type.setText("{}".format(user.account_type))
+		
+		# set the username
+		self.acc_name.setText("{}".format(user.username))
+		
+		# set the email
+		self.acc_email.setText("{}".format(user.account_email))
+		
+		# set the total number of hours volunteered
+		self.acc_hours.setText("{}".format(user.volunteer_hours))
+		
+		# set the total amount of money donated
+		self.acc_money.setText("{}".format(user.total_donations))
 	
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):

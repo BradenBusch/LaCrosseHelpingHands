@@ -24,14 +24,6 @@ except:
 	import constants as cs
 
 
-# TODO fix the following:
-#  -> There is a strange bug where the confirmation dialog box will sometimes NOT appear when a user registers for an
-#     event, this causes the number of volunteers for the event to increase like normal, and the user is registered for
-#     the event on their account page. However, if you try to cancel registration for the event from the account page
-#     the program will crash. After starting the program back up, we can see the event IS removed from the user's list
-#     of events, but the number of volunteers for the event will NOT decrease. I don't know why it is happening. This
-#     ONLY happens when the dialog box does not appear confirming the user registered for the event, if the dialog box
-#     appears then you can cancel registration for the event from the account without any trouble (it works as intended)
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -210,10 +202,8 @@ class Calendar(QWidget):
 		event_hours = float(hour) + float(minute)
 
 		total_hours = float(event_hours) + float(user_time)
-		# total_hours = float(user_time) - float(event_hours)
 		User.update({User.volunteer_hours: total_hours}).where(User.user_id == cs.CURRENT_USER_ID).execute()
-		print(f'updated volunteer hours {total_hours}')
-
+	
 	# Update the volunteer window when a volunteer volunteers for an event.
 	def update_volunteer(self, tab_layout, event_id):
 		# Get events volunteer ids
@@ -358,6 +348,7 @@ class Calendar(QWidget):
 		donation_field = QLineEdit()
 		donation_field.setPlaceholderText("Enter a donation amount")
 		donation_field.setValidator(self.onlyInt)
+		donation_field.setMaxLength(4)
 		
 		# set up layouts
 		donation_hbox = QHBoxLayout()
@@ -399,6 +390,11 @@ class Calendar(QWidget):
 		# User did not enter an amount
 		if amount.text() == "":
 			QMessageBox.warning(self, " ", "You did not enter an amount!")
+			return
+		# User entered a negative amount
+		elif int(amount.text()) <= 0:
+			QMessageBox.warning(self, " ", "You did not enter a valid amount!")
+			amount.clear()
 			return
 		# Update the user and event with the donation amount
 		else:
