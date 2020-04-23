@@ -1,9 +1,11 @@
 '''
-Holds the everything related to the calendar page.
+Calendar page of the application, has a calendar that allows users to register for events
+and donate money to the organization.
+
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/22/2020
+Version: 04/23/2020
 
 '''
 
@@ -16,14 +18,16 @@ from PyQt5.QtGui import *
 from functools import partial
 
 try:
-	from non_profit.gui.homepage import *
-	from non_profit.gui.login import *
+	from non_profit.models.database import *
 	from non_profit import constants as cs
 except:
-	from gui.login import *
+	from models.database import *
 	import constants as cs
 
 
+# TODO fix the following:
+#  -> Add functionality for Modify Event and Delete Event (lines 729 and 734)
+#  -> For both Modify Event and Delete Event, make use of the method I added on line 768
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -283,13 +287,13 @@ class Calendar(QWidget):
 		
 		# set up the modify event button
 		self.modify_event_btn = QPushButton("Modify Event")
-		# self.modify_event_btn.clicked.connect()
+		self.modify_event_btn.clicked.connect(partial(self.modify_event, event_id))
 		self.modify_event_btn.setProperty('class', 'normal-bar-btn')
 		self.modify_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the delete event button
 		self.delete_event_btn = QPushButton("Delete Event")
-		# self.delete_event_btn.clicked.connect()
+		self.delete_event_btn.clicked.connect(partial(self.delete_event, event_id))
 		self.delete_event_btn.setProperty('class', 'normal-bar-btn')
 		self.delete_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
@@ -298,8 +302,6 @@ class Calendar(QWidget):
 		month = date.month()
 		year = date.year()
 		
-		# check if the date is valid
-		#if self.date_valid(day, month, year):
 		# add appropriate buttons depending on which user is logged in
 		if cs.CURRENT_USER == 'Volunteer':
 			tab_btn_hbox.addWidget(self.volunteer_btn)
@@ -311,6 +313,7 @@ class Calendar(QWidget):
 			tab_btn_hbox.addWidget(self.modify_event_btn)
 			tab_btn_hbox.addWidget(self.delete_event_btn)
 		
+		# check if the date is valid
 		if not self.date_valid(day, month, year):
 			try:
 				self.volunteer_btn.hide()
@@ -721,6 +724,50 @@ class Calendar(QWidget):
 		
 		self.draw_tab(self.tabs)
 	
+	# modify a volunteering event. This will upadte the User and Event tables.
+	def modify_event(self, event_id):
+		# TODO finish this
+		pass
+	
+	# delete a volunteering event. This will update the User and Event tables.
+	def delete_event(self, event_id):
+		# TODO this entire method needs to be changed
+		# remove the event from the user list
+		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+		event_ids = user_events.split(' ')
+		event_ids.remove(str(event_id))
+		event_ids = ' '.join(event_ids)
+		
+		# Update users volunteer hours
+		s_time = Event.get(Event.id == event_id).start_date
+		e_time = Event.get(Event.id == event_id).end_date
+		self.update_all_volunteer_hours(s_time, e_time)
+		
+		# The user has no events left, so reset it to the value for no events
+		if event_ids == '':
+			event_ids = '-1'
+		
+		# Update the users new events. Remove the user from the event and decrement the volunteer count
+		User.update({User.event_ids: event_ids}).where(User.user_id == cs.CURRENT_USER_ID).execute()
+		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
+		volunteer_count = Event.get(Event.id == event_id).volunteers_attending
+		volunteer_count -= 1
+		# print(f'volunteers here {volunteer_ids} volunteer count {volunteer_count}')
+		# No volunteers, reset the id to -1
+		if volunteer_count == 0:
+			volunteer_ids = '-1'
+		
+		# Update the new volunteer count and volunteers
+		# print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
+		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()
+		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
+		QMessageBox.warning(self, " ", "The event has been successfully deleted.")
+	
+	# after an event is deleted or modified, update all volunteer hours
+	def update_all_volunteer_hours(self, start_time, end_time):
+		# TODO finish this
+		pass
+	
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):
 		# set up the home button
@@ -843,8 +890,7 @@ class Calendar(QWidget):
 	def logout_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
 		self.reset_day()
-
-		# TODO actually log the user out of their account
+		
 		cs.CURRENT_USER = "Guest"
 	
 	# go to the login page

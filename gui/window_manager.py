@@ -6,12 +6,13 @@ Version: 04/21/2020
 
 '''
 
+import os
 import ctypes
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import os.path
+
 try:
     from non_profit import constants as cs
 except:
@@ -69,22 +70,6 @@ class WindowManager(QMainWindow):
         
         # set the starting page to the login signup screen
         self.set_page(cs.PAGE_LOGIN_SIGNUP, cs.PAGE_LOGIN_SIGNUP)
-        
-        # # set up the menu bar | NOTE: disabled the menu bar for now, it isn't really necessary
-        # self.mainMenu = self.menuBar()
-        # self.fileMenu = self.mainMenu.addMenu('File')
-        # self.editMenu = self.mainMenu.addMenu('Edit')
-        # self.viewMenu = self.mainMenu.addMenu('View')
-        # self.searchMenu = self.mainMenu.addMenu('Search')
-        # self.toolsMenu = self.mainMenu.addMenu('Tools')
-        # self.helpMenu = self.mainMenu.addMenu('Help')
-        #
-        # # set up the exit button on the fileMenu
-        # self.exitButton = QAction(QIcon('gui\\photos\\application_exit.png'), 'Exit', self)
-        # self.exitButton.setShortcut('Ctrl+Q')
-        # self.exitButton.setStatusTip('Exit application')
-        # self.exitButton.triggered.connect(self.close)
-        # self.fileMenu.addAction(self.exitButton)
     
     # sets the application to the indicated page
     def set_page(self, previous, page_num):
@@ -123,6 +108,17 @@ class WindowManager(QMainWindow):
                 self.widgets[page_num].hide_previous()
                 self.widgets[page_num].populate_user_events()
                 self.widgets[page_num].set_account_info()
+            
+            # if navigating to the administrator privileges page, refresh all users and events
+            elif page_num == cs.PAGE_PRIVILEGES:
+                self.widgets[page_num].hide_previous()
+                self.widgets[page_num].populate_all_users()
+                self.widgets[page_num].populate_all_events()
+            
+            # if navigating to the search page, refresh the results
+            elif page_num == cs.PAGE_SEARCH:
+                self.widgets[page_num].hide_previous()
+                self.widgets[page_num].populate_results()
     
     # returns the resolution of the current system (width and height)
     def screen_resolution(self):

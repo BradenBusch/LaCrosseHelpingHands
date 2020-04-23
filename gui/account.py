@@ -1,5 +1,6 @@
 '''
 Account page, all registered users can view their account information here.
+
 Accessibile by: Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
@@ -7,12 +8,12 @@ Version: 04/22/2020
 
 '''
 
-import os
 from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from functools import partial
+
 try:
 	from non_profit.models.database import *
 	from non_profit import constants as cs
@@ -21,8 +22,6 @@ except:
 	import constants as cs
 
 
-# TODO fix the following:
-#  -> 
 class Account(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -303,7 +302,7 @@ class Account(QWidget):
 			donate_btn.setCursor(QCursor(Qt.PointingHandCursor))
 			
 			# create the cancel event button
-			cancel_btn = QPushButton('Cancel Event')
+			cancel_btn = QPushButton('Cancel Registration')
 			cancel_btn.setProperty('class', 'red-bar-btn')
 			cancel_btn.clicked.connect(partial(self.remove_event, event[7]))
 			cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
@@ -443,8 +442,8 @@ class Account(QWidget):
 			QMessageBox.about(self, " ", "Thank you for the donation!")
 		self.populate_user_events()
 		self.set_account_info()
-		print(f'total donations for OrgEvent {curr_donation}')
-
+		print(f'total donations for OrgEvent {curr_donation}') # TODO comment this out
+	
 	# Decrement the users volunteer hours when they cancel an event
 	def update_user_volunteer_hours(self, start_time, end_time):
 		user_time = User.get(User.user_id == cs.CURRENT_USER_ID).volunteer_hours
@@ -671,7 +670,6 @@ class Account(QWidget):
 	def logout_click(self):
 		self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
 		
-		# TODO actually log the user out of their account
 		cs.CURRENT_USER = "Guest"
 	
 	# go to the login page
@@ -685,8 +683,6 @@ class Account(QWidget):
 	# go to the administrator priveleges page
 	def admin_privileges(self):
 		self.win.set_page(self.this_page, cs.PAGE_PRIVILEGES)
-	
-	# TODO add additional button methods here
 	
 	# draws shapes on the window
 	def paintEvent(self, e):

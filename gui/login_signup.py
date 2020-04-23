@@ -1,6 +1,7 @@
 '''
-Holds everything related to the welcome page, where users decide how to access the application.
-Accessibile by: Guest, Volunteer, Staff, Administrator
+The opening page of the application, where users decide how to access the application.
+
+Accessibile by: Guest
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/05/2020
@@ -12,12 +13,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 try:
-    from non_profit.gui.new_account import NewAccount
-    from non_profit.gui.login import Login
     from non_profit import constants as cs
 except:
-    from gui.new_account import NewAccount
-    from gui.login import Login
     import constants as cs
 
 

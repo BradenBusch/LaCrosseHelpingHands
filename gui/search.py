@@ -1,14 +1,13 @@
 '''
-Homepage of the application, all users are directed here after logging in.
+Search page of the application, allows users to search for other users and events.
 
 Accessibile by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
-Version: 04/21/2020
+Version: 04/23/2020
 
 '''
 
-import os
 from datetime import datetime
 
 from PyQt5.QtWidgets import *
@@ -22,18 +21,19 @@ except:
     from models.database import *
     import constants as cs
 
-
-class Homepage(QWidget):
+# TODO fix the following:
+#  -> Populate scroll box with correct results when a user makes a search
+class Search(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         
         # set window title and properties, initialize the window reference
-        self.setProperty('class', 'homepage')
-        self.setWindowTitle("Welcome!")
+        self.setProperty('class', 'search')
+        self.setWindowTitle("Search")
         self.win = None
         
         # set the page id
-        self.this_page = cs.PAGE_HOME
+        self.this_page = cs.PAGE_SEARCH
         
         # draw the page
         self.draw()
@@ -44,119 +44,68 @@ class Homepage(QWidget):
         
         self.hbox_1 = QHBoxLayout()
         self.spacer_1 = QLabel("")
-        self.spacer_1.setProperty('class', 'home-bar-spacer-label')
+        self.spacer_1.setProperty('class', 'search-bar-spacer-label')
         self.hbox_1.addWidget(self.spacer_1)
         self.vbox_screen.addLayout(self.hbox_1)
-        
-        # create the my events button, to be used below
-        self.my_events_btn = QPushButton("View My Events")
         
         # create the top bar of tabs for the application
         self.top_bar()
         
         # create HBoxes
         self.hbox_2 = QHBoxLayout()
+        self.hbox_3 = QHBoxLayout()
+        self.hbox_4 = QHBoxLayout()
+        
+        # create the VBox
         self.hbox_screen = QHBoxLayout()
         
-        self.welcome_label = QLabel("Welcome!")
-        self.welcome_label.setProperty('class', 'cal-label')
-        self.welcome_label.setFixedHeight(62)
-        self.hbox_2.addWidget(self.welcome_label)
+        self.search_label = QLabel("Search")
+        self.search_label.setProperty('class', 'cal-label')
+        self.search_label.setFixedHeight(62)
+        self.hbox_2.addWidget(self.search_label)
         
-        # Divide the screen into halves
-        self.vbox_1 = QVBoxLayout()
-        self.vbox_2 = QVBoxLayout()
-        
-        # set the paragraph of text to display above the picture
-        self.home_desc_1 = QLabel(self.get_text("home_description.txt"))
-        self.home_desc_1.setProperty('class', 'home-desc-label')
-        self.home_desc_1.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_1)
-        
-        self.home_desc_2 = QLabel("Interested in volunteering at one of our events and making your mark in" + \
-                                  "the La Crosse community?")
-        self.home_desc_2.setProperty('class', 'bold-text-label')
-        self.home_desc_2.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_2)
-        
-        self.home_desc_3 = QLabel("• Register an account and head over to our Calendar page to register for events!")
-        self.home_desc_3.setProperty('class', 'home-desc-label')
-        self.home_desc_3.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_3)
-        
-        self.home_desc_4 = QLabel("Interested in making a donation to our organization?")
-        self.home_desc_4.setProperty('class', 'bold-text-label')
-        self.home_desc_4.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_4)
-        
-        self.home_desc_5 = QLabel("• Register an account and donate to your heart's content!")
-        self.home_desc_5.setProperty('class', 'home-desc-label')
-        self.home_desc_5.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_5)
-        
-        self.home_desc_6 = QLabel("Interested in joining our staff or administrator team?")
-        self.home_desc_6.setProperty('class', 'bold-text-label')
-        self.home_desc_6.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_6)
-        
-        self.home_desc_7 = QLabel("• Visit the Contact Us page and contact us directly, we'd be delighted" + \
-                                  "to have you join us!")
-        self.home_desc_7.setProperty('class', 'home-desc-label')
-        self.home_desc_7.setWordWrap(True)
-        self.vbox_1.addWidget(self.home_desc_7)
-        
-        # retrieve system resolution
+        # retrieve system dimensions
         sys_width, sys_height = self.screen_resolution()
         
-        # set up the image
-        self.hands_image = QLabel(self)
+        # create the search bar
+        self.search_bar = QLineEdit()
+        self.search_bar.setMaxLength(50)
+        self.search_bar.setFixedWidth(sys_width // 4)
+        self.search_bar.setPlaceholderText("Enter search query")
         
-        # if file exists else use the other one (handles path to the image)
-        if os.path.isfile('gui\\photos\\homepage.png'):
-            pixmap = QPixmap('gui\\photos\\homepage.png')
-        else:
-            pixmap = QPixmap('non_profit\\gui\\photos\\homepage.png')
+        # create the search button
+        self.search_btn = QPushButton("Search")
+        self.search_btn.clicked.connect(self.populate_results)
+        self.search_btn.setProperty('class', 'special-bar-btn')
+        self.search_btn.setCursor(QCursor(Qt.PointingHandCursor))
         
-        # set width and height of image
-        scaled_height = int(pixmap.height() * ((sys_width // 2) / pixmap.width()))
-        pixmap = pixmap.scaled((sys_width // 2), scaled_height, transformMode=Qt.SmoothTransformation)
-        self.hands_image.setPixmap(pixmap)
-        self.hands_image.resize(pixmap.width(), pixmap.height())
-        self.vbox_1.addWidget(self.hands_image)
+        # add search bar and search button to the layout
+        self.hbox_3.addWidget(self.search_bar)
+        self.hbox_3.addWidget(self.search_btn)
+        self.hbox_3.setAlignment(Qt.AlignLeft)
         
-        # create labels for the information
-        self.events_label = QLabel("Upcoming Events")
-        self.events_label.setProperty('class', 'home-events-label')
-        self.events_label.setFixedHeight(40)
-        self.events_label.setAlignment(Qt.AlignCenter)
-        self.vbox_2.addWidget(self.events_label)
+        # create results label
+        self.results_label = QLabel("")
+        self.results_label.setProperty('class', 'bold-label')
         
-        # populate scroll area with upcoming events
-        self.populate_all_events()
-        self.my_events_btn.clicked.connect(self.account_click)
-        self.my_events_btn.setProperty('class', 'special-bar-btn')
-        self.my_events_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        
-        # this hbox is just so we can center the button
-        self.center_hbox = QHBoxLayout()
-        self.center_hbox.setAlignment(Qt.AlignCenter)
-        self.center_hbox.addWidget(self.my_events_btn)
-        self.vbox_2.addLayout(self.center_hbox)
-        
-        # add two VBoxes to top level HBox
-        self.hbox_screen.addLayout(self.vbox_1)
-        self.hbox_screen.addLayout(self.vbox_2)
+        # add results label to the layout
+        self.hbox_4.addWidget(self.results_label)
         
         # add HBoxes to top level VBox
         self.vbox_screen.addLayout(self.hbox_2)
+        self.vbox_screen.addLayout(self.hbox_3)
+        self.vbox_screen.addLayout(self.hbox_4)
         self.vbox_screen.addLayout(self.hbox_screen)
         
+        # populate scroll area with results
+        self.populate_results()
+        
         # create spacer for bottom of screen
-        self.hbox_3 = QHBoxLayout()
+        self.hbox_5 = QHBoxLayout()
         self.spacer_2 = QLabel("")
-        self.spacer_2.setProperty('class', 'home-bottom-spacer-label')
-        self.hbox_3.addWidget(self.spacer_2)
-        self.vbox_screen.addLayout(self.hbox_3)
+        self.spacer_2.setProperty('class', 'search-bottom-spacer-label')
+        self.hbox_5.addWidget(self.spacer_2)
+        self.vbox_screen.addLayout(self.hbox_5)
         
         # set up the layout
         self.setLayout(self.vbox_screen)
@@ -169,18 +118,46 @@ class Homepage(QWidget):
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
     
     # populate a scrollbox with all of the upcoming events
-    def populate_all_events(self):
+    def populate_results(self):
+        try:
+            self.results.hide()
+        except:
+            pass
+        
+        # holds the search query
+        query = self.search_bar.text()
+        
+        # if the user did not enter anything
+        if query == "":
+            self.results_label.setText("Please enter a search query.")
+        else:
+            self.results_label.setText("Search results for '{}':".format(query))
+            self.search_bar.clear()
+        
         # create the scrollbox
-        self.all_events_widget = QWidget()
-        self.all_events_vbox = QVBoxLayout()
-        self.all_events_widget.setLayout(self.all_events_vbox)
-        self.all_events = QScrollArea()
-        self.all_events.setWidget(self.all_events_widget)
-        self.all_events.setWidgetResizable(True)
-        self.all_events.setFixedHeight(575)
+        self.results_widget = QWidget()
+        self.results_vbox = QVBoxLayout()
+        self.results_widget.setLayout(self.results_vbox)
+        self.results = QScrollArea()
+        self.results.setWidget(self.results_widget)
+        self.results.setWidgetResizable(True)
+        self.results.setFixedHeight(575)
         sys_width, sys_height = self.screen_resolution()
-        self.all_events.setFixedWidth((sys_width // 2) - 35)
-        self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.results.setFixedWidth(sys_width - 20)
+        self.results.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        
+        # if the user has not made a search yet
+        if query == "":
+            hbox = QHBoxLayout()
+            no_results = QLabel('Search across all of our users and events.')
+            no_results.setAlignment(Qt.AlignCenter)
+            no_results.setProperty('class', 'no-events-label')
+            hbox.addWidget(no_results)
+            self.results_vbox.addLayout(hbox)
+            self.hbox_screen.addWidget(self.results)
+            return
+        
+        # TODO populate search scroll area with results from search
         
         # attempt to retrieve events from the database
         try:
@@ -188,16 +165,16 @@ class Homepage(QWidget):
         except Event.DoesNotExist:
             return
         
-        # if there are no events yet
+        # if there are no search results for the user's query
         if len(events) == 0:
-            # inform the user that no events have been scheduled yet
+            # inform the user that no results were found
             hbox = QHBoxLayout()
-            no_events = QLabel('No upcoming events have been scheduled by the organization!')
-            no_events.setAlignment(Qt.AlignCenter)
-            no_events.setProperty('class', 'no-events-label')
-            hbox.addWidget(no_events)
-            self.all_events_vbox.addLayout(hbox)
-            self.vbox_2.addWidget(self.all_events)
+            no_results = QLabel('No results match that query.')
+            no_results.setAlignment(Qt.AlignCenter)
+            no_results.setProperty('class', 'no-events-label')
+            hbox.addWidget(no_results)
+            self.results_vbox.addLayout(hbox)
+            self.hbox_screen.addWidget(self.results)
             return
         
         # master list to hold all events
@@ -229,16 +206,16 @@ class Homepage(QWidget):
                                                                   (int(event[2]) <= self.currentMonth))]
         master_events.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
         
-        # if there are no events yet
+        # if there are no search results for the user's query
         if len(master_events) == 0:
-            # inform the user that no events have been scheduled yet
+            # inform the user that no results were found
             hbox = QHBoxLayout()
-            no_events = QLabel('No upcoming events have been scheduled by the organization!')
+            no_events = QLabel('No results match that query.')
             no_events.setAlignment(Qt.AlignCenter)
             no_events.setProperty('class', 'no-events-label')
             hbox.addWidget(no_events)
-            self.all_events_vbox.addLayout(hbox)
-            self.vbox_2.addWidget(self.all_events)
+            self.results_vbox.addLayout(hbox)
+            self.hbox_screen.addWidget(self.results)
             return
         
         # fill in the upcoming events form
@@ -276,50 +253,16 @@ class Homepage(QWidget):
             spacer.setProperty('class', 'upcoming-label')
             hbox_2.addWidget(spacer)
             
-            self.all_events_vbox.addLayout(hbox)
-            self.all_events_vbox.addLayout(hbox_2)
+            self.results_vbox.addLayout(hbox)
+            self.results_vbox.addLayout(hbox_2)
         
         # add the scroll area to the VBox
-        self.vbox_2.addWidget(self.all_events)
+        self.hbox_screen.addWidget(self.results)
     
     # hides the previous items from view
-    def hide_previous(self, thing_to_hide):
-        # check which item to hide
-        if thing_to_hide == 1:
-            # hide the scrollbox
-            self.all_events.hide()
-        elif thing_to_hide == 2:
-            # hide the button
-            self.my_events_btn.hide()
-            
-            # recreate the my events button
-            self.my_events_btn = QPushButton("View My Events")
-            self.my_events_btn.clicked.connect(self.account_click)
-            self.my_events_btn.setProperty('class', 'special-bar-btn')
-            self.my_events_btn.setCursor(QCursor(Qt.PointingHandCursor))
-            
-            # recreate the center HBox
-            self.center_hbox = QHBoxLayout()
-            self.center_hbox.setAlignment(Qt.AlignCenter)
-            self.center_hbox.addWidget(self.my_events_btn)
-            self.vbox_2.addLayout(self.center_hbox)
-            
-            # check which type of user is logged in to determine what buttons will show up
-            self.check_user()
-    
-    # reads in all text from a passed .txt file and returns it as a string
-    def get_text(self, filename):
-        # if file exists else use the other one (handles path to the image)
-        if os.path.isfile('gui\\text\\{}'.format(filename)):
-            path = 'gui\\text\\{}'.format(filename)
-        else:
-            path = 'non_profit\\gui\\text\\{}'.format(filename)
-        
-        # open the file and read in all text
-        with open(path, 'r') as text_file:
-            text = text_file.read()
-        
-        return text
+    def hide_previous(self):
+        # hide the scrollbox
+        self.results.hide()
     
     # creates the layout for the bar of tabs at the top of the application
     def top_bar(self):
@@ -407,44 +350,54 @@ class Homepage(QWidget):
     
     # go to the homepage
     def home_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_HOME)
     
     # go to the calendar page
     def cal_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_CAL)
     
     # go to the about us page
     def about_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_ABOUT)
     
     # go to the contact us page
     def contact_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_CONTACT)
     
     # go to the help page
     def help_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_HELP)
     
     # go to the search page
     def search_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_SEARCH)
     
     # go to the account page
     def account_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_ACCOUNT)
     
     # return to the login signup screen
     def logout_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_LOGIN_SIGNUP)
         
         cs.CURRENT_USER = "Guest"
     
     # go to the login page
     def login_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_LOGIN)
     
     # go to the new account page
     def signup_click(self):
+        self.search_bar.clear()
         self.win.set_page(self.this_page, cs.PAGE_NEW_ACCOUNT)
     
     # draws shapes on the window
@@ -467,13 +420,7 @@ class Homepage(QWidget):
         painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
         
         # set the properties of the rectangle: (x-coord, y-coord, width, height)
-        painter.drawRect(0, 250, (sys_width // 2) - 5, 675)
-        
-        # set the color and pattern of the shape: (r, g, b, alpha)
-        painter.setBrush(QBrush(QColor(199, 205, 209, 255), Qt.SolidPattern))
-
-        # set the properties of the rectangle: (x-coord, y-coord, width, height)
-        painter.drawRect((sys_width // 2) + 5, 250, (sys_width // 2) - 5, 675)
+        painter.drawRect(0, 250, sys_width, 675)
     
     # resets the coordinates of the window after switching to this page
     def set_position(self):
@@ -491,22 +438,16 @@ class Homepage(QWidget):
             # hide the account and logout buttons
             self.account_btn.hide()
             self.logout_btn.hide()
-            
-            # hide the my events button
-            self.my_events_btn.hide()
         
         # if the current user is not a guest
         else:
             # hide the signup and login buttons
             self.signup_btn.hide()
             self.login_btn.hide()
-        
+            
             # show the account and logout buttons
             self.account_btn.show()
             self.logout_btn.show()
-            
-            # show the my events button
-            self.my_events_btn.show()
         
         # check if the current user is a volunteer
         if cs.CURRENT_USER == "Volunteer":

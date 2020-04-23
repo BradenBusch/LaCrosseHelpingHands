@@ -1,6 +1,8 @@
 '''
-Holds everything related to the login page.
-Accessibile by: Guest, Volunteer, Staff, Administrator
+Login page of the application, where users will enter their account information
+and be logged into the application.
+
+Accessibile by: Guest
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/21/2020
@@ -15,11 +17,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 try:
-    from non_profit.gui.login_signup import *
     from non_profit.models.database import *
     from non_profit import constants as cs
 except:
-    from gui.login_signup import *
     from models.database import *
     import constants as cs
 

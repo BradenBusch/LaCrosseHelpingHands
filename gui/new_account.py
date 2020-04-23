@@ -1,6 +1,8 @@
 '''
-Holds everything related to the new account page.
-Accessibile by: Guest, Volunteer, Staff, Administrator
+New Account page of the application, where users will register their new account
+with the organization.
+
+Accessibile by: Guest
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/21/2020
