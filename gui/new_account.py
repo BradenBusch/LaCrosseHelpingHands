@@ -38,12 +38,18 @@ class NewAccount(QWidget):
         
         # set up all fields to be filled in by the user
         self.username_edit = QLineEdit()
+        self.username_edit.setMaxLength(30)
         self.email_edit = QLineEdit()
+        self.email_edit.setMaxLength(30)
         self.password_edit = QLineEdit()
+        self.password_edit.setMaxLength(30)
         self.confirm_password_edit = QLineEdit()
+        self.confirm_password_edit.setMaxLength(30)
         self.staff_code_box = QLineEdit()
+        self.staff_code_box.setMaxLength(30)
         self.staff_code_box.hide()
         self.admin_code_box = QLineEdit()
+        self.admin_code_box.setMaxLength(30)
         self.admin_code_box.hide()
         self.radio_btns = []
         self.fields = [self.username_edit,

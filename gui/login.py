@@ -41,6 +41,7 @@ class Login(QWidget):
         
         # set up the username check
         self.username_check = QLineEdit()
+        self.username_check.setMaxLength(30)
         
         # set up the password label
         self.password_label = QLabel("Password ")
@@ -48,6 +49,7 @@ class Login(QWidget):
         
         # set up the password check
         self.password_check = QLineEdit()
+        self.password_check.setMaxLength(30)
         self.password_check.setEchoMode(QLineEdit.Password)
         
         # set up fields
