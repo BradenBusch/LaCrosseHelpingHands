@@ -8,7 +8,7 @@ Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/23/2020
 
 '''
-
+import os
 from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -128,7 +128,7 @@ class Privileges(QWidget):
         self.height = sys_height
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
     
-    # populate all users
+    # populate all users with information about each user
     def populate_all_users(self):
         # Build the scroll areas
         self.all_users_widget = QWidget()
@@ -143,13 +143,15 @@ class Privileges(QWidget):
         self.all_users.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         
         # TODO fill user scroll area with proper information
+        has_users = False
         try:
-            ids = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
+            users = User.select()
+            has_users = True
         except:
-            ids = "-1"
+            has_users = False
         
-        # if the user is not signed up for any events
-        if ids == '-1':
+        # there are no users of the system (this should never be true because an admin has to be looking at it)
+        if not has_users:
             hbox = QHBoxLayout()
             no_users = QLabel('There are no other registered users in the organization.')
             no_users.setAlignment(Qt.AlignCenter)
@@ -160,28 +162,24 @@ class Privileges(QWidget):
             return
         
         # holds user ids from database
-        user_ids = ids.split(' ')
+        # user_ids = ids.split(' ')
         
         # master list to hold all users
         master_users = []
         
         # build up all event data
-        for id in user_ids:
-            user = Event.get(Event.id == id)    # TODO change this to get all user ids in the organization
-            
+        for user in users:
             # retrieve all relevant information # TODO replace these event attributes with the user attributes instead
-            master_users.append([user.name,
-                                 user.location,
-                                 user.month,
-                                 user.day,
-                                 user.year,
-                                 user.start_date,
-                                 user.end_date,
-                                 id])
+            master_users.append([user.username,
+                                 user.account_email,
+                                 user.total_donations,
+                                 user.volunteer_hours,
+                                 user.user_id])
         
         # sort the users alphabetically by username
-        master_users.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
-        
+        # master_users.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
+        master_users.sort(key=lambda x: x[0])
+
         # if there are no events the user has signed up for
         if len(master_users) == 0:
             # inform the user that no events have been scheduled yet
@@ -218,7 +216,7 @@ class Privileges(QWidget):
             hours = QLabel('Volunteer Hours:')
             hours.setProperty('class', 'small-bold-label')
             hbox.addWidget(hours)
-            time = '%s' % (user[2])    # TODO pass correct index into user[x]
+            time = '%s' % (user[3])    # TODO pass correct index into user[x]
             t = QLabel(time)
             t.setProperty('class', 'small-tab-info')
             hbox.addWidget(t)
@@ -235,13 +233,14 @@ class Privileges(QWidget):
             # create the generate report button
             gen_rep_btn = QPushButton('Generate Report')
             gen_rep_btn.setProperty('class', 'normal-bar-btn')
-            gen_rep_btn.clicked.connect(partial(self.generate_single_user_report, user[7]))    # TODO pass correct index into user[x]
+            print(f'user[4] {user[4]}')
+            gen_rep_btn.clicked.connect(partial(self.generate_single_user_report, user[4]))    # TODO pass correct index into user[x]
             gen_rep_btn.setCursor(QCursor(Qt.PointingHandCursor))
             
             # create the delete user button
             delete_btn = QPushButton('Delete User')
             delete_btn.setProperty('class', 'red-bar-btn')
-            delete_btn.clicked.connect(partial(self.delete_user, user[7]))
+            delete_btn.clicked.connect(partial(self.delete_user, user[4]))
             delete_btn.setCursor(QCursor(Qt.PointingHandCursor))
             
             # add the buttons to the HBox
@@ -450,25 +449,67 @@ class Privileges(QWidget):
         pass
     
     # generates a report on a single user
-    def generate_single_user_report(self):
+    def generate_single_user_report(self, user_id):
         # TODO finish this: It should write a text file out to an output directory with user information
         #                   such as their username, email, total hours volunteered by the user, and total
         #                   money donated by the user.
-        pass
-    
+
+        user = User.get(User.user_id == user_id)
+        # TODO user info can now be found by using user.user_id or user.username or whatever field is needed
+
     # generates a report on all users
     def generate_all_users_report(self):
         # TODO finish this: It should write a text file out to an output directory with all user information
         #                   such as total hours volunteered by all users, total money donated by all users.
-        pass
-    
+
+        users = User.select()
+        for user in users:
+            # TODO you have access to each user here. So you can do user.username, user.account_email, etc.
+            pass
+
     # generates a report on organization and all events
     def generate_all_events_report(self):
         # TODO finish this: It should write a text file out to an output directory with all event information
         #                   such as total hours all events add up to, total donations to events, and total
         #                   donations to the organization
-        pass
-    
+        org = OrgEvent.get(OrgEvent.id == cs.ORG_ID)
+        print('ZIB')
+        # total org donations is just org.donations
+        try:
+            events = Event.select()
+        except Event.DoesNotExist:
+            events = None
+        # TODO write the org information to the file first, because there will always be org but there can be zero event
+        #  ->
+        if events is None:
+            return
+        # TODO write event information, you have the information for each event
+        total_event_hours = 0.0
+        total_event_donations = 0
+        for event in events:
+            total_event_donations += event.donations
+            total_event_hours += self.get_event_runtime(event)
+            print(f'event information: name {event.name} location {event.location} event')
+        print(f'total event hours {total_event_hours} total event donations {total_event_donations}')
+
+    # helper method to determine the length of an event
+    def get_event_runtime(self, event):
+        s_time = event.start_date
+        e_time = event.end_date
+        start = s_time.split(':')
+        end = e_time.split(':')
+        if start[1] == '30':
+            s_min = 0.5
+        else:
+            s_min = 0.0
+        if end[1] == '30':
+            e_min = 0.5
+        else:
+            e_min = 0.0
+        end_total = float(end[0]) + e_min
+        start_total = float(start[0]) + s_min
+        return end_total - start_total
+
     # creates the layout for the bar of tabs at the top of the application
     def top_bar(self):
         # set up the home button
