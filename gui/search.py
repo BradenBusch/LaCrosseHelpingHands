@@ -157,7 +157,7 @@ class Search(QWidget):
             self.hbox_screen.addWidget(self.results)
             return
         
-        # TODO populate search scroll area with results from search
+        # TODO populate search scroll area with results from search. Use LIKE to be able to find substrings
         
         # attempt to retrieve events from the database
         try:

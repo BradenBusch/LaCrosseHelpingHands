@@ -243,6 +243,7 @@ class Calendar(QWidget):
 			# No conflicting events, let user volunteer. Update the Event and User.
 			else:
 				new_volunteer_num = len(ids)
+				volunteer_ids += str(cs.CURRENT_USER_ID) + ' '
 				Event.update({Event.volunteers_attending: new_volunteer_num}).where(Event.id == event_id).execute()
 				Event.update(volunteers_ids=volunteer_ids).where(Event.id == event_id).execute()
 				if user_events == '-1':
@@ -567,7 +568,7 @@ class Calendar(QWidget):
 		
 		event_start = str(form_list[2].currentText()).split(':')[0]
 		event_end = str(form_list[3].currentText()).split(':')[0]
-		if int(event_end) <= int(event_start):
+		if int(event_end) < int(event_start):
 			msg = QMessageBox.warning(self, " ", " The event start time must be before its end time. ")
 			return
 		date = self.calendar.selectedDate()

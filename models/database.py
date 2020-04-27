@@ -22,6 +22,7 @@ class User(Model):
     event_ids = TextField()  # String of each users events they are attending
     volunteer_hours = FloatField()
     total_donations = IntegerField()
+    valid = BooleanField(default=True)
 
     class Meta:
         database = db

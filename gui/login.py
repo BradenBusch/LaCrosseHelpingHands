@@ -112,6 +112,7 @@ class Login(QWidget):
         # attempt to retrieve the user's information from the database
         try:
             username_check = User.get(User.username == entered_username).username
+            valid = User.get(User.username == entered_username).valid
         except User.DoesNotExist:
             msg = QMessageBox.warning(self, " ", " That Username does not exist. Please try again. ")
             self.username_check.clear()
@@ -121,7 +122,10 @@ class Login(QWidget):
         hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
         password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
         # ensure the user entered viable information
-        if len(entered_username) < 8 or len(entered_password) < 8:
+        if not valid:
+            msg = QMessageBox.warning(self, " ", " Your account is currently suspended.")
+            return
+        elif len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(self, " ", " Enter a Username and Password of valid length (8 characters or longer).")
             self.username_check.clear()
             self.password_check.clear()
@@ -133,8 +137,7 @@ class Login(QWidget):
         else:
             cs.CURRENT_USER = User.get(User.username == entered_username).account_type
             cs.CURRENT_USER_ID = User.get(User.username == entered_username).user_id
-            # print(cs.CURRENT_USER_ID)
-            # print(cs.CURRENT_USER)
+
             self.go_forward()
             return
     
