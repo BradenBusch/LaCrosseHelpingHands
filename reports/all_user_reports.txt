@@ -1,0 +1,2 @@
+User Id: 1  Username: BradenBusch  Email: Beepbeep  Account Type: Administrator  Volunteer Hours: 1.5  Donations: 5
+User Id: 2  Username: Volunteer  Email: Beepbeeeeep  Account Type: Volunteer  Volunteer Hours: 0.0  Donations: 0

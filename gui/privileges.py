@@ -499,39 +499,44 @@ class Privileges(QWidget):
 		user = User.get(User.user_id == user_id)
 		# TODO user info can now be found by using user.user_id or user.username or whatever field is needed
 
-	# generates a report on all users
+	# generates a report on all users. this will edit 'non_profit/reports/all_users/reports.txt'
 	def generate_all_users_report(self):
-		# TODO finish this: It should write a text file out to an output directory with all user information
-		#                   such as total hours volunteered by all users, total money donated by all users.
+		cur_path = os.path.dirname(__file__)
+		file_name = os.path.join(cur_path, '..\\reports\\all_user_reports.txt')
+		with open(file_name, 'w') as file:
+			users = User.select()
+			for user in users:
+				file.write('User Id: {}  Username: {}  Email: {}  Account Type: {}  Volunteer Hours: {}  Donations: {}\n'.format(
+					user.user_id, user.username, user.account_email, user.account_type, user.volunteer_hours,
+					user.total_donations))
+		file.close()
+		QMessageBox.about(self, " ", "A report was generated for all users.")
 
-		users = User.select()
-		for user in users:
-			# TODO you have access to each user here. So you can do user.username, user.account_email, etc.
-			pass
-
-	# generates a report on organization and all events
+	# generates a report on organization and all events. this will edit 'non_profit/reports/all_events_reports.txt'
 	def generate_all_events_report(self):
-		# TODO finish this: It should write a text file out to an output directory with all event information
-		#                   such as total hours all events add up to, total donations to events, and total
-		#                   donations to the organization
-		org = OrgEvent.get(OrgEvent.id == cs.ORG_ID)
-		# total org donations is just org.donations
-		try:
-			events = Event.select()
-		except Event.DoesNotExist:
-			events = None
-		# TODO write the org information to the file first, because there will always be org but there can be zero event
-		#  ->
-		if events is None:
-			return
-		# TODO write event information, you have the information for each event
-		total_event_hours = 0.0
-		total_event_donations = 0
-		for event in events:
-			total_event_donations += event.donations
-			total_event_hours += self.get_event_runtime(event)
-			print(f'event information: name {event.name} location {event.location} event')
-		print(f'total event hours {total_event_hours} total event donations {total_event_donations}')
+		cur_path = os.path.dirname(__file__)
+		file_name = os.path.join(cur_path, '..\\reports\\all_events_reports.txt')
+		with open(file_name, 'w') as file:
+			# There will always be an org, but there could be 0 events.
+			org = OrgEvent.get(OrgEvent.id == cs.ORG_ID)
+			try:
+				events = Event.select()
+			except Event.DoesNotExist:
+				events = None
+			file.write('Organization Name: {}  Organization Donations: {}\n'.format(org.name, org.donations))
+			total_event_hours = 0.0
+			total_event_donations = 0
+			for event in events:
+				file.write('Event Id: {}  Name: {}  Location: {}  Date: {}/{}/{}  Time: {}-{}  Volunteers: {}/{}  Donations: {}\n'.format(
+					event.id, event.name, event.location, event.month, event.day, event.year, event.start_date, event.end_date,
+					event.volunteers_attending, event.volunteers_needed, event.donations))
+				total_event_donations += event.donations
+				total_event_hours += self.get_event_runtime(event)
+			file.write('-----------------------------------------------------\n')
+			file.write('Total Event Hours: {} | Total Event Donations: {}\n'.format(total_event_hours, total_event_donations))
+			file.write('-----------------------------------------------------')
+			file.close()
+			QMessageBox.about(self, " ", "A report was generated for all events. ")
 
 	# helper method to determine the length of an event
 	def get_event_runtime(self, event):
