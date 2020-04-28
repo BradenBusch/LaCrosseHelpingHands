@@ -453,10 +453,10 @@ class Privileges(QWidget):
 	# update each user affected by deletion of an event, then delete the event
 	def update_all_volunteer_hours(self, volunteer_ids, event):
 		# No volunteers were signed up for this event, no need to do anything else but delete the event
-		if volunteer_ids == '-1':
+		if volunteer_ids[0] == '-1':
 			event.delete_instance()
 			QMessageBox.about(self, " ", "The event has been successfully deleted.")
-
+			return
 		del_id = event.get(Event.id == event.id).id
 		runtime = self.get_event_runtime(event)
 		# for each volunteer at the event

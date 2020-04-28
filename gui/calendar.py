@@ -25,9 +25,6 @@ except:
 	import constants as cs
 
 
-# TODO fix the following:
-#  -> Add functionality for Modify Event and Delete Event (lines 729 and 734)
-#  -> For both Modify Event and Delete Event, make use of the method I added on line 768
 class Calendar(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -288,13 +285,15 @@ class Calendar(QWidget):
 		
 		# set up the modify event button
 		self.modify_event_btn = QPushButton("Modify Event")
-		self.modify_event_btn.clicked.connect(partial(self.modify_event, event_id))
+		if event_id is not None:
+			self.modify_event_btn.clicked.connect(partial(self.modify_event, tab_layout, event_id))
 		self.modify_event_btn.setProperty('class', 'normal-bar-btn')
 		self.modify_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
 		# set up the delete event button
 		self.delete_event_btn = QPushButton("Delete Event")
-		self.delete_event_btn.clicked.connect(partial(self.delete_event, event_id))
+		if event_id is not None:
+			self.delete_event_btn.clicked.connect(partial(self.delete_event, tab_layout, event_id))
 		self.delete_event_btn.setProperty('class', 'normal-bar-btn')
 		self.delete_event_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
@@ -446,7 +445,7 @@ class Calendar(QWidget):
 		cancel_btn.setProperty('class', 'red-bar-btn')
 		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		confirm_btn = QPushButton("Confirm")
-		confirm_btn.clicked.connect(partial(self.verify_fields, form_list))
+		confirm_btn.clicked.connect(partial(self.verify_fields, form_list, None))
 		confirm_btn.setProperty('class', 'normal-bar-btn')
 		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
 		
@@ -554,7 +553,7 @@ class Calendar(QWidget):
 	
 	# [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
 	# Validate the input from 'Create Event' and store in the database if it is.
-	def verify_fields(self, form_list):
+	def verify_fields(self, form_list, event_id=None):
 		for i, field in enumerate(form_list):
 			if i == 2 or i == 3 or i == 4:
 				continue
@@ -577,8 +576,24 @@ class Calendar(QWidget):
 		year = date.year()
 		event_start_time = str(form_list[2].currentText())
 		event_end_time = str(form_list[3].currentText())
-		new_event = Event(day=day, month=month, year=year, start_date=event_start_time, end_date=event_end_time, name=form_list[0].text(), description=form_list[4].toPlainText(), location=form_list[1].text(), volunteers_needed=form_list[5].text(), volunteers_attending=0, volunteers_ids="-1", donations=0)
-		new_event.save()
+		# Update an Event
+		if event_id is not None:
+			old_event = Event.get(Event.id == event_id)
+			if old_event.volunteers_needed > int(form_list[5].text()):
+				QMessageBox.warning(self, " ", 'The new "volunteers needed" number must be equal to or greater than the old value. ')
+				return
+			old_event.name = form_list[0].text()
+			old_event.description = form_list[4].toPlainText()
+			old_event.location = form_list[1].text()
+			old_event.volunteers_needed = int(form_list[5].text())
+			old_event.start_date = event_start_time
+			old_event.end_date = event_end_time
+			old_event.save()
+			QMessageBox.about(self, " ", " You successfully updated this event. ")
+		# Create a new Event
+		else:
+			new_event = Event(day=day, month=month, year=year, start_date=event_start_time, end_date=event_end_time, name=form_list[0].text(), description=form_list[4].toPlainText(), location=form_list[1].text(), volunteers_needed=form_list[5].text(), volunteers_attending=0, volunteers_ids="-1", donations=0)
+			new_event.save()
 		self.draw_tab(self.tabs)
 	
 	# Build the tabs showing current events of the day
@@ -725,49 +740,152 @@ class Calendar(QWidget):
 		
 		self.draw_tab(self.tabs)
 	
-	# modify a volunteering event. This will upadte the User and Event tables.
-	def modify_event(self, event_id):
-		# TODO finish this
-		pass
-	
-	# delete a volunteering event. This will update the User and Event tables.
-	def delete_event(self, event_id):
-		# TODO this entire method needs to be changed
-		# remove the event from the user list
-		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
-		event_ids = user_events.split(' ')
-		event_ids.remove(str(event_id))
-		event_ids = ' '.join(event_ids)
-		
-		# Update users volunteer hours
-		s_time = Event.get(Event.id == event_id).start_date
-		e_time = Event.get(Event.id == event_id).end_date
-		self.update_all_volunteer_hours(s_time, e_time)
-		
-		# The user has no events left, so reset it to the value for no events
-		if event_ids == '':
-			event_ids = '-1'
-		
-		# Update the users new events. Remove the user from the event and decrement the volunteer count
-		User.update({User.event_ids: event_ids}).where(User.user_id == cs.CURRENT_USER_ID).execute()
-		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
-		volunteer_count = Event.get(Event.id == event_id).volunteers_attending
-		volunteer_count -= 1
-		# print(f'volunteers here {volunteer_ids} volunteer count {volunteer_count}')
-		# No volunteers, reset the id to -1
-		if volunteer_count == 0:
-			volunteer_ids = '-1'
-		
-		# Update the new volunteer count and volunteers
-		# print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
-		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()
-		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
-		QMessageBox.warning(self, " ", "The event has been successfully deleted.")
-	
-	# after an event is deleted or modified, update all volunteer hours
-	def update_all_volunteer_hours(self, start_time, end_time):
-		# TODO finish this
-		pass
+	# modify a volunteering event. This will update the User and Event tables.
+	def modify_event(self, tab_layout, event_id):
+		# Get events information
+		event = Event.get(Event.id == event_id)
+
+		for i in range(tab_layout.count()):
+			tab_layout.removeTab(0)
+		# Make the fields
+		event_name = QLineEdit()
+		event_location = QLineEdit()
+		event_start_time = QComboBox()
+		event_end_time = QComboBox()
+		event_description = QTextEdit()
+		event_volunteers_needed = QLineEdit()
+		event_volunteers_needed.setValidator(self.onlyInt)
+		for i in range(24):
+			if i < 10:
+				hour_time = '0' + str(i) + ':00'
+				half_hour_time = '0' + str(i) + ':30'
+			else:
+				hour_time = str(i) + ':00'
+				half_hour_time = str(i) + ':30'
+			event_start_time.addItem(hour_time)
+			event_start_time.addItem(half_hour_time)
+			event_end_time.addItem(hour_time)
+			event_end_time.addItem(half_hour_time)
+
+		# Set the fields to their current values in the database
+		event_name.setText(event.name)
+		event_location.setText(event.location)
+		start_index = event_start_time.findText(event.start_date, Qt.MatchFixedString)
+		end_index = event_end_time.findText(event.end_date, Qt.MatchFixedString)
+		if start_index >= 0 and end_index >= 0:
+			event_start_time.setCurrentIndex(start_index)
+			event_end_time.setCurrentIndex(end_index)
+		event_description.setText(event.description)
+		event_volunteers_needed.setText(str(event.volunteers_needed) + ' (the new value must be equal to or greater than the current value)')
+
+		# Build the buttons
+		form_list = [event_name, event_location, event_start_time, event_end_time, event_description, event_volunteers_needed]
+		cancel_btn = QPushButton("Cancel")
+		cancel_btn.clicked.connect(partial(self.draw_tab, tab_layout))
+		cancel_btn.setProperty('class', 'red-bar-btn')
+		cancel_btn.setCursor(QCursor(Qt.PointingHandCursor))
+		confirm_btn = QPushButton("Confirm")
+		confirm_btn.clicked.connect(partial(self.verify_fields, form_list, event_id))
+		confirm_btn.setProperty('class', 'normal-bar-btn')
+		confirm_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
+		# Build labels and add all widgets
+		name_hbox = QHBoxLayout()
+		name_hbox.addWidget(QLabel('Name:             '))
+		name_hbox.addWidget(event_name)
+		loc_hbox = QHBoxLayout()
+		loc_hbox.addWidget(QLabel('Location:          '))
+		loc_hbox.addWidget(event_location)
+		time_hbox = QHBoxLayout()
+		time_hbox.addWidget(QLabel('Event Start Time'))
+		time_hbox.addWidget(event_start_time)
+		time_hbox.addWidget(QLabel('Event End Time'))
+		time_hbox.addWidget(event_end_time)
+		vol_hbox = QHBoxLayout()
+		vol_hbox.addWidget(QLabel('Needed Volunteers: '))
+		vol_hbox.addWidget(event_volunteers_needed)
+
+		vbox = QVBoxLayout()
+		vbox.addLayout(name_hbox)
+		vbox.addLayout(loc_hbox)
+		vbox.addLayout(time_hbox)
+		vbox.addWidget(QLabel("Description:"))
+		vbox.addWidget(event_description)
+		vbox.addLayout(vol_hbox)
+		btn_hbox = QHBoxLayout()
+		btn_hbox.addWidget(cancel_btn)
+		btn_hbox.addWidget(confirm_btn)
+		vbox.addLayout(btn_hbox)
+
+		form = QWidget()
+		form.setLayout(vbox)
+		tab_layout.addTab(form, "Event Modification")
+
+	# helper method to determine the length of an event
+	def get_event_runtime(self, event):
+		s_time = event.start_date
+		e_time = event.end_date
+		start = s_time.split(':')
+		end = e_time.split(':')
+		if start[1] == '30':
+			s_min = 0.5
+		else:
+			s_min = 0.0
+		if end[1] == '30':
+			e_min = 0.5
+		else:
+			e_min = 0.0
+		end_total = float(end[0]) + e_min
+		start_total = float(start[0]) + s_min
+		return end_total - start_total
+
+	# hard delete a volunteering event. this will delete the event and update the users attached
+	def delete_event(self, tab_layout, event_id):
+		del_event = Event.get(Event.id == event_id)
+		volunteer_ids = del_event.volunteers_ids
+		volunteer_ids = volunteer_ids.split(' ')
+		# This method will do the actual deleting
+		self.update_all_volunteer_hours(volunteer_ids, del_event)
+		# Redraw tabs
+		self.draw_tab(tab_layout)
+
+	# update each user affected by deletion of an event, then delete the event
+	def update_all_volunteer_hours(self, volunteer_ids, event):
+		# No volunteers were signed up for this event, no need to do anything else but delete the event
+		if volunteer_ids[0] == '-1':
+			event.delete_instance()
+			QMessageBox.about(self, " ", "The event has been successfully deleted.")
+			return
+		del_id = event.get(Event.id == event.id).id
+		runtime = self.get_event_runtime(event)
+		# for each volunteer at the event
+		for uid in volunteer_ids:
+			if uid == '':
+				break
+			uid = int(uid)
+			# Get information that needs updating about each user
+			user = User.get(User.user_id == uid)
+			user_events = user.event_ids
+			user_vol_time = user.volunteer_hours
+
+			# remove the event from the users
+			u_event_ids = user_events.split(' ')
+			u_event_ids.remove(str(del_id))
+			u_event_ids = ' '.join(u_event_ids)
+
+			# update the users time
+			user_vol_time -= runtime
+
+			# reset the users events to none if they are no longer signed up for any events
+			if u_event_ids == '':
+				u_event_ids = '-1'
+			# Update the User
+			User.update({User.event_ids: u_event_ids}).where(User.user_id == uid).execute()
+			User.update({User.volunteer_hours: user_vol_time}).where(User.user_id == uid).execute()
+
+		# Delete the event and let the user know
+		event.delete_instance()
+		QMessageBox.about(self, " ", "The event has been successfully deleted.")
 	
 	# creates the layout for the bar of tabs at the top of the application
 	def top_bar(self):
