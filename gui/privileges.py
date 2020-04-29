@@ -237,18 +237,19 @@ class Privileges(QWidget):
 			hbox.addWidget(gen_rep_btn)
 
 			# either create the delete user or enable user button, depending on if the user is valid
-			if user[5] is True:
-				delete_btn = QPushButton('Delete User')
-				delete_btn.setProperty('class', 'red-bar-btn')
-				delete_btn.clicked.connect(partial(self.delete_user, user[4]))
-				delete_btn.setCursor(QCursor(Qt.PointingHandCursor))
-				hbox.addWidget(delete_btn)
-			else:
-				enable_btn = QPushButton('Enable User')
-				enable_btn.setProperty('class', 'red-bar-btn')
-				enable_btn.clicked.connect(partial(self.enable_user, user[4]))
-				enable_btn.setCursor(QCursor(Qt.PointingHandCursor))
-				hbox.addWidget(enable_btn)
+			if user[4] != cs.ROOT_ADMIN_ID:
+				if user[5] is True:
+					delete_btn = QPushButton('Delete User')
+					delete_btn.setProperty('class', 'red-bar-btn')
+					delete_btn.clicked.connect(partial(self.delete_user, user[4]))
+					delete_btn.setCursor(QCursor(Qt.PointingHandCursor))
+					hbox.addWidget(delete_btn)
+				else:
+					enable_btn = QPushButton('Enable User')
+					enable_btn.setProperty('class', 'red-bar-btn')
+					enable_btn.clicked.connect(partial(self.enable_user, user[4]))
+					enable_btn.setCursor(QCursor(Qt.PointingHandCursor))
+					hbox.addWidget(enable_btn)
 
 			# set up the layouts
 			hbox_2 = QHBoxLayout()

@@ -17,6 +17,9 @@ CURRENT_USER_ID = -1   # indicates the user_id of the logged in user for databas
 STAFF_CODE = "STAFF"    # holds the code given to Guests who sign up to become a Staff member
 ADMIN_CODE = "ADMIN"    # holds the code given to Guests who sign up to become an Administrator
 ORG_ID = 1    # holds the organization's "event ID" so that donations can be made to it
+ROOT_ADMIN_ID = 1  # holds the root admin id
+ROOT_ADMIN_USERNAME = "SuperAdmin"
+ROOT_ADMIN_PASSWORD = "SuperAdmin"
 
 # page identification
 PAGE_LOGIN_SIGNUP = 0

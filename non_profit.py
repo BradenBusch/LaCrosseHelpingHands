@@ -51,17 +51,25 @@ class NonProfit():
         
         # delete all data from the database
         # db.drop_tables([User, Event, OrgEvent])
-        
+
         # create the tables within the database
         db.create_tables([User, Event, OrgEvent])
-        
+
         # create the La Crosse Helping Hands "event" if it doesn't already exist
         try:
             org = OrgEvent.get(OrgEvent.id == cs.ORG_ID)
-        except:
+        except OrgEvent.DoesNotExist:
             org = OrgEvent(name="La Crosse Helping Hands", donations=0)
             org.save()
-        # print(f'org id {org.id}')
+        try:
+            root_admin = User.get(User.user_id == cs.ROOT_ADMIN_ID)
+        except User.DoesNotExist:
+            root_admin_pass = hash_password(cs.ROOT_ADMIN_PASSWORD)
+            root_admin = User(
+                 username=cs.ROOT_ADMIN_USERNAME, password=root_admin_pass, account_email="", account_type="Administrator",
+                 event_ids="-1", volunteer_hours=0.0, total_donations=0
+            )
+            root_admin.save()
         
         # create the pages for the application within the WindowManager
         self.current_window = WindowManager([LogInSignUp(),

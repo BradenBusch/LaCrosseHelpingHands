@@ -48,16 +48,7 @@ class Event(Model):
         database = db
 
 
-class EventAttendance(Model):
-    event_id = ForeignKeyField(Event)
-    user_id = ForeignKeyField(User)
-    # event_id = IntegerField()
-    # account_id = IntegerField()
-
-    class Meta:
-        database = db
-
-
+# Holds information about the organization itself
 class OrgEvent(Model):
     id = AutoField()
     name = CharField()

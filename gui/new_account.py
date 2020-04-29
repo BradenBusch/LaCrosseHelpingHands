@@ -214,7 +214,7 @@ class NewAccount(QWidget):
         # return to the login page, all checks passed
         else:
             QMessageBox.about(self, " ", " Account creation successful!")
-            stored_password = self.hash_password(password)
+            stored_password = hash_password(password)
             account_type = self.get_account_type()
             self.store_user(username, email, stored_password, account_type)
             self.go_back_success()
@@ -229,14 +229,6 @@ class NewAccount(QWidget):
     def store_user(self, username, email, password, account_type=None):
         new_user = User(username=username, password=password, account_email=email, account_type=account_type, event_ids='-1', volunteer_hours=0.0, total_donations=0)
         new_user.save()
-    
-    # hash the user's password
-    def hash_password(self, password):
-        salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-        pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
-                                      salt, 100000)
-        pwdhash = binascii.hexlify(pwdhash)
-        return (salt + pwdhash).decode('ascii')
     
     # go back to the previous page
     def go_back(self):
@@ -314,3 +306,12 @@ class NewAccount(QWidget):
         geometry = QDesktopWidget().screenGeometry(0)
         
         return geometry.width(), geometry.height()
+
+
+# hash the user's password
+def hash_password(password):
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
+                                    salt, 100000)
+    pwdhash = binascii.hexlify(pwdhash)
+    return (salt + pwdhash).decode('ascii')
