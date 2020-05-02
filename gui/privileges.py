@@ -232,7 +232,7 @@ class Privileges(QWidget):
 			# create the generate report button
 			gen_rep_btn = QPushButton('Generate Report')
 			gen_rep_btn.setProperty('class', 'normal-bar-btn')
-			gen_rep_btn.clicked.connect(partial(self.generate_single_user_report, user[4]))    # TODO pass correct index into user[x]
+			gen_rep_btn.clicked.connect(partial(self.generate_single_user_report, user[4]))
 			gen_rep_btn.setCursor(QCursor(Qt.PointingHandCursor))
 			hbox.addWidget(gen_rep_btn)
 
@@ -493,12 +493,16 @@ class Privileges(QWidget):
 
 	# generates a report on a single user
 	def generate_single_user_report(self, user_id):
-		# TODO finish this: It should write a text file out to an output directory with user information
-		#                   such as their username, email, total hours volunteered by the user, and total
-		#                   money donated by the user.
-
 		user = User.get(User.user_id == user_id)
-		# TODO user info can now be found by using user.user_id or user.username or whatever field is needed
+		cur_path = os.path.dirname(__file__)
+		file_name = os.path.join(cur_path, '..\\reports\\user_reports\\user_report_for_' + user.username + '.txt')
+		with open(file_name, 'w') as file:
+			file.write(f'Generated report for user: {user.username}\n')
+			file.write('User Id: {}  Username: {}  Email: {}  Account Type: {}  Volunteer Hours: {}  Donations: {}\n'.format(
+					user.user_id, user.username, user.account_email, user.account_type, user.volunteer_hours,
+					user.total_donations))
+		file.close()
+		QMessageBox.about(self, " ", f'A report was generated for {user.username}')
 
 	# generates a report on all users. this will edit 'non_profit/reports/all_users/reports.txt'
 	def generate_all_users_report(self):
@@ -506,6 +510,7 @@ class Privileges(QWidget):
 		file_name = os.path.join(cur_path, '..\\reports\\all_user_reports.txt')
 		with open(file_name, 'w') as file:
 			users = User.select()
+			file.write('Generated report for all users.\n')
 			for user in users:
 				file.write('User Id: {}  Username: {}  Email: {}  Account Type: {}  Volunteer Hours: {}  Donations: {}\n'.format(
 					user.user_id, user.username, user.account_email, user.account_type, user.volunteer_hours,
@@ -527,6 +532,7 @@ class Privileges(QWidget):
 			file.write('Organization Name: {}  Organization Donations: {}\n'.format(org.name, org.donations))
 			total_event_hours = 0.0
 			total_event_donations = 0
+			file.write('Report generated for all events.\n')
 			for event in events:
 				file.write('Event Id: {}  Name: {}  Location: {}  Date: {}/{}/{}  Time: {}-{}  Volunteers: {}/{}  Donations: {}\n'.format(
 					event.id, event.name, event.location, event.month, event.day, event.year, event.start_date, event.end_date,

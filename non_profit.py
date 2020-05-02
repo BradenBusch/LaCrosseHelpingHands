@@ -70,7 +70,7 @@ class NonProfit():
                  event_ids="-1", volunteer_hours=0.0, total_donations=0
             )
             root_admin.save()
-        
+
         # create the pages for the application within the WindowManager
         self.current_window = WindowManager([LogInSignUp(),
                                              Login(),
