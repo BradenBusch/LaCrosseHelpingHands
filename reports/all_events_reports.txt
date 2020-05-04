@@ -1,5 +1,0 @@
-Organization Name: La Crosse Helping Hands  Organization Donations: 0
-Event Id: 1  Name: fff  Location: 3  Date: 4/30/2020  Time: 00:00-01:30  Volunteers: 1/3  Donations: 5
------------------------------------------------------
-Total Event Hours: 1.5 | Total Event Donations: 5
------------------------------------------------------

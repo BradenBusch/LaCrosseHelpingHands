@@ -23,8 +23,6 @@ except:
 	import constants as cs
 
 
-# TODO fix the following:
-#  -> Complete all marked areas
 class Privileges(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -141,14 +139,25 @@ class Privileges(QWidget):
 		sys_width, sys_height = self.screen_resolution()
 		self.all_users.setFixedWidth((sys_width // 2) - 35)
 		self.all_users.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
+		
+		# ensures when the application starts that the current username is set to Guest
+		if not cs.CURRENT_USER == "Guest":
+			# retrieve user from the database
+			myself = User.get(User.user_id == cs.CURRENT_USER_ID)
+			
+			# set the username
+			myself_username = "{}".format(myself.username)
+		else:
+			myself_username = "Guest"
+		
 		has_users = False
 		try:
 			users = User.select()
 			has_users = True
 		except:
+			users = []
 			has_users = False
-
+		
 		# there are no users of the system (this should never be true because an admin has to be looking at it)
 		if not has_users:
 			hbox = QHBoxLayout()
@@ -159,26 +168,26 @@ class Privileges(QWidget):
 			self.all_users_vbox.addLayout(hbox)
 			self.vbox_1.addWidget(self.all_users)
 			return
-
+		
 		# holds user ids from database
 		# user_ids = ids.split(' ')
-
+		
 		# master list to hold all users
 		master_users = []
-
-		# build up all event data
+		
+		# build up all user data
 		for user in users:
-			# retrieve all relevant information # TODO replace these event attributes with the user attributes instead
+			# retrieve all relevant information
 			master_users.append([user.username,
 								 user.account_email,
 								 user.total_donations,
 								 user.volunteer_hours,
 								 user.user_id,
 			                     user.valid])
-
+		
 		# sort the users alphabetically by username
-		# master_users.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
 		master_users.sort(key=lambda x: x[0])
+		
 		# if there are no events the user has signed up for
 		if len(master_users) == 0:
 			# inform the user that no events have been scheduled yet
@@ -221,7 +230,7 @@ class Privileges(QWidget):
 			hbox.addWidget(t)
 
 			# fill in the user's total donations
-			money = QLabel('Total Donations:')
+			money = QLabel('Total Donations: $')
 			money.setProperty('class', 'small-bold-label')
 			hbox.addWidget(money)
 			amount = '%s' % (user[2])
@@ -231,35 +240,46 @@ class Privileges(QWidget):
 
 			# create the generate report button
 			gen_rep_btn = QPushButton('Generate Report')
-			gen_rep_btn.setProperty('class', 'normal-bar-btn')
+			gen_rep_btn.setProperty('class', 'small-normal-bar-btn')
 			gen_rep_btn.clicked.connect(partial(self.generate_single_user_report, user[4]))
 			gen_rep_btn.setCursor(QCursor(Qt.PointingHandCursor))
 			hbox.addWidget(gen_rep_btn)
-
-			# either create the delete user or enable user button, depending on if the user is valid
-			if user[4] != cs.ROOT_ADMIN_ID:
+			
+			# create the delete user button
+			delete_btn = QPushButton('Delete User')
+			delete_btn.setProperty('class', 'small-red-bar-btn')
+			delete_btn.clicked.connect(partial(self.delete_user, user[4]))
+			delete_btn.setCursor(QCursor(Qt.PointingHandCursor))
+			hbox.addWidget(delete_btn)
+			
+			# create the enable user button
+			enable_btn = QPushButton('Enable User')
+			enable_btn.setProperty('class', 'small-red-bar-btn')
+			enable_btn.clicked.connect(partial(self.enable_user, user[4]))
+			enable_btn.setCursor(QCursor(Qt.PointingHandCursor))
+			hbox.addWidget(enable_btn)
+			
+			# either hide/show the delete user or enable user button, depending on if the user is valid
+			if user[4] != cs.ROOT_ADMIN_ID and user[0] != myself_username:
 				if user[5] is True:
-					delete_btn = QPushButton('Delete User')
-					delete_btn.setProperty('class', 'red-bar-btn')
-					delete_btn.clicked.connect(partial(self.delete_user, user[4]))
-					delete_btn.setCursor(QCursor(Qt.PointingHandCursor))
-					hbox.addWidget(delete_btn)
+					enable_btn.hide()
+					delete_btn.show()
 				else:
-					enable_btn = QPushButton('Enable User')
-					enable_btn.setProperty('class', 'red-bar-btn')
-					enable_btn.clicked.connect(partial(self.enable_user, user[4]))
-					enable_btn.setCursor(QCursor(Qt.PointingHandCursor))
-					hbox.addWidget(enable_btn)
-
+					delete_btn.hide()
+					enable_btn.show()
+			else:
+				delete_btn.hide()
+				enable_btn.hide()
+			
 			# set up the layouts
 			hbox_2 = QHBoxLayout()
 			spacer = QLabel("")
 			spacer.setProperty('class', 'upcoming-label')
 			hbox_2.addWidget(spacer)
-
+			
 			self.all_users_vbox.addLayout(hbox)
 			self.all_users_vbox.addLayout(hbox_2)
-
+		
 		# add the scroll area to the VBox
 		self.vbox_1.addWidget(self.all_users)
 
@@ -282,8 +302,9 @@ class Privileges(QWidget):
 			events = Event.select()
 			is_events = True
 		except:
+			events = []
 			is_events = False
-
+		
 		# if the user is not signed up for any events
 		if not is_events:
 			hbox = QHBoxLayout()
@@ -300,7 +321,7 @@ class Privileges(QWidget):
 		master_events = []
 		# build up all event data
 		for event in events:
-			print(f'event volunteers {event.volunteers_attending} ')
+			# print(f'event volunteers {event.volunteers_attending} ')
 			# retrieve all relevant information
 			master_events.append([event.name,
 								  event.location,
@@ -315,7 +336,10 @@ class Privileges(QWidget):
 		self.currentMonth = datetime.now().month
 		self.currentYear = datetime.now().year
 		self.currentDay = datetime.now().day
-
+		self.currentHour = datetime.now().hour
+		self.currentMinute = datetime.now().minute
+		self.currentSecond = datetime.now().second
+		
 		# filter out events that have already passed and sort the events by date
 		master_events = [event for event in master_events if not int(event[4]) < self.currentYear]
 		master_events = [event for event in master_events if not ((int(event[2]) < self.currentMonth) and
@@ -323,7 +347,7 @@ class Privileges(QWidget):
 		master_events = [event for event in master_events if not ((int(event[3]) < self.currentDay) and
 																  (int(event[2]) <= self.currentMonth))]
 		master_events.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
-		print(f'master events {master_events}')
+		# print(f'master events {master_events}')
 		# if there are no events the user has signed up for
 		if len(master_events) == 0:
 			# inform the user that no events have been scheduled yet
@@ -367,7 +391,7 @@ class Privileges(QWidget):
 
 			# create the cancel event button
 			delete_btn = QPushButton('Delete Event')
-			delete_btn.setProperty('class', 'red-bar-btn')
+			delete_btn.setProperty('class', 'small-red-bar-btn')
 			delete_btn.clicked.connect(partial(self.delete_event, event[7]))
 			delete_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -395,20 +419,25 @@ class Privileges(QWidget):
 	# re-enable a user. this will allow them to sign in again.
 	def enable_user(self, user_id):
 		User.update({User.valid: True}).where(User.user_id == user_id).execute()
+		QMessageBox.about(self, " ", "The user's account has been successfully enabled.")
 		self.hide_previous()
 		self.populate_all_users()
 		self.populate_all_events()
-
-	# soft delete a user. this will update the User and Event tables.
+	
+	# soft delete a user, this will update the User and Event tables
 	def delete_user(self, user_id):
 		User.update({User.valid: False}).where(User.user_id == user_id).execute()
 		user = User.get(User.user_id == user_id)
 		user_events = user.event_ids
-
+		
 		# User wasn't volunteering for any events
 		if user_events == '-1':
-			QMessageBox.about(self, " ", " The users account has been successfully suspended.")
+			QMessageBox.warning(self, " ", " The user's account has been successfully suspended.")
+			self.hide_previous()  # empty users and events
+			self.populate_all_users()  # repopulate users
+			self.populate_all_events()  # repopulate events
 			return
+		
 		user_events = user_events.split(' ')
 		# for each user event
 		for uev in user_events:
@@ -434,11 +463,11 @@ class Privileges(QWidget):
 		# Reset the users events to none and warn the admin the account has been suspended
 		User.update({User.event_ids: '-1'}).where(User.user_id == user_id).execute()
 		User.update({User.volunteer_hours: 0.0}).where(User.user_id == user_id).execute()
-		QMessageBox.warning(self, " ", "The users account has been successfully suspended.")
+		QMessageBox.warning(self, " ", "The user's account has been successfully suspended.")
 		self.hide_previous()         # empty users and events
 		self.populate_all_users()    # repopulate users
 		self.populate_all_events()   # repopulate events
-
+	
 	# hard delete a volunteering event. this will delete the event and update the users attached
 	def delete_event(self, event_id):
 		del_event = Event.get(Event.id == event_id)
@@ -493,55 +522,156 @@ class Privileges(QWidget):
 
 	# generates a report on a single user
 	def generate_single_user_report(self, user_id):
+		# set the current date and time
+		self.currentMonth = datetime.now().month
+		self.currentMonth = "{:02d}".format(self.currentMonth)
+		self.currentYear = datetime.now().year
+		self.currentDay = datetime.now().day
+		self.currentDay = "{:02d}".format(self.currentDay)
+		self.currentHour = datetime.now().strftime("%H")
+		self.currentMinute = datetime.now().strftime("%M")
+		self.currentSecond = datetime.now().strftime("%S")
+		
 		user = User.get(User.user_id == user_id)
+		
 		cur_path = os.path.dirname(__file__)
-		file_name = os.path.join(cur_path, '..\\reports\\user_reports\\user_report_for_' + user.username + '.txt')
+		
+		# tracks report number
+		counter = 1
+		
+		file_name = os.path.join(cur_path, '..\\reports\\user_report_{}_for_{}.txt'.format(counter, user.username))
+		
+		# allow for the generation of multiple reports
+		while (os.path.exists(file_name)):
+			counter += 1
+			file_name = os.path.join(cur_path, '..\\reports\\user_report_{}_for_{}.txt'.format(counter, user.username))
+		
 		with open(file_name, 'w') as file:
-			file.write(f'Generated report for user: {user.username}\n')
-			file.write('User Id: {}  Username: {}  Email: {}  Account Type: {}  Volunteer Hours: {}  Donations: {}\n'.format(
-					user.user_id, user.username, user.account_email, user.account_type, user.volunteer_hours,
-					user.total_donations))
+			file.write('Report {} for user: {}\n'.format(counter, user.username))
+			file.write('___________________________________________________________\n\n')
+			file.write(('User Id: {:>3}    Username: {:>25}    Email: {:>25}    ' +
+					   'Account Type: {:>14}    Volunteer Hours: {:>5}    Donations: ${:>6}\n').format(user.user_id,
+																						 			   user.username,
+																						 			   user.account_email,
+																						 			   user.account_type,
+																									   user.volunteer_hours,
+																									   user.total_donations))
+			file.write('\n\n___________________________________________________________\n')
+			file.write('This report was generated on {}/{}/{} at {}:{}:{}\n'.format(self.currentMonth,
+																						self.currentDay,
+																						self.currentYear,
+																						self.currentHour,
+																						self.currentMinute,
+																						self.currentSecond))
 		file.close()
-		QMessageBox.about(self, " ", f'A report was generated for {user.username}')
-
+		QMessageBox.about(self, " ", 'A report was generated for {}'.format(user.username))
+	
 	# generates a report on all users. this will edit 'non_profit/reports/all_users/reports.txt'
 	def generate_all_users_report(self):
+		# set the current date and time
+		self.currentMonth = datetime.now().month
+		self.currentMonth = "{:02d}".format(self.currentMonth)
+		self.currentYear = datetime.now().year
+		self.currentDay = datetime.now().day
+		self.currentDay = "{:02d}".format(self.currentDay)
+		self.currentHour = datetime.now().strftime("%H")
+		self.currentMinute = datetime.now().strftime("%M")
+		self.currentSecond = datetime.now().strftime("%S")
+		
 		cur_path = os.path.dirname(__file__)
-		file_name = os.path.join(cur_path, '..\\reports\\all_user_reports.txt')
+		
+		# tracks report number
+		counter = 1
+		
+		file_name = os.path.join(cur_path, '..\\reports\\all_users_report_{}.txt'.format(counter))
+		
+		# allow for the generation of multiple reports
+		while (os.path.exists(file_name)):
+			counter += 1
+			file_name = os.path.join(cur_path, '..\\reports\\all_users_report_{}.txt'.format(counter))
+		
 		with open(file_name, 'w') as file:
 			users = User.select()
-			file.write('Generated report for all users.\n')
+			file.write('Report {} for all users:\n'.format(counter))
+			file.write('___________________________________________________________\n\n')
 			for user in users:
-				file.write('User Id: {}  Username: {}  Email: {}  Account Type: {}  Volunteer Hours: {}  Donations: {}\n'.format(
-					user.user_id, user.username, user.account_email, user.account_type, user.volunteer_hours,
-					user.total_donations))
+				file.write(('User Id: {:>3}    Username: {:>25}    Email: {:>25}    ' +
+					        'Account Type: {:>14}    Volunteer Hours: {:>5}    Donations: ${:>6}\n').format(user.user_id,
+																								   user.username,
+																								   user.account_email,
+																								   user.account_type,
+																								   user.volunteer_hours,
+																								   user.total_donations))
+			file.write('\n\n___________________________________________________________\n')
+			file.write('This report was generated on {}/{}/{} at {}:{}:{}\n'.format(self.currentMonth,
+																					self.currentDay,
+																					self.currentYear,
+																					self.currentHour,
+																					self.currentMinute,
+																					self.currentSecond))
+		
 		file.close()
 		QMessageBox.about(self, " ", "A report was generated for all users.")
 
 	# generates a report on organization and all events. this will edit 'non_profit/reports/all_events_reports.txt'
 	def generate_all_events_report(self):
+		# set the current date and time
+		self.currentMonth = datetime.now().month
+		self.currentMonth = "{:02d}".format(self.currentMonth)
+		self.currentYear = datetime.now().year
+		self.currentDay = datetime.now().day
+		self.currentDay = "{:02d}".format(self.currentDay)
+		self.currentHour = datetime.now().strftime("%H")
+		self.currentMinute = datetime.now().strftime("%M")
+		self.currentSecond = datetime.now().strftime("%S")
+		
 		cur_path = os.path.dirname(__file__)
-		file_name = os.path.join(cur_path, '..\\reports\\all_events_reports.txt')
+		
+		# tracks report number
+		counter = 1
+		
+		file_name = os.path.join(cur_path, '..\\reports\\all_events_report_{}.txt'.format(counter))
+		
+		# allow for the generation of multiple reports
+		while (os.path.exists(file_name)):
+			counter += 1
+			file_name = os.path.join(cur_path, '..\\reports\\all_events_report_{}.txt'.format(counter))
+		
 		with open(file_name, 'w') as file:
 			# There will always be an org, but there could be 0 events.
 			org = OrgEvent.get(OrgEvent.id == cs.ORG_ID)
 			try:
 				events = Event.select()
 			except Event.DoesNotExist:
-				events = None
-			file.write('Organization Name: {}  Organization Donations: {}\n'.format(org.name, org.donations))
+				events = []
+			file.write('Organization Name: {}    Total Organization Donations: ${}\n\n'.format(org.name, org.donations))
 			total_event_hours = 0.0
 			total_event_donations = 0
-			file.write('Report generated for all events.\n')
+			file.write('Report {} for all events:\n'.format(counter))
+			file.write('___________________________________________________________\n\n')
 			for event in events:
-				file.write('Event Id: {}  Name: {}  Location: {}  Date: {}/{}/{}  Time: {}-{}  Volunteers: {}/{}  Donations: {}\n'.format(
-					event.id, event.name, event.location, event.month, event.day, event.year, event.start_date, event.end_date,
-					event.volunteers_attending, event.volunteers_needed, event.donations))
+				file.write(('Event Id: {:>3}    Name: {:>25}    Location: {:>25}    Date: {:>2}/{:>2}/{:>2}    ' +
+						   'Time: {:>2}-{:>2}    Volunteers: {:>3}  /{:>3}    Donations: ${:>6}\n').format(event.id, event.name,
+																						event.location, event.month,
+																						event.day, event.year,
+																						event.start_date,
+																						event.end_date,
+																						event.volunteers_attending,
+																						event.volunteers_needed,
+																						event.donations))
 				total_event_donations += event.donations
 				total_event_hours += self.get_event_runtime(event)
-			file.write('-----------------------------------------------------\n')
-			file.write('Total Event Hours: {} | Total Event Donations: {}\n'.format(total_event_hours, total_event_donations))
+			file.write('\n-----------------------------------------------------\n')
+			file.write('Total Event Hours: {:>4} | Total Event Donations: {:>4}\n'.format(total_event_hours,
+																					      total_event_donations))
 			file.write('-----------------------------------------------------')
+			file.write('\n\n___________________________________________________________\n')
+			file.write('This report was generated on {}/{}/{} at {}:{}:{}\n'.format(self.currentMonth,
+																					self.currentDay,
+																					self.currentYear,
+																					self.currentHour,
+																					self.currentMinute,
+																					self.currentSecond))
 			file.close()
 			QMessageBox.about(self, " ", "A report was generated for all events. ")
 

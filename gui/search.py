@@ -21,8 +21,7 @@ except:
     from models.database import *
     import constants as cs
 
-# TODO fix the following:
-#  -> Populate scroll box with correct results when a user makes a search
+
 class Search(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -157,25 +156,11 @@ class Search(QWidget):
             self.hbox_screen.addWidget(self.results)
             return
         
-        # TODO populate search scroll area with results from search. Use LIKE to be able to find substrings
-        
         # attempt to retrieve events from the database
         try:
             events = Event.select()
-        except Event.DoesNotExist:
-            return
-        
-        # if there are no search results for the user's query
-        if len(events) == 0:
-            # inform the user that no results were found
-            hbox = QHBoxLayout()
-            no_results = QLabel('No results match that query.')
-            no_results.setAlignment(Qt.AlignCenter)
-            no_results.setProperty('class', 'no-events-label')
-            hbox.addWidget(no_results)
-            self.results_vbox.addLayout(hbox)
-            self.hbox_screen.addWidget(self.results)
-            return
+        except:
+            events = []
         
         # master list to hold all events
         master_events = []
@@ -206,21 +191,57 @@ class Search(QWidget):
                                                                   (int(event[2]) <= self.currentMonth))]
         master_events.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
         
+        # filter out all events that do not match the search query
+        master_events = [event for event in master_events if ((query in event[0]) or (query in event[1]))]
+        
+        # attempt to retrieve users from the database
+        try:
+            users = User.select()
+        except:
+            users = []
+        
+        # master list to hold all users
+        master_users = []
+        
+        # build up all user data
+        for user in users:
+            # retrieve all relevant information
+            master_users.append([user.username,
+                                 user.account_email,
+                                 user.total_donations,
+                                 user.volunteer_hours,
+                                 user.user_id,
+                                 user.valid,
+                                 user.account_type])
+        
+        # sort the users alphabetically by username
+        master_users.sort(key=lambda x: x[0])
+        
+        # filter out all users that do not match the search query
+        master_users = [user for user in master_users if ((query in user[0]) or
+                                                          (query in user[1]) or
+                                                          (query in user[6]))]
+        
         # if there are no search results for the user's query
-        if len(master_events) == 0:
+        if len(master_events) == 0 and len(master_users) == 0:
             # inform the user that no results were found
             hbox = QHBoxLayout()
-            no_events = QLabel('No results match that query.')
-            no_events.setAlignment(Qt.AlignCenter)
-            no_events.setProperty('class', 'no-events-label')
-            hbox.addWidget(no_events)
+            no_results = QLabel('No results match that query.')
+            no_results.setAlignment(Qt.AlignCenter)
+            no_results.setProperty('class', 'no-events-label')
+            hbox.addWidget(no_results)
             self.results_vbox.addLayout(hbox)
             self.hbox_screen.addWidget(self.results)
             return
         
-        # fill in the upcoming events form
+        # fill in the events form
         for event in master_events:
             hbox = QHBoxLayout()
+
+            # indicate what type of result this is
+            result_type = QLabel('EVENT')
+            result_type.setProperty('class', 'bold-label')
+            hbox.addWidget(result_type)
             
             # fill in the event name
             name = QLabel('Name:')
@@ -253,6 +274,66 @@ class Search(QWidget):
             spacer.setProperty('class', 'upcoming-label')
             hbox_2.addWidget(spacer)
             
+            self.results_vbox.addLayout(hbox)
+            self.results_vbox.addLayout(hbox_2)
+        
+        # fill in the user's information
+        for user in master_users:
+            hbox = QHBoxLayout()
+            
+            # indicate what type of result this is
+            result_type = QLabel('USER')
+            result_type.setProperty('class', 'bold-label')
+            hbox.addWidget(result_type)
+            
+            # fill in the user's username
+            name = QLabel('Username:')
+            name.setProperty('class', 'bold-label')
+            hbox.addWidget(name)
+            n = QLabel(user[0])
+            n.setProperty('class', 'tab-info')
+            hbox.addWidget(n)
+            
+            # fill in the user's email
+            email = QLabel('E-Mail:')
+            email.setProperty('class', 'bold-label')
+            hbox.addWidget(email)
+            l = QLabel(user[1])
+            l.setProperty('class', 'tab-info')
+            hbox.addWidget(l)
+            
+            # fill in the user's total hours
+            hours = QLabel('Volunteer Hours:')
+            hours.setProperty('class', 'bold-label')
+            hbox.addWidget(hours)
+            time = '%s' % (user[3])
+            t = QLabel(time)
+            t.setProperty('class', 'tab-info')
+            hbox.addWidget(t)
+            
+            # fill in the user's account type
+            account_type = QLabel('Account Type:')
+            account_type.setProperty('class', 'bold-label')
+            hbox.addWidget(account_type)
+            acc = QLabel(user[6])
+            acc.setProperty('class', 'tab-info')
+            hbox.addWidget(acc)
+            
+            # fill in the user's total donations
+            # money = QLabel('Total Donations:')
+            # money.setProperty('class', 'bold-label')
+            # hbox.addWidget(money)
+            # amount = '%s' % (user[2])
+            # a = QLabel(amount)
+            # a.setProperty('class', 'tab-info')
+            # hbox.addWidget(a)
+    
+            # set up the layouts
+            hbox_2 = QHBoxLayout()
+            spacer = QLabel("")
+            spacer.setProperty('class', 'upcoming-label')
+            hbox_2.addWidget(spacer)
+
             self.results_vbox.addLayout(hbox)
             self.results_vbox.addLayout(hbox_2)
         

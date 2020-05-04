@@ -53,7 +53,7 @@ QLabel.login-label {{
 
 .small-bold-label {{
     font-weight: bold;
-    font-size: 15px;
+    font-size: 12px;
 }}
 
 .no-events-label {{
@@ -114,6 +114,21 @@ QPushButton.normal-bar-btn:hover {{
     border: 3px solid rgb(244, 47, 47);
 }}
 
+QPushButton[class="small-normal-bar-btn"] {{
+    background-color: rgb(60, 125, 158);
+    padding: 10px;
+    max-width: 120px;
+    border: 3px solid rgb(38, 84, 124);
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.small-normal-bar-btn:hover {{
+    border: 3px solid rgb(244, 47, 47);
+}}
+
 QPushButton[class="long-bar-btn"] {{
     background-color: rgb(60, 125, 158);
     padding: 10px;
@@ -126,6 +141,21 @@ QPushButton[class="long-bar-btn"] {{
 }}
 
 QPushButton.long-bar-btn:hover {{
+    border: 3px solid rgb(244, 47, 47);
+}}
+
+QPushButton[class="small-long-bar-btn"] {{
+    background-color: rgb(60, 125, 158);
+    padding: 10px;
+    max-width: 150px;
+    border: 3px solid rgb(38, 84, 124);
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.small-long-bar-btn:hover {{
     border: 3px solid rgb(244, 47, 47);
 }}
 
@@ -156,6 +186,21 @@ QPushButton[class="red-bar-btn"] {{
 }}
 
 QPushButton.red-bar-btn:hover {{
+    border: 3px solid gray;
+}}
+
+QPushButton[class="small-red-bar-btn"] {{
+    background-color: rgb(214, 47, 47);
+    padding: 10px;
+    max-width: 120px;
+    border: 3px solid rgb(138, 0, 0);
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}}
+
+QPushButton.small-red-bar-btn:hover {{
     border: 3px solid gray;
 }}
 

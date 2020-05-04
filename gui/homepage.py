@@ -177,7 +177,7 @@ class Homepage(QWidget):
         self.all_events = QScrollArea()
         self.all_events.setWidget(self.all_events_widget)
         self.all_events.setWidgetResizable(True)
-        self.all_events.setFixedHeight(575)
+        self.all_events.setFixedHeight(500)
         sys_width, sys_height = self.screen_resolution()
         self.all_events.setFixedWidth((sys_width // 2) - 35)
         self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
