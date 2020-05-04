@@ -536,6 +536,10 @@ class Privileges(QWidget):
 		
 		cur_path = os.path.dirname(__file__)
 		
+		# create the reports directory if it does not exist
+		if not os.path.exists(os.path.join(cur_path, '..\\reports')):
+			os.mkdir(os.path.join(cur_path, '..\\reports'))
+		
 		# tracks report number
 		counter = 1
 		
@@ -579,6 +583,10 @@ class Privileges(QWidget):
 		self.currentSecond = datetime.now().strftime("%S")
 		
 		cur_path = os.path.dirname(__file__)
+		
+		# create the reports directory if it does not exist
+		if not os.path.exists(os.path.join(cur_path, '..\\reports')):
+			os.mkdir(os.path.join(cur_path, '..\\reports'))
 		
 		# tracks report number
 		counter = 1
@@ -626,6 +634,10 @@ class Privileges(QWidget):
 		self.currentSecond = datetime.now().strftime("%S")
 		
 		cur_path = os.path.dirname(__file__)
+		
+		# create the reports directory if it does not exist
+		if not os.path.exists(os.path.join(cur_path, '..\\reports')):
+			os.mkdir(os.path.join(cur_path, '..\\reports'))
 		
 		# tracks report number
 		counter = 1
