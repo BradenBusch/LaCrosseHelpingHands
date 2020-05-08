@@ -1,7 +1,7 @@
 '''
 Account page, all registered users can view their account information here.
 
-Accessibile by: Volunteer, Staff, Administrator
+Accessible by: Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/22/2020
@@ -463,7 +463,7 @@ class Account(QWidget):
 		total_hours = float(user_time) - float(event_hours)
 		User.update({User.volunteer_hours: total_hours}).where(User.user_id == cs.CURRENT_USER_ID).execute()
 	
-	# delete a volunteering event. This will update the User and Event tables.
+	# un-volunteer from a volunteering event. This will update the User and Event tables.
 	def remove_event(self, event_id):
 		# remove the event from the user list
 		user_events = User.get(User.user_id == cs.CURRENT_USER_ID).event_ids
@@ -479,17 +479,19 @@ class Account(QWidget):
 		# The user has no events left, so reset it to the value for no events
 		if event_ids == '':
 			event_ids = '-1'
-
 		# Update the users new events. Remove the user from the event and decrement the volunteer count
 		User.update({User.event_ids: event_ids}).where(User.user_id == cs.CURRENT_USER_ID).execute()
 		volunteer_ids = Event.get(Event.id == event_id).volunteers_ids
 		volunteer_count = Event.get(Event.id == event_id).volunteers_attending
 		volunteer_count -= 1
-		# print(f'volunteers here {volunteer_ids} volunteer count {volunteer_count}')
 		# No volunteers, reset the id to -1
 		if volunteer_count == 0:
 			volunteer_ids = '-1'
-
+		# Remove the id of the current active user
+		else:
+			volunteer_ids = volunteer_ids.split(' ')
+			volunteer_ids.remove(str(cs.CURRENT_USER_ID))
+			volunteer_ids = ' '.join(volunteer_ids)
 		# Update the new volunteer count and volunteers
 		# print(f'volunteer when updating {volunteer_ids} num {volunteer_count}')
 		Event.update({Event.volunteers_attending: volunteer_count}).where(Event.id == event_id).execute()

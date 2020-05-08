@@ -879,6 +879,7 @@ class Calendar(QWidget):
 			# reset the users events to none if they are no longer signed up for any events
 			if u_event_ids == '':
 				u_event_ids = '-1'
+
 			# Update the User
 			User.update({User.event_ids: u_event_ids}).where(User.user_id == uid).execute()
 			User.update({User.volunteer_hours: user_vol_time}).where(User.user_id == uid).execute()
