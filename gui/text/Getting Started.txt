@@ -1,0 +1,4 @@
+Getting Started
+
+
+When the program is first opened, a splash screen will appear with three options; log in, sign up, and continue as guest. An account is needed to view the rest of the program, so continuing as a guest is the only way to view the program without an actual account. The account setup section will go into deeper detail on how the types of accounts differ. Once logged in, regardless of the type of account, the user is greeted with the homepage. The homepage contains a little information about Helping Hands La Crosse, including a list of all upcoming events. The sections later in this document will go into deeper detail on what the other pages contain. The program can be exited at any time by clicking the “X” button in the corner.

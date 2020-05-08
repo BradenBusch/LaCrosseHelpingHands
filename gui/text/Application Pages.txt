@@ -1,0 +1,25 @@
+Application Pages
+
+
+The program has many different pages that can all be accessed through the header at the top of the page. Each page has its own specific purpose and serves different functions.
+
+Homepage
+The homepage is the first page that is opened when users are logged in. On the left side of the screen is a very brief message about the purpose of Helping Hands La Crosse. On the right is list of upcoming events with a button to view all events the user is signed up for.
+
+Calendar
+The Calendar view is where all events can be seen. By selecting a day on the calendar, the user can view all events scheduled for that day. The user can navigate through events scheduled on the same day through the tabs seen at the top right of the page. Buttons may appear on the bottom right of the page depending on if the user has access to those functions to avoid any confusion to Guests and Volunteers.
+
+About Us
+The About Us page is simply where the information about Helping Hands La Crosse is located.
+
+Contact Us
+The Contact Us page is where the contact information of the main staff and the location of the headquarters is found.
+
+Help
+The Help page is where this user manual is located.
+
+Search
+The Search page allows the user to look up events and other users based on their name or account type.
+
+My Account
+The My Account page is where all the information pertaining to the user’s account is located. The left side of the page shows the personal information for the account, along with eh total hours volunteered and total donation amount. The right side shows every event that the user is currently signed up for. This page also contains a button leading to the Administrator privileges page if the user is an Administrator.

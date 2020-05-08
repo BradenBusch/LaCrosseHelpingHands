@@ -498,8 +498,8 @@ class Account(QWidget):
 		Event.update({Event.volunteers_ids: volunteer_ids}).where(Event.id == event_id).execute()
 		QMessageBox.warning(self, " ", "You are now un-registered from this event.\n\n" + \
 									   "Any monetary donations you made to this event will remain donated.\n" + \
-									   "If you would like to have this money refunded, please contact one of the " + \
-									   "Administrators via our Contact Us page!")
+									   "If you would like to have this money refunded, please contact us " + \
+									   "via our Contact Us page!")
 		self.hide_previous()    # get rid of previous scroll area
 		self.populate_user_events()    # Redraw the scroll area
 		self.set_account_info()    # update the account information

@@ -1,0 +1,4 @@
+Introduction
+
+
+This integrated user manual describes how to navigate the software for the non-profit organization, Helping Hands La Crosse. The software is a multi-user program that stores information relevant to the non-profit, including information about the organization, contact information, donations, and a calendar that manages events. The information for the events, donations, and users are stored in a database.

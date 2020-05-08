@@ -100,7 +100,8 @@ class Contact(QWidget):
         self.contact_desc_5.setProperty('class', 'bold-under-label')
         self.vbox_1.addWidget(self.contact_desc_5)
         
-        self.contact_desc_6 = QLabel("Helping Hands Headquarters\n2851 Bell Island Dr, La Crosse, WI 54603")
+        self.contact_desc_6 = QLabel("Helping Hands Headquarters\n2851 Bell Island Dr, La Crosse, WI 54603\n" + \
+                                     "Phone Number: (608)-555-4444")
         self.contact_desc_6.setProperty('class', 'acc-desc-label')
         self.contact_desc_6.setWordWrap(True)
         self.vbox_1.addWidget(self.contact_desc_6)

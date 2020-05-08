@@ -1,0 +1,16 @@
+Events
+
+
+Events are single day activities that are scheduled by the organization. They require a date and time to be held, along with a location for the event to be held at. In addition, a description of the event and a number of volunteers needed must also be included. Multi-day events are not directly handled within the system and must be created for each individual day.
+
+Create Event
+Event Creation is handled on the Calendar page, with the button appearing along the bottom right of the screen for Staff and Administrators. Once the "Create Event" button is clicked, the right side of the program transforms into the event creation screen. Creating an event is relatively simple, all the user has to do is fill out every field with the corresponding information. Once every field is entered, clicking the "Confirm" button will create the event for everyone to see. An error will pop up if any field is not filled in, with the lone exception being the event description. At any time during creation, the user can click the "Cancel" button to cancel the creation of the event.
+
+Sign Up For Event
+Signing up for events is very straightforward. On the calendar page, clicking specific dates will make all of the events for that day appear on the right side of the program. Once the desired event is found, simply clicking on the volunteer button will sign the user up for said event. If successful, a popup will appear saying “You are now registered for this event.” However, if the user tries to sign up for an event that overlaps with another event they are already signed up for, the an error pops up stating “You are already signed up for an event that conflicts with this event.” and the user will not be signed up for it.
+
+Withdraw From Event
+Withdrawing from events is a little more complicated, as it does not take place on the calendar page, and the user will instead have to navigate to the “My Account”. Once on that page, the right side shows every event the user is signed up for with a red button stating “Cancel Registration”. By clicking that button the user withdraws from the event, getting a popup message confirmation.
+
+Modify/Delete Event
+Modifying and deleting events both take place on the calendar page. Once the desired event is selected, deleting the event is simply done by clicking the “Delete Event” button.  Modifying events is done by clicking on the “Modify Event” button, where the right side of the screen then transforms back into a similar form to Create Event and the text boxes are filled with what was previously entered for that event. Once the modifications are complete, clicking the "Confirm" button will save the changes.

@@ -1,0 +1,19 @@
+Account Setup
+
+
+There are four different types of users available for this non-profit, each with different levels of access to functions within the program. Users are created by clicking on the sign-up button and entering in all of the required information.  For simplicity, the users are ordered by the amount of abilities they have, with each type of user having the abilities of those mentioned before it.
+
+Guest
+Guests have very limited capabilities within the program, as they are essentially just viewing it. They can navigate through the program, viewing every page but cannot interact with events or donations in any way.
+
+Volunteer
+Volunteers have the ability to make donations both to the organization as a whole and to each individual event. They also have the ability to sign up for and withdraw from events. They also have the ability to search the database for users and events based on names.
+
+Staff
+Staff have the capabilities of volunteers, with the added ability of being able to create, modify, and delete events.  In order for a staff account to be created, a special code has to be entered that is given by the organization to prevent non-staff from creating an account.
+
+Administrator
+Administrators have the most capabilities out of the users, as they can do everything that staff can do, along with having the power to delete accounts. They also have the power to generate reports of individual users, all users, and events.  Administrators also have to use a special Administrator code upon creation to prevent non-Administrators from gaining access to Administrator tools.
+
+Logging In
+You can log into an account either on the splash screen or at anytime while viewing the website as a guest by clicking on the log in button.

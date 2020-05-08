@@ -1,0 +1,18 @@
+Administrator Abilities
+
+
+Administrator Privileges Page
+This page is only accessible by Administrators, and it contains a list of all users and events, with the ability to generate reports and delete users or events at will. The only way to access this page is by going to the “My Account” page as an Administrator, where a button labeled “Administrator Privileges” is found along the bottom left half of the screen.
+
+
+Generate Reports
+On the Administrator page, there are “Generate Report” buttons scattered around the page, each with different reports that they generate. There are three different types of reports that can be generated:
+ - The first is a single user report, which saves a .txt file containing all information about that user. This report is made by clicking on the “Generate Report” button next to each individual user.
+
+ - The second is a report in a .txt file containing information for every user in the system at that point in time. This is made by clicking the “Generate Report” button above the list of users.
+
+ - The last report saves a .txt file containing information for every single event in the system. This is made by clicking the “Generate Report” button above the list of Events on the right side of the screen.  This report also includes donation information for every event and donations made to the organization.
+
+
+Delete/Enable Account
+On the Administrator page, the left side shows a list of every single user in the program, including a “SuperAdmin” which only exists as a means of making sure there is at least one Administrator account if others accidentally get deleted. On the right side of the list, there is a red “delete” button, which can be used to effectively delete the account, suspending it indefinitely.  The Administrator can also enable suspended accounts by clicking the “Enable” button that replaces the “Delete” button for suspended accounts.

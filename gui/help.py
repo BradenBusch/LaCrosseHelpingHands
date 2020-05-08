@@ -59,37 +59,17 @@ class Help(QWidget):
         self.contact_label.setFixedHeight(62)
         self.hbox_2.addWidget(self.contact_label)
         
+        # create the tab widget
+        self.tabs = QTabWidget()
+        self.tabs.setProperty('class', 'tab-layout')
+        self.draw_tab(self.tabs)
+        
         # Divide the screen into halves
         self.vbox_1 = QVBoxLayout()
         self.vbox_2 = QVBoxLayout()
         
-        self.help_desc_1 = QLabel("TODO")    # TODO fill me
-        self.help_desc_1.setProperty('class', 'bold-under-label')
-        self.help_desc_1.setWordWrap(True)
-        self.vbox_1.addWidget(self.help_desc_1)
-        
-        self.help_desc_2 = QLabel("TODO")    # TODO fill me
-        self.help_desc_2.setProperty('class', 'acc-desc-label')
-        self.help_desc_2.setWordWrap(True)
-        self.vbox_1.addWidget(self.help_desc_2)
-        
-        self.help_desc_3 = QLabel("TODO")    # TODO fill me
-        self.help_desc_3.setProperty('class', 'bold-under-label')
-        self.vbox_1.addWidget(self.help_desc_3)
-        
-        self.help_desc_4 = QLabel("TODO")    # TODO fill me
-        self.help_desc_4.setProperty('class', 'acc-desc-label')
-        self.help_desc_4.setWordWrap(True)
-        self.vbox_1.addWidget(self.help_desc_4)
-        
-        self.help_desc_5 = QLabel("TODO")    # TODO fill me
-        self.help_desc_5.setProperty('class', 'bold-under-label')
-        self.vbox_1.addWidget(self.help_desc_5)
-        
-        self.help_desc_6 = QLabel("TODO")    # TODO fill me
-        self.help_desc_6.setProperty('class', 'acc-desc-label')
-        self.help_desc_6.setWordWrap(True)
-        self.vbox_1.addWidget(self.help_desc_6)
+        # add the tab widget to the left side of the screen
+        self.vbox_1.addWidget(self.tabs)
         
         # create labels for the information
         self.image_title = QLabel("Need Help?")
@@ -141,6 +121,70 @@ class Help(QWidget):
         self.width = sys_width
         self.height = sys_height
         self.setGeometry(self.x_coord, self.y_coord, self.width, self.height)
+    
+    # Build the tabs showing the different sections of the user manual
+    def draw_tab(self, tab_layout):
+        # Delete all tabs to then redraw them.
+        for i in range(0, tab_layout.count()):
+            tab_layout.removeTab(0)
+        
+        # create list to hold all sections of the user manual
+        sections = ["Introduction",
+                    "Getting Started",
+                    "Account Setup",
+                    "Application Pages",
+                    "Events",
+                    "Donation",
+                    "Search",
+                    "Administrator Abilities"]
+        
+        # go through all pages and read in their information
+        for idx in range(len(sections)):
+            vbox = QVBoxLayout()
+            spacer = QLabel("")
+            spacer.setProperty('class', "cal-bar-spacer-label")
+            
+            # create a scroll area for the information on each page
+            info_widget = QWidget()
+            info_vbox = QVBoxLayout()
+            info_widget.setLayout(info_vbox)
+            page_info = QScrollArea()
+            page_info.setWidget(info_widget)
+            page_info.setWidgetResizable(True)
+            page_info.setFixedHeight(500)
+            sys_width, sys_height = self.screen_resolution()
+            page_info.setFixedWidth((sys_width // 2) - 35)
+            page_info.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            
+            # read in all information about the current page
+            info_hbox = QHBoxLayout()
+            info = QLabel(self.get_text("{}.txt".format(sections[idx])))
+            info.setProperty('class', 'tab-info')
+            info.setWordWrap(True)
+            info_hbox.addWidget(info)
+            info_hbox.addWidget(spacer)
+            info_vbox.addLayout(info_hbox)
+            vbox.addLayout(info_vbox)
+            vbox.addWidget(page_info)
+            
+            self.build_tab_btns(tab_layout, None, vbox, sections[idx])
+    
+    # build the buttons for the tabs
+    def build_tab_btns(self, tab_layout, label=None, info_vbox=None, title = ""):
+        tab_vbox = QVBoxLayout()
+        # tab_vbox.setAlignment(Qt.AlignCenter)
+        tab_btn_hbox = QHBoxLayout()
+        if label is not None:
+            label.setAlignment(Qt.AlignCenter)
+            tab_vbox.addWidget(label)
+        if info_vbox is not None:
+            tab_vbox.addLayout(info_vbox)
+        
+        # create the tab and add it to the tab layout
+        tab_vbox.addLayout(tab_btn_hbox)
+        tab = QWidget()
+        tab.setLayout(tab_vbox)
+        tab_layout.addTab(tab, title)
     
     # reads in all text from a passed .txt file and returns it as a string
     def get_text(self, filename):

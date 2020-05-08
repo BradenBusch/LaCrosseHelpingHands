@@ -1,0 +1,4 @@
+Search
+
+
+The search page is used to search through the database to find users and events. Once on the search page, simply entering something in the text box and clicking the red “Search” button will cause every event and user with the search query in their name to appear.  Users can also be searched by account type.

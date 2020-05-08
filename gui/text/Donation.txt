@@ -1,0 +1,15 @@
+Donation
+
+
+Donations are a way of supporting the organization without having to volunteer your time. Donations help fund Helping Hands La Crosse and can be done either by donating to the organization as a whole, or by donating directly to specific events.
+
+Donate to Event
+Donating to a single event can be done in a couple ways:
+ - One way is to find the desired event on the Calendar page and the click the “Donate” button.
+
+ - The other way is only possible if the user is trying to donate to an event that they are already signed up for. On the “My Account” page, there is a “Donate” button next to every event the user is signed up for.
+
+Once one of those buttons is pressed, the screen will show a single text box asking how much the user would like to donate. Only whole numbers 1-9999 will be accepted. Once the desired amount has been entered, clicking the confirm button will enter the donation into the system.
+
+Donate to Organization
+Donating to the organization works the same as donating to events, but the button is only found on the bottom left of the “My Accounts” page. Once that button is clicked, the process works exactly the same as mentioned above.
