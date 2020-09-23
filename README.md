@@ -15,18 +15,18 @@ PyQt5 is the framework used to generate the GUI elements, while Peewee is used f
 <div>
   <h2 align="center">Register a New User</h2>
   <p align="center">
-    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhNewUser.PNG" width="25%" height="25%" />
+    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhNewUser.PNG" />
   </p>
 </div>
 <div>
   <h2 align="center">Calendar Screen for Making A New Charity Event</h2>
   <p align="center">
-    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhCalendar.PNG" width="25%" height="25%"  />
+    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhCalendar.PNG" />
   </p>
 </div>
 <div>
   <h2 align="center">Search the Database For Users or Events</h2>
   <p align="center">
-    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhSearch.PNG" width="25%" height="25%"  />
+    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhSearch.PNG" />
   </p>
 </div>
