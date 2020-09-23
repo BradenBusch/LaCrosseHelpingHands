@@ -9,7 +9,7 @@ PyQt5 is the framework used to generate the GUI elements, while Peewee is used f
 <div>
   <h2 align="center">Home Screen</h2>
   <p align="center">
-    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhWelcome.PNG" width="25%" height="25%" />
+    <img src="https://github.com/BradenBusch/LaCrosseHelpingHands/blob/master/pictures/hhWelcome.PNG" />
   </p>
 </div>
 <div>
