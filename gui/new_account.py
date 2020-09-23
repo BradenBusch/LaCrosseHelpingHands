@@ -13,10 +13,6 @@ import os
 import hashlib
 import binascii
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-
 try:
     from non_profit.gui.login_signup import *
     from non_profit.models.database import *
@@ -171,46 +167,45 @@ class NewAccount(QWidget):
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
-        
+        # email must not be an empty string
         elif len(email) == 0:
             msg = QMessageBox.warning(self, " ", " You must enter an E-Mail address. ")
             self.email_edit.clear()
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
-        
+        # password must be 8 characters
         elif len(password) < 8:
             msg = QMessageBox.warning(self, " ", " Your Password must be 8 characters or longer. ")
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
-        
+        # passwords must match
         elif password != confirm_pass:
             msg = QMessageBox.warning(self, " ", " Your Passwords do not match. ")
             self.password_edit.clear()
             self.confirm_password_edit.clear()
             return
-        
+        # username is already taken
         elif username_check is not None:
             msg = QMessageBox.warning(self, " ", " That Username is already taken. Try another. ")
             self.username_edit.clear()
             return
-        
+        # email is already taken
         elif email_check is not None:
             msg = QMessageBox.warning(self, " ", " That E-Mail is already taken. Log in or use a different E-Mail. ")
             self.email_edit.clear()
             return
-        
+        # staff code wasn't entered properly
         elif self.get_account_type() == "Staff" and self.staff_code_box.text() != cs.STAFF_CODE:
             msg = QMessageBox.warning(self, " ", " You entered the wrong Staff Code. ")
             self.staff_code_box.clear()
             return
-        
+        # admin code wasn't entered properly
         elif self.get_account_type() == "Administrator" and self.admin_code_box.text() != cs.ADMIN_CODE:
             msg = QMessageBox.warning(self, " ", " You entered the wrong Administrator Code. ")
             self.admin_code_box.clear()
             return
-        
         # return to the login page, all checks passed
         else:
             QMessageBox.about(self, " ", " Account creation successful!")

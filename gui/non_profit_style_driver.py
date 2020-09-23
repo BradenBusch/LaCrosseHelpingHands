@@ -14,6 +14,7 @@ class Colors:
     main_theme = '#ABABFB'
     secondary = '#ABD3FB'
 
+
 # opens the style sheet and reads in all information
 def style_sheet():
     '''

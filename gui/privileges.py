@@ -2,7 +2,7 @@
 Administrator Privileges page, where Administrators can view all users and events for
 the organization, as well as generate reports.
 
-Accessibile by: Administrator
+Accessible by: Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/23/2020
@@ -23,6 +23,7 @@ except:
 	import constants as cs
 
 
+# Handles the Privileges GUI
 class Privileges(QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -150,7 +151,6 @@ class Privileges(QWidget):
 		else:
 			myself_username = "Guest"
 		
-		has_users = False
 		try:
 			users = User.select()
 			has_users = True
@@ -168,9 +168,6 @@ class Privileges(QWidget):
 			self.all_users_vbox.addLayout(hbox)
 			self.vbox_1.addWidget(self.all_users)
 			return
-		
-		# holds user ids from database
-		# user_ids = ids.split(' ')
 		
 		# master list to hold all users
 		master_users = []
@@ -260,6 +257,7 @@ class Privileges(QWidget):
 			hbox.addWidget(enable_btn)
 			
 			# either hide/show the delete user or enable user button, depending on if the user is valid
+			# don't show the the delete user button if the user is SuperAdmin or yourself
 			if user[4] != cs.ROOT_ADMIN_ID and user[0] != myself_username:
 				if user[5] is True:
 					enable_btn.hide()
@@ -297,7 +295,7 @@ class Privileges(QWidget):
 		self.all_events.setFixedWidth((sys_width // 2) - 35)
 		self.all_events.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
-		is_events = False
+		# Get all events
 		try:
 			events = Event.select()
 			is_events = True
@@ -316,12 +314,10 @@ class Privileges(QWidget):
 			self.vbox_2.addWidget(self.all_events)
 			return
 
-		# holds event ids from database
 		# master list to hold all events
 		master_events = []
 		# build up all event data
 		for event in events:
-			# print(f'event volunteers {event.volunteers_attending} ')
 			# retrieve all relevant information
 			master_events.append([event.name,
 								  event.location,
@@ -347,7 +343,7 @@ class Privileges(QWidget):
 		master_events = [event for event in master_events if not ((int(event[3]) < self.currentDay) and
 																  (int(event[2]) <= self.currentMonth))]
 		master_events.sort(key=lambda x: (int(x[4]), int(x[2]), int(x[3]), x[5]))
-		# print(f'master events {master_events}')
+
 		# if there are no events the user has signed up for
 		if len(master_events) == 0:
 			# inform the user that no events have been scheduled yet
@@ -470,6 +466,7 @@ class Privileges(QWidget):
 	
 	# hard delete a volunteering event. this will delete the event and update the users attached
 	def delete_event(self, event_id):
+		# get event to be deleted
 		del_event = Event.get(Event.id == event_id)
 		volunteer_ids = del_event.volunteers_ids
 		volunteer_ids = volunteer_ids.split(' ')
@@ -497,7 +494,6 @@ class Privileges(QWidget):
 
 			# Get information that needs updating about each user
 			user = User.get(User.user_id == uid)
-
 			user_events = user.event_ids
 			user_vol_time = user.volunteer_hours
 
@@ -687,7 +683,7 @@ class Privileges(QWidget):
 			file.close()
 			QMessageBox.about(self, " ", "A report was generated for all events. ")
 
-	# helper method to determine the length of an event
+	# helper method to determine the length of an event, returns the length of the event as a float
 	def get_event_runtime(self, event):
 		s_time = event.start_date
 		e_time = event.end_date

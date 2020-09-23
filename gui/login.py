@@ -2,7 +2,7 @@
 Login page of the application, where users will enter their account information
 and be logged into the application.
 
-Accessibile by: Guest
+Accessible by: Guest, Volunteer, Staff, Administrator
 
 Authors: Braden Busch, Kaelan Engholdt, Alex Terry
 Version: 04/21/2020
@@ -121,27 +121,30 @@ class Login(QWidget):
         # retrieve and check the password
         hashed_password = User.get(User.username == username_check).password  # Get the protected password from db
         password_check = self.verify_password(hashed_password, entered_password)  # True if passwords match, else false
-        # ensure the user entered viable information
+
+        # users account is currently suspended
         if not valid:
             msg = QMessageBox.warning(self, " ", " Your account is currently suspended.")
             return
+        # user entered a username or password of length < 8
         elif len(entered_username) < 8 or len(entered_password) < 8:
             msg = QMessageBox.warning(self, " ", " Enter a Username and Password of valid length (8 characters or longer).")
             self.username_check.clear()
             self.password_check.clear()
             return
+        # user entered an incorrect password
         elif password_check is not True:
             msg = QMessageBox.warning(self, " ", " Incorrect Password. Try re-entering. ")
             self.password_check.clear()
             return
+        # log the user in, checks passed
         else:
             cs.CURRENT_USER = User.get(User.username == entered_username).account_type
             cs.CURRENT_USER_ID = User.get(User.username == entered_username).user_id
-
             self.go_forward()
             return
     
-    # verify that the password entered for the user is the correct password
+    # verify that the password entered for the user is the correct password by un-hashing with salt
     def verify_password(self, stored_password, provided_password):
         salt = stored_password[:64]
         stored_password = stored_password[64:]
@@ -189,21 +192,21 @@ class Login(QWidget):
     def set_position(self):
         self.parent().move(self.x_coord, self.y_coord)
         self.parent().resize(self.width, self.height)
-    
+
     # checks which user is logged in and formats the page to accomodate the user type
     def check_user(self):
         # check if the current user is a guest
         if cs.CURRENT_USER == "Guest":
             pass
-        
+
         # check if the current user is a volunteer
         if cs.CURRENT_USER == "Volunteer":
             pass
-        
+
         # check if the current user is a staff member
         if cs.CURRENT_USER == "Staff":
             pass
-        
+
         # check if the current user is an administrator
         if cs.CURRENT_USER == "Administrator":
             pass
